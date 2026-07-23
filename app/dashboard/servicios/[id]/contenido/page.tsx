@@ -12,9 +12,10 @@ const TYPE_LABELS: Record<string, string> = {
 export default async function ContenidoServicioPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const supabase = createClient();
+  const { id } = await params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -22,7 +23,7 @@ export default async function ContenidoServicioPage({
   const { data: service } = await supabase
     .from("services")
     .select("id, title, provider_id")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   // Si no es tu servicio, RLS ya lo habría bloqueado -- esto es
@@ -34,7 +35,7 @@ export default async function ContenidoServicioPage({
   const { data: items } = await supabase
     .from("content_items")
     .select("*")
-    .eq("service_id", params.id)
+    .eq("service_id", id)
     .order("sort_order", { ascending: true });
 
   return (

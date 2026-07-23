@@ -6,9 +6,12 @@ export default async function ServicioPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { paid?: string; cancelled?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ paid?: string; cancelled?: string }>;
 }) {
+  const { id } = await params;
+  const sp = await searchParams;
+
   // Página pública: usamos el cliente admin porque necesitamos leer
   // el nombre y el estado de verificación del proveedor, datos que
   // RLS protege por diseño (cada proveedor solo ve su propia fila).
@@ -29,7 +32,7 @@ export default async function ServicioPage({
       providers ( business_name, kyc_status )
     `
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error) {
@@ -49,12 +52,12 @@ export default async function ServicioPage({
       </header>
 
       <div className="max-w-lg mx-auto px-6 py-10">
-        {searchParams.paid && (
+        {sp.paid && (
           <div className="rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-4 py-3 mb-6">
             Pago realizado correctamente. Recibirás la confirmación en tu email.
           </div>
         )}
-        {searchParams.cancelled && (
+        {sp.cancelled && (
           <div className="rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-3 mb-6">
             Pago cancelado. Puedes intentarlo de nuevo cuando quieras.
           </div>

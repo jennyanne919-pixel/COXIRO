@@ -8,7 +8,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default async function ServiciosPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

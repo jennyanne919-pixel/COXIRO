@@ -7,7 +7,7 @@ import { stripe } from "@/lib/stripe";
 // Crea (si no existe) la cuenta Connect Express del proveedor y
 // redirige al flujo de onboarding alojado por Stripe.
 export async function GET() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

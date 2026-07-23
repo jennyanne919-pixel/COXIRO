@@ -1,9 +1,18 @@
 import { createHash } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+// Datos fiscales de la propia Coxiro (emisor en las facturas al
+// cliente, y quien liquida la comisión al proveedor). Rellenar con
+// los datos reales antes de facturar con clientes de verdad.
 export const COXIRO_TAX_ID = process.env.COXIRO_TAX_ID ?? "PENDIENTE-DE-CONFIGURAR";
 export const COXIRO_LEGAL_NAME = process.env.COXIRO_LEGAL_NAME ?? "Coxiro (nombre legal pendiente)";
 
+/**
+ * Obtiene el siguiente número correlativo para una serie de
+ * facturación ("CLI" o "PROV"), sin huecos ni repeticiones.
+ * Usa el cliente admin porque esta tabla está bloqueada por RLS
+ * para cualquier otro uso.
+ */
 export async function getNextInvoiceNumber(series: "CLI" | "PROV") {
   const admin = createAdminClient();
 
@@ -21,6 +30,12 @@ export async function getNextInvoiceNumber(series: "CLI" | "PROV") {
   return `${series}-${String(seq).padStart(6, "0")}`;
 }
 
+/**
+ * Calcula el hash encadenado de una factura: incluye el hash de la
+ * factura anterior de la misma serie, de forma que cualquier
+ * alteración posterior de una factura antigua rompería la cadena
+ * completa -- es el mecanismo central que exige VeriFactu.
+ */
 export function computeInvoiceHash(params: {
   invoiceNumber: string;
   issuedAt: string;
@@ -41,6 +56,10 @@ export function computeInvoiceHash(params: {
   return createHash("sha256").update(canonical).digest("hex");
 }
 
+/**
+ * Devuelve el hash de la última factura emitida en una serie, para
+ * poder encadenar la siguiente. Null si es la primera de la serie.
+ */
 export async function getLastHash(series: "CLI" | "PROV") {
   const admin = createAdminClient();
 

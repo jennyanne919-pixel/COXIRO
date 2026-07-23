@@ -6,9 +6,10 @@ import QRCode from "qrcode";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = createClient();
+  const { id } = await params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -22,7 +23,7 @@ export async function GET(
   const { data: invoice } = await admin
     .from("invoices")
     .select("*, transactions ( client_id, provider_id )")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!invoice) {

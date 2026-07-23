@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function addContentItem(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -30,7 +30,7 @@ export async function addContentItem(formData: FormData) {
 }
 
 export async function updateContentItem(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const itemId = formData.get("item_id") as string;
   const serviceId = formData.get("service_id") as string;

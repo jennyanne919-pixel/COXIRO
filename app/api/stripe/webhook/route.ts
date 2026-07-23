@@ -16,7 +16,7 @@ import Stripe from "stripe";
 // cliente con la service role key para poder escribir en la BD.
 export async function POST(request: Request) {
   const body = await request.text();
-  const signature = headers().get("stripe-signature")!;
+  const signature = (await headers()).get("stripe-signature")!;
 
   let event: Stripe.Event;
 
@@ -88,19 +88,23 @@ export async function POST(request: Request) {
         const totalCliente = (session.amount_total ?? 0) / 100;
         const totalComision = Number(platform_fee);
 
-        // NOTA: se asume que los precios ya incluyen IVA (21% por
-        // defecto) para calcular la base imponible desglosada. El
-        // tipo y régimen fiscal real (IVA vs IPSI, servicio exento,
-        // etc.) debe confirmarse con el asesor fiscal antes de
-        // facturar con clientes reales -- ver chat de contabilidad.
-        const TAX_RATE = 21;
+        // NOTA: se asume que los precios ya incluyen impuesto para
+        // calcular la base imponible desglosada. Pendiente de
+        // confirmar con el asesor fiscal y con el ejemplo de factura
+        // de Paygram: (1) si el tipo del cliente debe variar según
+        // su ubicación/tipo de servicio, y (2) si la factura al
+        // proveedor debe reestructurarse como autofactura (art. 5
+        // RD 1619/2012), lo que exige un acuerdo previo firmado con
+        // cada proveedor autorizando a Coxiro a facturar en su nombre.
+        const TAX_RATE_CLIENTE = 21; // IVA, pendiente de confirmar según destino
+        const TAX_RATE_PROVEEDOR = 0.5; // IPSI Melilla
 
         try {
           // --- Factura al cliente final ---
           const cliInvoiceNumber = await getNextInvoiceNumber("CLI");
           const cliPreviousHash = await getLastHash("CLI");
           const cliIssuedAt = new Date().toISOString();
-          const cliBase = totalCliente / (1 + TAX_RATE / 100);
+          const cliBase = totalCliente / (1 + TAX_RATE_CLIENTE / 100);
           const cliTaxAmount = totalCliente - cliBase;
           const cliHash = computeInvoiceHash({
             invoiceNumber: cliInvoiceNumber,
@@ -115,7 +119,7 @@ export async function POST(request: Request) {
           const provInvoiceNumber = await getNextInvoiceNumber("PROV");
           const provPreviousHash = await getLastHash("PROV");
           const provIssuedAt = new Date().toISOString();
-          const provBase = totalComision / (1 + TAX_RATE / 100);
+          const provBase = totalComision / (1 + TAX_RATE_PROVEEDOR / 100);
           const provTaxAmount = totalComision - provBase;
           const provHash = computeInvoiceHash({
             invoiceNumber: provInvoiceNumber,
@@ -134,7 +138,7 @@ export async function POST(request: Request) {
               issued_at: cliIssuedAt,
               concept: service?.title ?? "Servicio contratado en Coxiro",
               tax_base: Number(cliBase.toFixed(2)),
-              tax_rate: TAX_RATE,
+              tax_rate: TAX_RATE_CLIENTE,
               tax_amount: Number(cliTaxAmount.toFixed(2)),
               total: totalCliente,
               issuer_name: COXIRO_LEGAL_NAME,
@@ -151,7 +155,7 @@ export async function POST(request: Request) {
               issued_at: provIssuedAt,
               concept: `Comisión de gestión — ${service?.title ?? "servicio"}`,
               tax_base: Number(provBase.toFixed(2)),
-              tax_rate: TAX_RATE,
+              tax_rate: TAX_RATE_PROVEEDOR,
               tax_amount: Number(provTaxAmount.toFixed(2)),
               total: totalComision,
               issuer_name: COXIRO_LEGAL_NAME,

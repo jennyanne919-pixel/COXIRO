@@ -5,8 +5,10 @@ import { notFound } from "next/navigation";
 export default async function PerfilProfesionalPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
+
   // Página pública: cliente admin, seleccionando solo columnas
   // seguras (nunca stripe_account_id ni tax_id).
   const supabase = createAdminClient();
@@ -14,7 +16,7 @@ export default async function PerfilProfesionalPage({
   const { data: provider } = await supabase
     .from("providers")
     .select("user_id, business_name, category, kyc_status")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .single();
 
   if (!provider) {

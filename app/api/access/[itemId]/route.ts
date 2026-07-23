@@ -10,9 +10,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // en el futuro (ej. un reembolso) sin tocar nada más.
 export async function GET(
   request: Request,
-  { params }: { params: { itemId: string } }
+  { params }: { params: Promise<{ itemId: string }> }
 ) {
-  const supabase = createClient();
+  const { itemId } = await params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -26,7 +27,7 @@ export async function GET(
   const { data: item } = await admin
     .from("content_items")
     .select("service_id, file_url")
-    .eq("id", params.itemId)
+    .eq("id", itemId)
     .single();
 
   if (!item) {

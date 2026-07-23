@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ClientSummary({ userId }: { userId: string }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: transactions } = await supabase
     .from("transactions")

@@ -1,11 +1,12 @@
 import Logo from "@/components/Logo";
 import { signIn } from "@/app/auth/actions";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string; next?: string };
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
+  const sp = await searchParams;
   return (
     <main className="min-h-screen flex items-center justify-center bg-paper px-6">
       <div className="w-full max-w-sm">
@@ -15,14 +16,14 @@ export default function LoginPage({
         <h1 className="text-xl font-medium mb-1">Inicia sesión</h1>
         <p className="text-sm text-stone mb-6">Accede a tu panel de Coxiro</p>
 
-        {searchParams.error && (
+        {sp.error && (
           <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
-            {searchParams.error}
+            {sp.error}
           </p>
         )}
 
         <form action={signIn} className="flex flex-col gap-3">
-          <input type="hidden" name="next" value={searchParams.next ?? ""} />
+          <input type="hidden" name="next" value={sp.next ?? ""} />
           <input
             type="email"
             name="email"

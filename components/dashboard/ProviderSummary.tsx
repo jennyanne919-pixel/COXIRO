@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ProviderSummary({ userId }: { userId: string }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: provider } = await supabase
     .from("providers")

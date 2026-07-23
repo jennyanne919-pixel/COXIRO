@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
   // Cliente normal: solo para identificar quién ha iniciado sesión
   // (esto sí respeta RLS, es la identidad del comprador).
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

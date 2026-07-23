@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export async function signIn(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email: formData.get("email") as string,
@@ -20,13 +20,16 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const fullName = formData.get("full_name") as string;
   const role = formData.get("role") as string; // "provider" | "client"
   const businessName = formData.get("business_name") as string;
+  const taxId = formData.get("tax_id") as string;
+  const category = formData.get("category") as string;
+  const clientType = (formData.get("client_type") as string) || "particular";
 
   const { data, error } = await supabase.auth.signUp({ email, password });
 
@@ -71,11 +74,15 @@ export async function signUp(formData: FormData) {
       user_id: user.id,
       business_name: baseName,
       slug,
+      tax_id: taxId,
+      category,
     });
   } else {
     await supabase.from("clients").insert({
       user_id: user.id,
       billing_name: fullName,
+      tax_id: taxId,
+      client_type: clientType,
     });
   }
 
@@ -83,7 +90,7 @@ export async function signUp(formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
 }

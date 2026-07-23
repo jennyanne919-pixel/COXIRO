@@ -4,7 +4,11 @@ import { NextResponse, type NextRequest } from "next/server";
 // Obligatorio con @supabase/ssr en Next.js App Router: refresca la
 // sesión en cada petición para que las cookies no caduquen mientras
 // el usuario navega.
-export async function middleware(request: NextRequest) {
+//
+// Renombrado de "middleware" a "proxy": Next.js 16 dejó de ejecutar
+// el archivo middleware.ts (sin dar error, simplemente lo ignora en
+// silencio) -- este es su sustituto oficial, con el mismo comportamiento.
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

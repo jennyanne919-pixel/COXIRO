@@ -3,7 +3,7 @@ import ProviderSummary from "@/components/dashboard/ProviderSummary";
 import ClientSummary from "@/components/dashboard/ClientSummary";
 
 export default async function DashboardPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },
