@@ -8,6 +8,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 // servicio al que pertenece este contenido, y solo entonces
 // redirigimos a la URL real. Esto permite además revocar accesos
 // en el futuro (ej. un reembolso) sin tocar nada más.
+
+export const dynamic = "force-dynamic";
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ itemId: string }> }

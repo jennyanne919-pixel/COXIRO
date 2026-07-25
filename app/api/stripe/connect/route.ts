@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
 
+
 // GET /api/stripe/connect
 // Se llama desde un botón "Conecta tu cuenta de cobro" en el dashboard.
 // Crea (si no existe) la cuenta Connect Express del proveedor y
 // redirige al flujo de onboarding alojado por Stripe.
+
+export const dynamic = "force-dynamic";
 export async function GET() {
   const supabase = await createClient();
   const {

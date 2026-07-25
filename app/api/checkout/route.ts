@@ -9,6 +9,11 @@ import { stripe } from "@/lib/stripe";
 // crea automáticamente después del pago (ver webhook). Si el visitante
 // SÍ tiene sesión iniciada, se usa esa cuenta directamente, sin pedirle
 // el email de nuevo.
+// Fuerza a que esta ruta se ejecute de verdad en cada visita, nunca
+// desde una respuesta guardada en caché -- imprescindible, ya que
+// cada llamada debe crear una sesión de pago NUEVA en Stripe.
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const serviceId = searchParams.get("service");
