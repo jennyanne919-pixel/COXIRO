@@ -4,10 +4,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
 
 // GET /api/checkout?service=<id>
-// Se llama desde el botón "Pagar y contratar" de la página pública
-// del servicio. Crea una sesión de Stripe Checkout: el cliente paga
-// el precio completo, Stripe retiene la comisión de Coxiro y
-// transfiere el resto directamente a la cuenta del proveedor.
+// Ya NO exige sesión iniciada: el cliente paga directamente, Stripe le
+// pide su email y los datos de la tarjeta, y la cuenta de Coxiro se
+// crea automáticamente después del pago (ver webhook). Si el visitante
+// SÍ tiene sesión iniciada, se usa esa cuenta directamente, sin pedirle
+// el email de nuevo.
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const serviceId = searchParams.get("service");
@@ -16,24 +17,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Falta el servicio" }, { status: 400 });
   }
 
-  // Cliente normal: solo para identificar quién ha iniciado sesión
-  // (esto sí respeta RLS, es la identidad del comprador).
+  // Cliente normal: solo para saber si YA hay sesión iniciada (caso
+  // opcional). Si no la hay, seguimos igualmente, sin bloquear nada.
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Sin sesión, mandamos a login y de vuelta aquí tras entrar.
-  if (!user) {
-    const loginUrl = new URL("/login", origin);
-    loginUrl.searchParams.set("next", `/api/checkout?service=${serviceId}`);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Cliente admin: para leer el stripe_account_id y la comisión del
-  // proveedor -- RLS bloquearía esto porque el comprador no es el
-  // dueño de esa fila. Es seguro aquí porque nunca se envía al
-  // navegador, solo se usa para construir la sesión de Stripe.
   const admin = createAdminClient();
 
   const { data: service } = await admin
@@ -67,7 +57,10 @@ export async function GET(request: Request) {
 
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
-    customer_email: user.email,
+    // Si ya hay sesión, pre-rellenamos el email para ir más rápido.
+    // Si no, Stripe se lo pide él mismo durante el pago.
+    customer_email: user?.email,
+    billing_address_collection: "auto",
     line_items: [
       {
         price_data: {
@@ -84,7 +77,9 @@ export async function GET(request: Request) {
     },
     metadata: {
       service_id: service.id,
-      client_id: user.id,
+      // Si ya había sesión, guardamos directamente su id. Si no,
+      // se queda vacío y el webhook resuelve/crea la cuenta por email.
+      client_id: user?.id ?? "",
       provider_id: service.provider_id,
       platform_fee: (feeCents / 100).toFixed(2),
     },

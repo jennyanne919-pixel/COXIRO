@@ -1,13 +1,11 @@
 import Logo from "@/components/Logo";
 
-const AUDIENCE = [
-  "Abogados",
-  "Asesores",
-  "Arquitectos",
-  "Ingenieros",
-  "Nutricionistas",
-  "Psicólogos",
-  "Consultores",
+
+const AUDIENCE = [  "Creadores de contenido",
+  "Entrenadores",
+  "Mentores",
+  "Formadores",
+  "Diseñadores",
   "Creadores de contenido",
   "Entrenadores",
   "Mentores",

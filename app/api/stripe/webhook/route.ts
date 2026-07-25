@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { randomBytes } from "crypto";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -11,34 +12,35 @@ import {
 } from "@/lib/invoicing";
 import Stripe from "stripe";
 
-// Stripe llama a esta URL directamente (no es el navegador del
-// usuario), así que aquí no hay sesión ni cookies -- se usa el
-// cliente con la service role key para poder escribir en la BD.
 export async function POST(request: Request) {
   const body = await request.text();
   const signature = (await headers()).get("stripe-signature")!;
 
-  let event: Stripe.Event;
+  let event: Stripe.Event | undefined;
+  const secrets = [
+    process.env.STRIPE_WEBHOOK_SECRET!,
+    process.env.STRIPE_WEBHOOK_SECRET_CONNECT,
+  ].filter(Boolean) as string[];
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch (err) {
-    console.error("Firma de webhook inválida:", err);
-    return NextResponse.json({ error: "Firma inválida" }, { status: 400 });
+  for (const secret of secrets) {
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, secret);
+      break;
+    } catch {
+      // Prueba con el siguiente secreto
+    }
+  }
+
+  if (!event) {
+    console.error("Firma de webhook invalida con todos los secretos disponibles");
+    return NextResponse.json({ error: "Firma invalida" }, { status: 400 });
   }
 
   const supabase = createAdminClient();
 
   switch (event.type) {
-    // Se dispara cada vez que cambia algo en una cuenta conectada,
-    // incluida la verificación de identidad (KYC).
     case "account.updated": {
       const account = event.data.object as Stripe.Account;
-
       const kyc_status = account.charges_enabled ? "verified" : "pending";
 
       await supabase
@@ -49,14 +51,61 @@ export async function POST(request: Request) {
       break;
     }
 
-    // Se añadirá aquí en el siguiente paso: "checkout.session.completed"
-    // para registrar la transacción, generar las dos facturas y dar
-    // acceso al contenido tras un pago real.
-
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      const { service_id, client_id, provider_id, platform_fee } =
+      const { service_id, provider_id, platform_fee } =
         session.metadata as Record<string, string>;
+      let client_id = (session.metadata as Record<string, string>).client_id;
+
+      if (!client_id) {
+        const email = session.customer_details?.email ?? session.customer_email;
+        const name = session.customer_details?.name ?? email ?? "Cliente";
+
+        if (!email) {
+          console.error("No se pudo resolver el cliente: falta el email de Stripe");
+          break;
+        }
+
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select("id")
+          .eq("email", email)
+          .maybeSingle();
+
+        if (existingUser) {
+          client_id = existingUser.id;
+        } else {
+          const randomPassword = randomBytes(24).toString("hex");
+
+          const { data: newAuthUser, error: createError } =
+            await supabase.auth.admin.createUser({
+              email,
+              password: randomPassword,
+              email_confirm: true,
+            });
+
+          if (createError || !newAuthUser.user) {
+            console.error("Error creando la cuenta del cliente:", createError);
+            break;
+          }
+
+          client_id = newAuthUser.user.id;
+
+          await supabase.from("users").insert({
+            id: client_id,
+            email,
+            password_hash: "managed_by_supabase_auth",
+            role: "client",
+            full_name: name,
+          });
+
+          await supabase.from("clients").insert({
+            user_id: client_id,
+            billing_name: name,
+            client_type: "particular",
+          });
+        }
+      }
 
       const { data: transaction, error: txError } = await supabase
         .from("transactions")
@@ -74,7 +123,7 @@ export async function POST(request: Request) {
         .single();
 
       if (txError) {
-        console.error("Error guardando la transacción:", txError);
+        console.error("Error guardando la transaccion:", txError);
       }
 
       if (transaction) {
@@ -88,19 +137,10 @@ export async function POST(request: Request) {
         const totalCliente = (session.amount_total ?? 0) / 100;
         const totalComision = Number(platform_fee);
 
-        // NOTA: se asume que los precios ya incluyen impuesto para
-        // calcular la base imponible desglosada. Pendiente de
-        // confirmar con el asesor fiscal y con el ejemplo de factura
-        // de Paygram: (1) si el tipo del cliente debe variar según
-        // su ubicación/tipo de servicio, y (2) si la factura al
-        // proveedor debe reestructurarse como autofactura (art. 5
-        // RD 1619/2012), lo que exige un acuerdo previo firmado con
-        // cada proveedor autorizando a Coxiro a facturar en su nombre.
-        const TAX_RATE_CLIENTE = 21; // IVA, pendiente de confirmar según destino
-        const TAX_RATE_PROVEEDOR = 0.5; // IPSI Melilla
+        const TAX_RATE_CLIENTE = 21;
+        const TAX_RATE_PROVEEDOR = 0.5;
 
         try {
-          // --- Factura al cliente final ---
           const cliInvoiceNumber = await getNextInvoiceNumber("CLI");
           const cliPreviousHash = await getLastHash("CLI");
           const cliIssuedAt = new Date().toISOString();
@@ -115,7 +155,6 @@ export async function POST(request: Request) {
             previousHash: cliPreviousHash,
           });
 
-          // --- Liquidación de comisión al proveedor ---
           const provInvoiceNumber = await getNextInvoiceNumber("PROV");
           const provPreviousHash = await getLastHash("PROV");
           const provIssuedAt = new Date().toISOString();
@@ -153,7 +192,7 @@ export async function POST(request: Request) {
               type: "provider_settlement",
               invoice_number: provInvoiceNumber,
               issued_at: provIssuedAt,
-              concept: `Comisión de gestión — ${service?.title ?? "servicio"}`,
+              concept: `Comision de gestion - ${service?.title ?? "servicio"}`,
               tax_base: Number(provBase.toFixed(2)),
               tax_rate: TAX_RATE_PROVEEDOR,
               tax_amount: Number(provTaxAmount.toFixed(2)),
