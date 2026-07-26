@@ -137,8 +137,14 @@ export async function POST(request: Request) {
         const totalCliente = (session.amount_total ?? 0) / 100;
         const totalComision = Number(platform_fee);
 
-        const TAX_RATE_CLIENTE = 21;
-        const TAX_RATE_PROVEEDOR = 0.5;
+        // PENDIENTE DE CONFIRMAR con el asesor fiscal (martes) -- ajustado
+        // según la factura real de Paygram que Bece revisó: el IPSI se
+        // cobra UNA sola vez, en la factura al cliente final. Al
+        // proveedor no se le aplica IVA ni IRPEF -- simplemente se le
+        // paga el neto (precio menos comisión), sin impuesto en ese
+        // documento.
+        const TAX_RATE_CLIENTE = 0.5; // IPSI Melilla, único punto de cobro
+        const TAX_RATE_PROVEEDOR = 0; // Sin impuesto en la liquidación
 
         try {
           const cliInvoiceNumber = await getNextInvoiceNumber("CLI");

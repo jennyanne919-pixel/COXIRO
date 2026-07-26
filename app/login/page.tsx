@@ -43,6 +43,12 @@ export default async function LoginPage({
           </button>
         </form>
 
+        <p className="text-sm text-stone mt-3">
+          <a href="/recuperar-contrasena" className="text-ink underline">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </p>
+
         <p className="text-sm text-stone mt-5">
           ¿Todavía no tienes cuenta?{" "}
           <a href="/registro" className="text-ink font-medium underline">
