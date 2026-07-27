@@ -104,6 +104,24 @@ export async function POST(request: Request) {
             billing_name: name,
             client_type: "particular",
           });
+
+          // Envía automáticamente el email para que el cliente cree su
+          // contraseña -- es el mismo mecanismo de "recuperar
+          // contraseña" que ya construimos, reutilizado como email de
+          // bienvenida para cuentas creadas tras un pago sin registro
+          // previo.
+          const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+            email,
+            {
+              redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/actualizar-contrasena`,
+            }
+          );
+
+          if (resetError) {
+            console.error("Error enviando el email de bienvenida:", resetError);
+          } else {
+            console.log("[checkout] Email de creacion de contrasena enviado a:", email);
+          }
         }
       }
 

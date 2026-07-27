@@ -91,6 +91,10 @@ export default async function ServiciosPage() {
             </select>
           </div>
         </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="is_public" />
+          Mostrar en el catálogo público de Coxiro
+        </label>
         <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
           Publicar servicio
         </button>
