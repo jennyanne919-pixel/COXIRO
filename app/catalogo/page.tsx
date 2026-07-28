@@ -38,7 +38,7 @@ export default async function CatalogoPage({
     <main className="min-h-screen bg-paper">
       <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-stone/20">
         <div className="max-w-5xl mx-auto flex items-center justify-between px-8 py-4">
-          <<a href="/">
+          <a href="/">
   <Logo variant="light" />
 </a>
           <a
