@@ -38,7 +38,8 @@ export default function LandingPage() {
             <a href="#como-funciona" className="hover:text-ink">Cómo funciona</a>
             <a href="#para-quien" className="hover:text-ink">Para quién</a>
             <a href="#incluye" className="hover:text-ink">Qué incluye</a>
-          </nav>
+          <a href="/catalogo" className="hover:text-ink">Productos digitales</a>
+<a href="#" className="hover:text-ink">Herramientas</a>
           <div className="flex items-center gap-4">
             <a href="/login" className="text-sm font-medium text-stone hover:text-ink hidden sm:block">
               Iniciar sesión
