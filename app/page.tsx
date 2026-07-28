@@ -1,11 +1,6 @@
 import Logo from "@/components/Logo";
 
-
-const AUDIENCE = [  "Creadores de contenido",
-  "Entrenadores",
-  "Mentores",
-  "Formadores",
-  "Diseñadores",
+const AUDIENCE = [
   "Creadores de contenido",
   "Entrenadores",
   "Mentores",
@@ -33,8 +28,10 @@ export default function LandingPage() {
     <main>
       <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-stone/20">
         <div className="max-w-5xl mx-auto flex items-center justify-between px-8 py-4">
-          <Logo />
+          <Logo variant="light" />
           <nav className="hidden md:flex gap-8 text-sm font-medium text-stone">
+            <a href="/catalogo" className="hover:text-ink">Productos digitales</a>
+            <a href="#" className="hover:text-ink">Herramientas</a>
             <a href="#como-funciona" className="hover:text-ink">Cómo funciona</a>
             <a href="#para-quien" className="hover:text-ink">Para quién</a>
             <a href="#incluye" className="hover:text-ink">Qué incluye</a>
@@ -178,7 +175,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-stone/20 py-10">
         <div className="max-w-5xl mx-auto px-8 flex items-center justify-between flex-wrap gap-4">
-          <Logo size={20} />
+          <Logo variant="light" size={20} />
           <p className="text-xs text-stone">© 2026 Coxiro. Todos los derechos reservados.</p>
         </div>
       </footer>
