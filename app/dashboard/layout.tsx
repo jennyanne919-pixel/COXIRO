@@ -45,7 +45,7 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen">
       <aside className="w-52 bg-ink flex-shrink-0 py-6 px-3 flex flex-col">
         <div className="px-2 pb-6">
-          <Logo variant="dark" size={20} />
+          <a href="/dashboard"><Logo variant="dark" size={20} /></a>
         </div>
         <nav className="flex flex-col gap-0.5 flex-1">
           {NAV.map((item) => (

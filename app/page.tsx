@@ -31,7 +31,16 @@ export default function LandingPage() {
           <Logo variant="light" />
           <nav className="hidden md:flex gap-8 text-sm font-medium text-stone">
             <a href="/catalogo" className="hover:text-ink">Productos digitales</a>
-            <a href="#" className="hover:text-ink">Herramientas</a>
+            <div className="relative group">
+  <button className="hover:text-ink">Herramientas</button>
+  <div className="absolute left-0 top-full hidden group-hover:block bg-white border border-stone/20 rounded-lg shadow-lg py-2 min-w-[220px]">
+    <a href="/herramientas/publica-tu-contenido" className="block px-4 py-2 text-sm hover:bg-paper">Publica tu contenido</a>
+    <a href="/herramientas/dashboard" className="block px-4 py-2 text-sm hover:bg-paper">Dashboard</a>
+    <a href="/herramientas/pasarela-de-pagos" className="block px-4 py-2 text-sm hover:bg-paper">Pasarela de pagos</a>
+    <a href="/herramientas/suscripciones" className="block px-4 py-2 text-sm hover:bg-paper">Suscripciones y pagos recurrentes</a>
+  </div>
+</div>
+<a href="/ayuda" className="hover:text-ink">Ayuda</a>
             <a href="#como-funciona" className="hover:text-ink">Cómo funciona</a>
             <a href="#para-quien" className="hover:text-ink">Para quién</a>
             <a href="#incluye" className="hover:text-ink">Qué incluye</a>
