@@ -62,7 +62,7 @@ export default async function DashboardLayout({
               {item.label}
             </a>
           ))}
-        <nav>
+        </nav>
         <form action={signOut}>
           <button className="text-sm text-paper/60 hover:text-paper px-2.5 py-2 w-full text-left">
             Cerrar sesión
