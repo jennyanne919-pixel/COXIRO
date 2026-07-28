@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createService, toggleServiceActive } from "./actions";
+import { createService, toggleServiceActive, toggleServicePublic } from "./actions";
 
 const TYPE_LABELS: Record<string, string> = {
   content: "Contenido",
@@ -102,17 +102,18 @@ export default async function ServiciosPage() {
 
       {/* Listado de servicios ya creados */}
       <div className="rounded-lg bg-paper overflow-hidden">
-        <div className="grid grid-cols-6 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
+        <div className="grid grid-cols-7 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
           <span className="col-span-2">Servicio</span>
           <span>Tipo</span>
           <span>Precio</span>
           <span>Estado</span>
+          <span>Catálogo</span>
           <span>Contenido</span>
         </div>
         {services?.map((s) => (
           <div
             key={s.id}
-            className="grid grid-cols-6 px-3.5 py-3 text-sm items-center border-b border-stone/20 last:border-0"
+            className="grid grid-cols-7 px-3.5 py-3 text-sm items-center border-b border-stone/20 last:border-0"
           >
             <span className="col-span-2">{s.title}</span>
             <span className="text-stone">{TYPE_LABELS[s.type] ?? s.type}</span>
@@ -128,6 +129,19 @@ export default async function ServiciosPage() {
                 }`}
               >
                 {s.is_active ? "Activo" : "Pausado"}
+              </button>
+            </form>
+            <form action={toggleServicePublic}>
+              <input type="hidden" name="id" value={s.id} />
+              <input type="hidden" name="is_public" value={String(s.is_public)} />
+              <button
+                className={`text-xs font-medium rounded-full px-2.5 py-1 ${
+                  s.is_public
+                    ? "bg-copper/10 text-copper"
+                    : "bg-stone/10 text-stone"
+                }`}
+              >
+                {s.is_public ? "Público" : "Privado"}
               </button>
             </form>
             <a

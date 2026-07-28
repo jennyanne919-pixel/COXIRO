@@ -42,3 +42,16 @@ export async function toggleServiceActive(formData: FormData) {
 
   revalidatePath("/dashboard/servicios");
 }
+
+export async function toggleServicePublic(formData: FormData) {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+  const isPublic = formData.get("is_public") === "true";
+
+  await supabase
+    .from("services")
+    .update({ is_public: !isPublic })
+    .eq("id", id);
+
+  revalidatePath("/dashboard/servicios");
+}
