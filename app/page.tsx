@@ -1,11 +1,6 @@
 import Logo from "@/components/Logo";
 
-
-const AUDIENCE = [  "Creadores de contenido",
-  "Entrenadores",
-  "Mentores",
-  "Formadores",
-  "Diseñadores",
+const AUDIENCE = [
   "Creadores de contenido",
   "Entrenadores",
   "Mentores",
@@ -35,11 +30,12 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between px-8 py-4">
           <Logo />
           <nav className="hidden md:flex gap-8 text-sm font-medium text-stone">
+            <a href="/catalogo" className="hover:text-ink">Productos digitales</a>
+            <a href="#" className="hover:text-ink">Herramientas</a>
             <a href="#como-funciona" className="hover:text-ink">Cómo funciona</a>
             <a href="#para-quien" className="hover:text-ink">Para quién</a>
             <a href="#incluye" className="hover:text-ink">Qué incluye</a>
-          <a href="/catalogo" className="hover:text-ink">Productos digitales</a>
-<a href="#" className="hover:text-ink">Herramientas</a>
+          </nav>
           <div className="flex items-center gap-4">
             <a href="/login" className="text-sm font-medium text-stone hover:text-ink hidden sm:block">
               Iniciar sesión
