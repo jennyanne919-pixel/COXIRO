@@ -62,8 +62,7 @@ export default async function DashboardLayout({
               {item.label}
             </a>
           ))}
-        <a href="/catalogo" className="hover:text-ink">Productos digitales</a>
-<a href="#" className="hover:text-ink">Herramientas</a>
+        <nav>
         <form action={signOut}>
           <button className="text-sm text-paper/60 hover:text-paper px-2.5 py-2 w-full text-left">
             Cerrar sesión
