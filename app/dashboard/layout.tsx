@@ -27,7 +27,6 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Sin sesión iniciada, no se entra al panel.
   if (!user) {
     redirect("/login");
   }
@@ -42,18 +41,19 @@ export default async function DashboardLayout({
   const NAV = isProvider ? PROVIDER_NAV : CLIENT_NAV;
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-52 bg-ink flex-shrink-0 py-6 px-3 flex flex-col">
-        <div className="px-2 pb-6">
+    <div className="flex flex-col md:flex-row min-h-screen">
+      <aside className="w-full md:w-52 bg-ink flex-shrink-0 py-3 md:py-6 px-3 flex flex-row md:flex-col items-center md:items-stretch gap-3 md:gap-0">
+        <a href="/dashboard" className="px-1 md:px-2 md:pb-6 flex-shrink-0">
           <Logo variant="dark" size={20} />
-        </div>
-        <nav className="flex flex-col gap-0.5 flex-1">
+        </a>
+
+        <nav className="flex flex-row md:flex-col gap-1 md:gap-0.5 flex-1 overflow-x-auto md:overflow-visible">
           {NAV.map((item) => (
             <a
               key={item.label}
               href={item.soon ? undefined : item.href}
               aria-disabled={item.soon}
-              className={`text-sm rounded-lg px-2.5 py-2 ${
+              className={`text-sm rounded-lg px-2.5 py-2 whitespace-nowrap ${
                 item.soon
                   ? "text-stone/50 cursor-default"
                   : "text-paper/80 hover:bg-white/5"
@@ -63,13 +63,16 @@ export default async function DashboardLayout({
             </a>
           ))}
         </nav>
-        <form action={signOut}>
-          <button className="text-sm text-paper/60 hover:text-paper px-2.5 py-2 w-full text-left">
+
+        <form action={signOut} className="flex-shrink-0 md:w-full">
+          <button className="text-sm text-paper/60 hover:text-paper px-2.5 py-2 whitespace-nowrap md:w-full md:text-left">
             Cerrar sesión
           </button>
         </form>
       </aside>
-      <main className="flex-1 bg-white p-8">{children}</main>
+      <main className="flex-1 bg-white p-5 md:p-8 overflow-x-hidden">
+        {children}
+      </main>
     </div>
   );
 }

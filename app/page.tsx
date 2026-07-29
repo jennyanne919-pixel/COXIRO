@@ -27,26 +27,66 @@ export default function LandingPage() {
   return (
     <main>
       <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-stone/20">
-        <div className="max-w-5xl mx-auto flex items-center justify-between px-8 py-4">
-          <Logo variant="light" />
-          <nav className="hidden md:flex gap-8 text-sm font-medium text-stone">
-            <a href="/catalogo" className="hover:text-ink">Productos digitales</a>
-            <a href="#" className="hover:text-ink">Herramientas</a>
-            <a href="#como-funciona" className="hover:text-ink">Cómo funciona</a>
-            <a href="#para-quien" className="hover:text-ink">Para quién</a>
-            <a href="#incluye" className="hover:text-ink">Qué incluye</a>
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 md:px-8 py-4 gap-6">
+          <a href="/" className="flex-shrink-0">
+            <Logo variant="light" />
+          </a>
+
+          <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-stone flex-1 justify-center">
+            <a href="/catalogo" className="hover:text-ink whitespace-nowrap">Productos digitales</a>
+            <div className="relative group">
+              <button className="hover:text-ink whitespace-nowrap">Herramientas</button>
+              <div className="absolute left-0 top-full hidden group-hover:block bg-white border border-stone/20 rounded-lg shadow-lg py-2 min-w-[220px] z-50">
+                <a href="/herramientas/publica-tu-contenido" className="block px-4 py-2 text-sm hover:bg-paper">Publica tu contenido</a>
+                <a href="/herramientas/dashboard" className="block px-4 py-2 text-sm hover:bg-paper">Dashboard</a>
+                <a href="/herramientas/pasarela-de-pagos" className="block px-4 py-2 text-sm hover:bg-paper">Pasarela de pagos</a>
+                <a href="/herramientas/suscripciones" className="block px-4 py-2 text-sm hover:bg-paper">Suscripciones y pagos recurrentes</a>
+              </div>
+            </div>
+            <a href="#como-funciona" className="hover:text-ink whitespace-nowrap">Cómo funciona</a>
+            <a href="#para-quien" className="hover:text-ink whitespace-nowrap">Para quién</a>
+            <a href="#incluye" className="hover:text-ink whitespace-nowrap">Qué incluye</a>
+            <a href="/ayuda" className="hover:text-ink whitespace-nowrap">Ayuda</a>
           </nav>
-          <div className="flex items-center gap-4">
-            <a href="/login" className="text-sm font-medium text-stone hover:text-ink hidden sm:block">
+
+          <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+            <a
+              href="/login"
+              className="rounded-lg border border-stone/30 px-4 py-2.5 text-sm font-semibold text-ink hover:border-ink transition whitespace-nowrap"
+            >
               Iniciar sesión
             </a>
             <a
               href="/registro"
-              className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition"
+              className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition whitespace-nowrap"
             >
               Regístrate
             </a>
           </div>
+
+          <details className="md:hidden relative">
+            <summary className="list-none cursor-pointer w-9 h-9 flex items-center justify-center rounded-lg border border-stone/25">
+              <span className="sr-only">Menú</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </summary>
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-stone/20 rounded-lg shadow-lg py-2 flex flex-col">
+              <a href="/registro" className="px-4 py-2.5 text-sm font-semibold text-copper">Regístrate</a>
+              <a href="/login" className="px-4 py-2.5 text-sm font-semibold">Iniciar sesión</a>
+              <div className="border-t border-stone/20 my-1" />
+              <a href="/catalogo" className="px-4 py-2.5 text-sm">Productos digitales</a>
+              <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido</a>
+              <a href="/herramientas/dashboard" className="px-4 py-2.5 text-sm">Dashboard</a>
+              <a href="/herramientas/pasarela-de-pagos" className="px-4 py-2.5 text-sm">Pasarela de pagos</a>
+              <a href="/herramientas/suscripciones" className="px-4 py-2.5 text-sm">Suscripciones y pagos recurrentes</a>
+              <div className="border-t border-stone/20 my-1" />
+              <a href="#como-funciona" className="px-4 py-2.5 text-sm">Cómo funciona</a>
+              <a href="#para-quien" className="px-4 py-2.5 text-sm">Para quién</a>
+              <a href="#incluye" className="px-4 py-2.5 text-sm">Qué incluye</a>
+              <a href="/ayuda" className="px-4 py-2.5 text-sm">Ayuda</a>
+            </div>
+          </details>
         </div>
       </header>
 

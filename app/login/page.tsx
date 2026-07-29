@@ -11,7 +11,9 @@ export default async function LoginPage({
     <main className="min-h-screen flex items-center justify-center bg-paper px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8">
-          <Logo />
+          <a href="/">
+  <Logo />
+</a>
         </div>
         <h1 className="text-xl font-medium mb-1">Inicia sesión</h1>
         <p className="text-sm text-stone mb-6">Accede a tu panel de Coxiro</p>

@@ -100,6 +100,8 @@ export default async function ServiciosPage() {
       </form>
 
       <div className="rounded-lg bg-paper overflow-hidden hidden md:block">
+      {/* Listado de servicios ya creados */}
+      <div className="rounded-lg bg-paper overflow-hidden">
         <div className="grid grid-cols-7 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
           <span className="col-span-2">Servicio</span>
           <span>Tipo</span>

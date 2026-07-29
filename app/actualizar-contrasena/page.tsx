@@ -31,7 +31,7 @@ export default function ActualizarContrasenaPage() {
     <main className="min-h-screen flex items-center justify-center bg-paper px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8">
-          <Logo />
+          <a href="/"><Logo /></a>
         </div>
         <h1 className="text-xl font-medium mb-1">Crea tu contraseña nueva</h1>
         <p className="text-sm text-stone mb-6">
