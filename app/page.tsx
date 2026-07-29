@@ -46,6 +46,7 @@ export default function LandingPage() {
             <a href="#como-funciona" className="hover:text-ink whitespace-nowrap">Cómo funciona</a>
             <a href="#para-quien" className="hover:text-ink whitespace-nowrap">Para quién</a>
             <a href="#incluye" className="hover:text-ink whitespace-nowrap">Qué incluye</a>
+            <a href="/herramientas/partners" className="hover:text-ink whitespace-nowrap">Partners</a>
             <a href="/ayuda" className="hover:text-ink whitespace-nowrap">Ayuda</a>
           </nav>
 
@@ -84,6 +85,7 @@ export default function LandingPage() {
               <a href="#como-funciona" className="px-4 py-2.5 text-sm">Cómo funciona</a>
               <a href="#para-quien" className="px-4 py-2.5 text-sm">Para quién</a>
               <a href="#incluye" className="px-4 py-2.5 text-sm">Qué incluye</a>
+              <a href="/herramientas/partners" className="px-4 py-2.5 text-sm">Partners</a>
               <a href="/ayuda" className="px-4 py-2.5 text-sm">Ayuda</a>
             </div>
           </details>

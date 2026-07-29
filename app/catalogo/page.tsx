@@ -4,16 +4,17 @@ import Logo from "@/components/Logo";
 export default async function CatalogoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string }>;
+  searchParams: Promise<{ categoria?: string; q?: string }>;
 }) {
   const sp = await searchParams;
   const categoriaActiva = sp.categoria === "mentoria" ? "mentoria" : "curso";
+  const busqueda = sp.q?.trim() ?? "";
 
   // Página pública: cliente admin, seleccionando solo columnas
   // seguras del proveedor (nunca stripe_account_id ni tax_id).
   const supabase = createAdminClient();
 
-  const { data: services } = await supabase
+  let query = supabase
     .from("services")
     .select(
       `
@@ -30,6 +31,14 @@ export default async function CatalogoPage({
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
+  // Buscador por título o descripción (por ahora sin categorías por
+  // tema -- cuando existan, se añade aquí un filtro adicional).
+  if (busqueda) {
+    query = query.or(`title.ilike.%${busqueda}%,description.ilike.%${busqueda}%`);
+  }
+
+  const { data: services } = await query;
+
   const cursos = services?.filter((s) => s.type !== "consult") ?? [];
   const mentorias = services?.filter((s) => s.type === "consult") ?? [];
   const listaActiva = categoriaActiva === "mentoria" ? mentorias : cursos;
@@ -39,8 +48,8 @@ export default async function CatalogoPage({
       <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-stone/20">
         <div className="max-w-5xl mx-auto flex items-center justify-between px-8 py-4">
           <a href="/">
-  <Logo variant="light" />
-</a>
+            <Logo variant="light" />
+          </a>
           <a
             href="/registro"
             className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition"
@@ -54,13 +63,28 @@ export default async function CatalogoPage({
         <p className="text-xs text-stone uppercase tracking-wide font-semibold mb-2">
           Productos digitales
         </p>
-        <h1 className="text-3xl font-display font-semibold mb-8">
+        <h1 className="text-3xl font-display font-semibold mb-6">
           Catálogo de Coxiro
         </h1>
 
+        {/* Buscador: formulario GET, sin necesitar JavaScript */}
+        <form method="GET" className="mb-6 flex gap-2">
+          <input type="hidden" name="categoria" value={categoriaActiva} />
+          <input
+            type="text"
+            name="q"
+            defaultValue={busqueda}
+            placeholder="Buscar por tema (ej. inglés, trading, cocina...)"
+            className="flex-1 rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+          />
+          <button className="rounded-lg bg-ink text-paper px-5 py-2.5 text-sm font-semibold hover:bg-ink/90 transition">
+            Buscar
+          </button>
+        </form>
+
         <div className="flex gap-2 mb-8 border-b border-stone/20">
           <a
-            href="/catalogo?categoria=curso"
+            href={`/catalogo?categoria=curso${busqueda ? `&q=${encodeURIComponent(busqueda)}` : ""}`}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "curso"
                 ? "border-copper text-ink"
@@ -70,7 +94,7 @@ export default async function CatalogoPage({
             Curso online ({cursos.length})
           </a>
           <a
-            href="/catalogo?categoria=mentoria"
+            href={`/catalogo?categoria=mentoria${busqueda ? `&q=${encodeURIComponent(busqueda)}` : ""}`}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "mentoria"
                 ? "border-copper text-ink"
@@ -109,7 +133,9 @@ export default async function CatalogoPage({
           })}
           {!listaActiva.length && (
             <p className="text-sm text-stone">
-              Todavía no hay {categoriaActiva === "mentoria" ? "mentorías" : "cursos"} publicados en el catálogo.
+              {busqueda
+                ? `Ninguna coincidencia para "${busqueda}" en esta categoría.`
+                : `Todavía no hay ${categoriaActiva === "mentoria" ? "mentorías" : "cursos"} publicados en el catálogo.`}
             </p>
           )}
         </div>
