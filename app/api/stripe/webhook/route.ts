@@ -157,12 +157,15 @@ export async function POST(request: Request) {
 
         // PENDIENTE DE CONFIRMAR con el asesor fiscal (martes) -- ajustado
         // según la factura real de Paygram que Bece revisó: el IPSI se
-        // cobra UNA sola vez, en la factura al cliente final. Al
-        // proveedor no se le aplica IVA ni IRPEF -- simplemente se le
-        // paga el neto (precio menos comisión), sin impuesto en ese
-        // documento.
+        // cobra UNA sola vez, en la factura al cliente final. La
+        // autofactura al proveedor (art. 5 RD 1619/2012, confirmado con
+        // el asesor) documenta la venta del proveedor a Coxiro por el
+        // NETO que recibe (precio menos comisión de Coxiro) -- sin
+        // impuesto en ese documento. Coxiro la emite en nombre del
+        // proveedor, con su autorización aceptada en el registro.
         const TAX_RATE_CLIENTE = 0.5; // IPSI Melilla, único punto de cobro
-        const TAX_RATE_PROVEEDOR = 0; // Sin impuesto en la liquidación
+        const TAX_RATE_PROVEEDOR = 0; // Sin impuesto en la autofactura
+        const netoProveedor = totalCliente - totalComision;
 
         try {
           const cliInvoiceNumber = await getNextInvoiceNumber("CLI");
@@ -179,17 +182,20 @@ export async function POST(request: Request) {
             previousHash: cliPreviousHash,
           });
 
+          // Autofactura: emisor real es el PROVEEDOR (Coxiro la emite
+          // en su nombre), destinatario es COXIRO. El importe es el
+          // neto que recibe el proveedor, no la comisión de Coxiro.
           const provInvoiceNumber = await getNextInvoiceNumber("PROV");
           const provPreviousHash = await getLastHash("PROV");
           const provIssuedAt = new Date().toISOString();
-          const provBase = totalComision / (1 + TAX_RATE_PROVEEDOR / 100);
-          const provTaxAmount = totalComision - provBase;
+          const provBase = netoProveedor / (1 + TAX_RATE_PROVEEDOR / 100);
+          const provTaxAmount = netoProveedor - provBase;
           const provHash = computeInvoiceHash({
             invoiceNumber: provInvoiceNumber,
             issuedAt: provIssuedAt,
-            issuerTaxId: COXIRO_TAX_ID,
-            recipientTaxId: provider?.tax_id ?? "NO-FACILITADO",
-            total: totalComision,
+            issuerTaxId: provider?.tax_id ?? "NO-FACILITADO",
+            recipientTaxId: COXIRO_TAX_ID,
+            total: netoProveedor,
             previousHash: provPreviousHash,
           });
 
@@ -216,15 +222,15 @@ export async function POST(request: Request) {
               type: "provider_settlement",
               invoice_number: provInvoiceNumber,
               issued_at: provIssuedAt,
-              concept: `Comision de gestion - ${service?.title ?? "servicio"}`,
+              concept: `Autofactura — venta de servicio a Coxiro: ${service?.title ?? "servicio"} (emitida por Coxiro en nombre del proveedor, art. 5 RD 1619/2012)`,
               tax_base: Number(provBase.toFixed(2)),
               tax_rate: TAX_RATE_PROVEEDOR,
               tax_amount: Number(provTaxAmount.toFixed(2)),
-              total: totalComision,
-              issuer_name: COXIRO_LEGAL_NAME,
-              issuer_tax_id: COXIRO_TAX_ID,
-              recipient_name: provider?.business_name ?? "Proveedor",
-              recipient_tax_id: provider?.tax_id ?? null,
+              total: netoProveedor,
+              issuer_name: provider?.business_name ?? "Proveedor",
+              issuer_tax_id: provider?.tax_id ?? null,
+              recipient_name: COXIRO_LEGAL_NAME,
+              recipient_tax_id: COXIRO_TAX_ID,
               hash: provHash,
               previous_hash: provPreviousHash,
             },

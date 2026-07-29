@@ -15,7 +15,9 @@ export default function RegistroForm({
     <main className="min-h-screen flex items-center justify-center bg-paper px-6 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8">
-          <Logo />
+          <a href="/">
+  <Logo variant="light" />
+</a>
         </div>
         <h1 className="text-xl font-medium mb-1">Crea tu cuenta</h1>
         <p className="text-sm text-stone mb-6">Empieza a vender tu talento online</p>

@@ -60,7 +60,7 @@ export async function GET(
 
   let y = 780;
 
-  const title = invoice.type === "client_invoice" ? "FACTURA" : "LIQUIDACIÓN DE COMISIÓN";
+  const title = invoice.type === "client_invoice" ? "FACTURA" : "AUTOFACTURA";
   page.drawText(title, { x: 50, y, size: 20, font: fontBold, color: ink });
   page.drawText(invoice.invoice_number, { x: 50, y: y - 22, size: 11, font, color: stone });
 
