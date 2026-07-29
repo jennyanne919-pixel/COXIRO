@@ -1,13 +1,14 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import Logo from "@/components/Logo";
 import { notFound } from "next/navigation";
+import { submitInquiry } from "./inquiry-actions";
 
 export default async function ServicioPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ paid?: string; cancelled?: string }>;
+  searchParams: Promise<{ paid?: string; cancelled?: string; inquiry_sent?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -29,6 +30,7 @@ export default async function ServicioPage({
       price,
       currency,
       is_active,
+      requires_inquiry,
       providers ( business_name, kyc_status )
     `
     )
@@ -48,7 +50,9 @@ export default async function ServicioPage({
   return (
     <main className="min-h-screen bg-paper">
       <header className="px-8 py-5">
-        <Logo />
+        <a href="/">
+          <Logo variant="light" />
+        </a>
       </header>
 
       <div className="max-w-lg mx-auto px-6 py-10">
@@ -72,15 +76,51 @@ export default async function ServicioPage({
         <p className="text-stone text-sm mb-6">{service.description}</p>
 
         <div className="rounded-lg bg-white border border-stone/20 p-6">
-          <p className="text-3xl font-display font-semibold mb-4">
-            {Number(service.price).toFixed(2)} €
-          </p>
+          {!service.requires_inquiry && (
+            <p className="text-3xl font-display font-semibold mb-4">
+              {Number(service.price).toFixed(2)} €
+            </p>
+          )}
 
           {provider?.kyc_status !== "verified" ? (
             <p className="text-sm text-stone">
               Este profesional todavía no puede recibir cobros. Vuelve más
               adelante.
             </p>
+          ) : service.requires_inquiry ? (
+            sp.inquiry_sent ? (
+              <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
+                Solicitud enviada. El profesional se pondrá en contacto
+                contigo pronto.
+              </p>
+            ) : (
+              <form action={submitInquiry} className="grid gap-3">
+                <input type="hidden" name="service_id" value={service.id} />
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  placeholder="Tu nombre"
+                  className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="tu@email.com"
+                  className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+                />
+                <textarea
+                  name="message"
+                  rows={3}
+                  placeholder="Cuéntanos qué necesitas"
+                  className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+                />
+                <button className="rounded-lg bg-copper text-paper font-semibold text-sm py-3 hover:bg-copper-dark transition">
+                  Solicitar información
+                </button>
+              </form>
+            )
           ) : (
             <a
               href={`/api/checkout?service=${service.id}`}
