@@ -11,12 +11,25 @@ export async function submitInquiry(formData: FormData) {
 
   const admin = createAdminClient();
 
+  // Guardamos siempre la solicitud primero -- esto es lo que nos da
+  // constancia de que este lead pasó por Coxiro, aunque después se
+  // le redirija a un formulario externo de la propia empresa.
   await admin.from("service_inquiries").insert({
     service_id: serviceId,
     name,
     email,
     message,
   });
+
+  const { data: service } = await admin
+    .from("services")
+    .select("inquiry_url")
+    .eq("id", serviceId)
+    .single();
+
+  if (service?.inquiry_url) {
+    redirect(service.inquiry_url);
+  }
 
   redirect(`/servicio/${serviceId}?inquiry_sent=1`);
 }

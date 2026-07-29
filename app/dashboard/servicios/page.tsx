@@ -5,6 +5,7 @@ const TYPE_LABELS: Record<string, string> = {
   content: "Contenido",
   consult: "Consulta",
   course: "Curso",
+  custom: "Servicios a medida",
 };
 
 export default async function ServiciosPage() {
@@ -67,13 +68,12 @@ export default async function ServiciosPage() {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-stone block mb-1">Precio (€)</label>
+            <label className="text-xs text-stone block mb-1">Precio (€) — opcional si es a medida</label>
             <input
               name="price"
               type="number"
               step="0.01"
               min="0"
-              required
               placeholder="90.00"
               className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
             />
@@ -87,10 +87,11 @@ export default async function ServiciosPage() {
               <option value="consult">Consulta</option>
               <option value="content">Contenido</option>
               <option value="course">Curso</option>
+              <option value="custom">Servicios a medida</option>
             </select>
           </div>
         </div>
-<label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="is_public" />
           Mostrar en el catálogo público de Coxiro
         </label>
@@ -98,13 +99,29 @@ export default async function ServiciosPage() {
           <input type="checkbox" name="requires_inquiry" />
           Servicio a medida (el cliente solicita información en vez de pagar directamente)
         </label>
+        <div>
+          <label className="text-xs text-stone block mb-1">
+            Enlace externo de contacto (opcional)
+          </label>
+          <input
+            name="inquiry_url"
+            type="url"
+            placeholder="https://... (si ya tienen su propio formulario de contacto)"
+            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          />
+          <p className="text-xs text-stone mt-1">
+            Si lo rellenas, el cliente primero pasa por el formulario de
+            Coxiro (para que quede constancia de la solicitud en "Mis
+            solicitudes") y después se le redirige a esta URL externa (ej.
+            "Cuéntanos tu proyecto" de la propia empresa).
+          </p>
+        </div>
         <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
           Publicar servicio
         </button>
       </form>
 
       <div className="rounded-lg bg-paper overflow-hidden hidden md:block">
-     
         <div className="grid grid-cols-7 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
           <span className="col-span-2">Servicio</span>
           <span>Tipo</span>
@@ -120,7 +137,7 @@ export default async function ServiciosPage() {
           >
             <span className="col-span-2">{s.title}</span>
             <span className="text-stone">{TYPE_LABELS[s.type] ?? s.type}</span>
-            <span>{Number(s.price).toFixed(2)} €</span>
+            <span>{s.requires_inquiry ? "A medida" : `${Number(s.price).toFixed(2)} €`}</span>
             <form action={toggleServiceActive}>
               <input type="hidden" name="id" value={s.id} />
               <input type="hidden" name="is_active" value={String(s.is_active)} />
@@ -168,7 +185,7 @@ export default async function ServiciosPage() {
             <div className="flex items-start justify-between mb-2 gap-2">
               <p className="font-medium">{s.title}</p>
               <p className="font-display font-semibold whitespace-nowrap">
-                {Number(s.price).toFixed(2)} €
+                {s.requires_inquiry ? "A medida" : `${Number(s.price).toFixed(2)} €`}
               </p>
             </div>
             <p className="text-stone text-xs mb-3">{TYPE_LABELS[s.type] ?? s.type}</p>

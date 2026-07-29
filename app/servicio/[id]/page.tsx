@@ -31,6 +31,7 @@ export default async function ServicioPage({
       currency,
       is_active,
       requires_inquiry,
+      inquiry_url,
       providers ( business_name, kyc_status )
     `
     )
@@ -82,7 +83,7 @@ export default async function ServicioPage({
             </p>
           )}
 
-          {provider?.kyc_status !== "verified" ? (
+          {provider?.kyc_status !== "verified" && !service.requires_inquiry ? (
             <p className="text-sm text-stone">
               Este profesional todavía no puede recibir cobros. Vuelve más
               adelante.
@@ -117,7 +118,7 @@ export default async function ServicioPage({
                   className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
                 />
                 <button className="rounded-lg bg-copper text-paper font-semibold text-sm py-3 hover:bg-copper-dark transition">
-                  Solicitar información
+                  {service.inquiry_url ? "Cuéntanos tu proyecto" : "Solicitar información"}
                 </button>
               </form>
             )
