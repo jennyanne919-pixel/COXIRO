@@ -8,6 +8,7 @@ const PROVIDER_NAV = [
   { label: "Cobros y facturas", href: "/dashboard", soon: false },
   { label: "Mis servicios", href: "/dashboard/servicios", soon: false },
   { label: "Mis clientes", href: "#", soon: true },
+  { label: "Mis partners", href: "/dashboard/referidos", soon: false },
 ];
 
 // Menú del cliente: lo que ha comprado, no lo que cobra.
