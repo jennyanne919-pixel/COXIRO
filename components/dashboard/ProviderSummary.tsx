@@ -26,17 +26,12 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
     .order("created_at", { ascending: false })
     .limit(10);
 
-  // Se consulta el email por separado (en vez de anidarlo en la
-  // consulta de arriba) para evitar ambigüedades de relación en
-  // Supabase -- más simple y fiable con pocos clientes por página.
   const clientIds = [...new Set(transactions?.map((t) => t.client_id) ?? [])];
   const { data: clientUsers } = clientIds.length
     ? await supabase.from("users").select("id, email").in("id", clientIds)
     : { data: [] };
   const emailById = new Map(clientUsers?.map((u) => [u.id, u.email]));
 
-  // Factura (liquidación de comisión) de cada transacción, para el
-  // botón de descarga.
   const txIds = transactions?.map((t) => t.id) ?? [];
   const { data: invoices } = txIds.length
     ? await supabase
@@ -81,7 +76,7 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
         </div>
       )}
 
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
         <div className="rounded-lg bg-paper p-4">
           <p className="text-sm text-stone mb-1">Cobrado este mes</p>
           <p className="text-2xl font-medium">{paidThisMonth.toFixed(2)} €</p>
@@ -96,7 +91,8 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
         </div>
       </div>
 
-      <div className="rounded-lg bg-paper overflow-hidden">
+      {/* Cabecera de tabla: solo en escritorio */}
+      <div className="rounded-lg bg-paper overflow-hidden hidden md:block">
         <div className="grid grid-cols-6 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
           <span>Cliente</span>
           <span>Contacto</span>
@@ -132,6 +128,49 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
         ))}
         {!transactions?.length && (
           <p className="text-sm text-stone p-4">
+            Todavía no tienes cobros registrados.
+          </p>
+        )}
+      </div>
+
+      {/* Tarjetas apiladas: solo en móvil */}
+      <div className="grid gap-3 md:hidden">
+        {transactions?.map((t: any) => (
+          <div key={t.id} className="rounded-lg bg-paper p-4 text-sm">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <p className="font-medium">{t.clients?.billing_name ?? "—"}</p>
+                <p className="text-stone text-xs break-all">{emailById.get(t.client_id) ?? "—"}</p>
+              </div>
+              <span
+                className={`text-xs font-medium rounded-full px-2 py-1 whitespace-nowrap ${
+                  t.status === "paid"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-amber-50 text-amber-700"
+                }`}
+              >
+                {t.status === "paid" ? "Pagado" : "Pendiente"}
+              </span>
+            </div>
+            <p className="text-stone text-xs mb-1">{t.services?.title ?? "—"}</p>
+            <div className="flex items-center justify-between mt-2">
+              <p className="font-display font-semibold">{Number(t.amount_total).toFixed(2)} €</p>
+              {invoiceIdByTx.get(t.id) ? (
+                <a
+                  href={`/api/invoices/${invoiceIdByTx.get(t.id)}/pdf`}
+                  target="_blank"
+                  className="text-xs text-copper font-medium"
+                >
+                  Descargar factura →
+                </a>
+              ) : (
+                <span className="text-xs text-stone">—</span>
+              )}
+            </div>
+          </div>
+        ))}
+        {!transactions?.length && (
+          <p className="text-sm text-stone bg-paper rounded-lg p-4">
             Todavía no tienes cobros registrados.
           </p>
         )}

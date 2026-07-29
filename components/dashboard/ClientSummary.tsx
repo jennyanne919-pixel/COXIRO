@@ -48,7 +48,7 @@ export default async function ClientSummary({ userId }: { userId: string }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
         <div className="rounded-lg bg-paper p-4">
           <p className="text-sm text-stone mb-1">Gastado este mes</p>
           <p className="text-2xl font-medium">{spentThisMonth.toFixed(2)} €</p>
@@ -63,7 +63,8 @@ export default async function ClientSummary({ userId }: { userId: string }) {
         </div>
       </div>
 
-      <div className="rounded-lg bg-paper overflow-hidden">
+      {/* Tabla: solo en escritorio */}
+      <div className="rounded-lg bg-paper overflow-hidden hidden md:block">
         <div className="grid grid-cols-5 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
           <span>Profesional</span>
           <span>Servicio</span>
@@ -97,6 +98,47 @@ export default async function ClientSummary({ userId }: { userId: string }) {
         ))}
         {!transactions?.length && (
           <p className="text-sm text-stone p-4">
+            Todavía no has comprado ningún servicio. Explora los perfiles de
+            los profesionales de Coxiro para empezar.
+          </p>
+        )}
+      </div>
+
+      {/* Tarjetas apiladas: solo en móvil */}
+      <div className="grid gap-3 md:hidden">
+        {transactions?.map((t: any) => (
+          <div key={t.id} className="rounded-lg bg-paper p-4 text-sm">
+            <div className="flex items-start justify-between mb-2">
+              <p className="font-medium">{t.providers?.business_name ?? "—"}</p>
+              <span
+                className={`text-xs font-medium rounded-full px-2 py-1 whitespace-nowrap ${
+                  t.status === "paid"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-amber-50 text-amber-700"
+                }`}
+              >
+                {t.status === "paid" ? "Pagado" : "Pendiente"}
+              </span>
+            </div>
+            <p className="text-stone text-xs mb-1">{t.services?.title ?? "—"}</p>
+            <div className="flex items-center justify-between mt-2">
+              <p className="font-display font-semibold">{Number(t.amount_total).toFixed(2)} €</p>
+              {invoiceIdByTx.get(t.id) ? (
+                <a
+                  href={`/api/invoices/${invoiceIdByTx.get(t.id)}/pdf`}
+                  target="_blank"
+                  className="text-xs text-copper font-medium"
+                >
+                  Descargar factura →
+                </a>
+              ) : (
+                <span className="text-xs text-stone">—</span>
+              )}
+            </div>
+          </div>
+        ))}
+        {!transactions?.length && (
+          <p className="text-sm text-stone bg-paper rounded-lg p-4">
             Todavía no has comprado ningún servicio. Explora los perfiles de
             los profesionales de Coxiro para empezar.
           </p>

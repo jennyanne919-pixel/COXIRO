@@ -43,7 +43,6 @@ export default async function ServiciosPage() {
         )}
       </div>
 
-      {/* Alta de nuevo servicio */}
       <form
         action={createService}
         className="rounded-lg bg-paper p-5 mb-8 grid gap-3 max-w-lg"
@@ -100,8 +99,8 @@ export default async function ServiciosPage() {
         </button>
       </form>
 
-      {/* Listado de servicios ya creados */}
-      <div className="rounded-lg bg-paper overflow-hidden">
+      <div className="rounded-lg bg-paper overflow-hidden hidden md:block">
+     
         <div className="grid grid-cols-7 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
           <span className="col-span-2">Servicio</span>
           <span>Tipo</span>
@@ -154,6 +153,59 @@ export default async function ServiciosPage() {
         ))}
         {!services?.length && (
           <p className="text-sm text-stone p-4">
+            Todavía no has publicado ningún servicio. Crea el primero arriba.
+          </p>
+        )}
+      </div>
+
+      <div className="grid gap-3 md:hidden">
+        {services?.map((s) => (
+          <div key={s.id} className="rounded-lg bg-paper p-4 text-sm">
+            <div className="flex items-start justify-between mb-2 gap-2">
+              <p className="font-medium">{s.title}</p>
+              <p className="font-display font-semibold whitespace-nowrap">
+                {Number(s.price).toFixed(2)} €
+              </p>
+            </div>
+            <p className="text-stone text-xs mb-3">{TYPE_LABELS[s.type] ?? s.type}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <form action={toggleServiceActive}>
+                <input type="hidden" name="id" value={s.id} />
+                <input type="hidden" name="is_active" value={String(s.is_active)} />
+                <button
+                  className={`text-xs font-medium rounded-full px-2.5 py-1 ${
+                    s.is_active
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-stone/10 text-stone"
+                  }`}
+                >
+                  {s.is_active ? "Activo" : "Pausado"}
+                </button>
+              </form>
+              <form action={toggleServicePublic}>
+                <input type="hidden" name="id" value={s.id} />
+                <input type="hidden" name="is_public" value={String(s.is_public)} />
+                <button
+                  className={`text-xs font-medium rounded-full px-2.5 py-1 ${
+                    s.is_public
+                      ? "bg-copper/10 text-copper"
+                      : "bg-stone/10 text-stone"
+                  }`}
+                >
+                  {s.is_public ? "Público" : "Privado"}
+                </button>
+              </form>
+              <a
+                href={`/dashboard/servicios/${s.id}/contenido`}
+                className="text-xs text-copper font-medium ml-auto"
+              >
+                Gestionar →
+              </a>
+            </div>
+          </div>
+        ))}
+        {!services?.length && (
+          <p className="text-sm text-stone bg-paper rounded-lg p-4">
             Todavía no has publicado ningún servicio. Crea el primero arriba.
           </p>
         )}
