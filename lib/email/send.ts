@@ -34,9 +34,6 @@ export async function sendCreatePasswordEmail(params: {
   const { data, error } = await admin.auth.admin.generateLink({
     type: "recovery",
     email: params.to,
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/actualizar-contrasena`,
-    },
   });
 
   if (error || !data) {
@@ -44,12 +41,14 @@ export async function sendCreatePasswordEmail(params: {
     return { success: false, error };
   }
 
+  const enlace = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?token_hash=${data.properties.hashed_token}&type=recovery&next=${encodeURIComponent("/actualizar-contrasena")}`;
+
   return sendEmail({
     to: params.to,
     subject: "Hemos creado tu cuenta en Coxiro",
     react: CreatePasswordEmail({
       nombre: params.nombre,
-      enlace: data.properties.action_link,
+      enlace,
     }),
     emailType: "create_password",
   });
