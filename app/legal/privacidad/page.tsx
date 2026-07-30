@@ -54,8 +54,8 @@ export default function PrivacidadPage() {
         <p className="text-sm text-stone leading-relaxed mb-4">
           <strong>Derechos:</strong> acceso, rectificación, supresión,
           oposición, limitación y portabilidad, ejercitables escribiendo a{" "}
-          <a href="mailto:info.coxiro@gmail.com" className="text-ink underline">
-            info.coxiro@gmail.com
+          <a href="mailto:coxiro.info@gmail.com" className="text-ink underline">
+            coxiro.info@gmail.com
           </a>
           . Derecho a reclamar ante la Agencia Española de Protección de
           Datos.

@@ -11,11 +11,12 @@ export async function createService(formData: FormData) {
 
   if (!user) return;
 
-  const title = formData.get("title") as string;
+const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const price = formData.get("price") as string;
   const type = formData.get("type") as string;
   const isPublic = formData.get("is_public") === "on";
+  const requiresInquiry = formData.get("requires_inquiry") === "on";
 
   await supabase.from("services").insert({
     provider_id: user.id,
@@ -24,6 +25,7 @@ export async function createService(formData: FormData) {
     price: Number(price),
     type,
     is_public: isPublic,
+    requires_inquiry: requiresInquiry,
   });
 
   revalidatePath("/dashboard/servicios");

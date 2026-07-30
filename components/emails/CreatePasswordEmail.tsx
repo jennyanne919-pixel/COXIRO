@@ -50,7 +50,7 @@ export default function CreatePasswordEmail({
             </Button>
           </Section>
           <Text style={{ fontSize: "13px", color: "#8A8A82", marginTop: "40px" }}>
-            Si no reconoces esta compra, escríbenos a info.coxiro@gmail.com
+            Si no reconoces esta compra, escríbenos a coxiro.info@gmail.com
           </Text>
         </Container>
       </Body>

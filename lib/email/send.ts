@@ -7,7 +7,7 @@ import ProviderSaleEmail from "@/components/emails/ProviderSaleEmail";
 import InternalSaleEmail from "@/components/emails/InternalSaleEmail";
 import InternalRegistrationEmail from "@/components/emails/InternalRegistrationEmail";
 
-const EMAIL_INTERNO_COXIRO = "info.coxiro@gmail.com";
+const EMAIL_INTERNO_COXIRO = "coxiro.info@gmail.com";
 
 export async function sendWelcomeEmail(params: {
   to: string;
