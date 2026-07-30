@@ -99,6 +99,7 @@ export async function sendProviderSale(params: {
 
 export async function sendInternalSale(params: {
   cliente: string;
+  clienteEmail: string;
   proveedor: string;
   servicio: string;
   importe: string;

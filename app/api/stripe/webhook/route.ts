@@ -303,6 +303,7 @@ export async function POST(request: Request) {
             : Promise.resolve(),
           sendInternalSale({
             cliente: client?.billing_name ?? "Cliente",
+            clienteEmail: clientUser?.email ?? "No disponible",
             proveedor: provider?.business_name ?? "Profesional",
             servicio: service?.title ?? "Servicio",
             importe: `${totalCliente.toFixed(2)} €`,

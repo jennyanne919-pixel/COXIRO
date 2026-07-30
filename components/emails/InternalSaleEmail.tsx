@@ -2,6 +2,7 @@ import { Html, Head, Body, Container, Text, Hr } from "@react-email/components";
 
 export default function InternalSaleEmail({
   cliente,
+  clienteEmail,
   proveedor,
   servicio,
   importe,
@@ -9,6 +10,7 @@ export default function InternalSaleEmail({
   fecha,
 }: {
   cliente: string;
+  clienteEmail: string;
   proveedor: string;
   servicio: string;
   importe: string;
@@ -23,6 +25,7 @@ export default function InternalSaleEmail({
           <Text style={{ fontWeight: 700 }}>Nueva venta en Coxiro</Text>
           <Hr />
           <Text>Cliente: {cliente}</Text>
+          <Text>Email del cliente: {clienteEmail}</Text>
           <Text>Proveedor: {proveedor}</Text>
           <Text>Servicio: {servicio}</Text>
           <Text>Importe: {importe}</Text>
