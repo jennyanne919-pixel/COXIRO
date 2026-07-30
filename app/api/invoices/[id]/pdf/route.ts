@@ -42,7 +42,7 @@ export async function GET(
   const verifyUrl = `${new URL(request.url).origin}/verificar-factura/${invoice.id}`;
   const pdfBuffer = await generateInvoicePdf(invoice, verifyUrl);
 
-  return new NextResponse(pdfBuffer, {
+  return new NextResponse(new Uint8Array(pdfBuffer), {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="${invoice.invoice_number}.pdf"`,
