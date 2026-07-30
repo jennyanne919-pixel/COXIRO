@@ -78,7 +78,7 @@ export async function generateInvoicePdf(
   };
 
   row("Base imponible", `${Number(invoice.tax_base).toFixed(2)} €`);
-  row(`IVA (${invoice.tax_rate}%)`, `${Number(invoice.tax_amount).toFixed(2)} €`);
+  row(`IPSI (${invoice.tax_rate}%)`, `${Number(invoice.tax_amount).toFixed(2)} €`);
   row("TOTAL", `${Number(invoice.total).toFixed(2)} €`, true);
 
   page.drawImage(qrImage, { x: 50, y: 60, width: 80, height: 80 });
