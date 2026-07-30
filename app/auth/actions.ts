@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { sendWelcomeEmail, sendInternalRegistration } from "@/lib/email/send";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -30,6 +31,7 @@ export async function signUp(formData: FormData) {
   const taxId = formData.get("tax_id") as string;
   const category = formData.get("category") as string;
   const clientType = (formData.get("client_type") as string) || "particular";
+  const refCode = formData.get("ref") as string;
 
   const { data, error } = await supabase.auth.signUp({ email, password });
 
@@ -70,12 +72,25 @@ export async function signUp(formData: FormData) {
       "-" +
       user.id.slice(0, 4);
 
+    // Si venía con un enlace de partner (?ref=codigo), buscamos quién es
+    let referredBy: string | null = null;
+    if (refCode) {
+      const { data: referrer } = await supabase
+        .from("providers")
+        .select("user_id")
+        .eq("referral_code", refCode)
+        .maybeSingle();
+      referredBy = referrer?.user_id ?? null;
+    }
+
     await supabase.from("providers").insert({
       user_id: user.id,
       business_name: baseName,
       slug,
       tax_id: taxId,
       category,
+      referral_code: slug, // reutilizamos el slug como código de partner
+      referred_by: referredBy,
     });
   } else {
     await supabase.from("clients").insert({
@@ -85,6 +100,13 @@ export async function signUp(formData: FormData) {
       client_type: clientType,
     });
   }
+
+  // Emails de bienvenida + aviso interno -- en paralelo, sin bloquear
+  // el registro si uno de los dos fallara.
+  await Promise.allSettled([
+    sendWelcomeEmail({ to: email, nombre: fullName, esProveedor: role === "provider" }),
+    sendInternalRegistration({ nombre: fullName, email, rol: role as "provider" | "client" }),
+  ]);
 
   redirect("/dashboard");
 }
