@@ -30,7 +30,7 @@ export async function addContentItem(formData: FormData) {
 
   if (!service || service.provider_id !== user.id) return;
 
-  await supabase.from("content_items").insert({
+  const { error: insertError } = await supabase.from("content_items").insert({
     service_id: serviceId,
     title,
     content_type: contentType,
@@ -39,6 +39,10 @@ export async function addContentItem(formData: FormData) {
     is_free: isFree,
     file_size: fileSize,
   });
+
+  if (insertError) {
+    console.error("[addContentItem] Error guardando el contenido:", insertError);
+  }
 
   revalidatePath(`/dashboard/servicios/${serviceId}/contenido`);
 }
