@@ -1,4 +1,5 @@
 import Logo from "@/components/Logo";
+import { createClient } from "@/lib/supabase/server";
 
 const AUDIENCE = [
   "Creadores de contenido",
@@ -23,7 +24,22 @@ const FEATURES = [
   { title: "Afiliados e IA", body: "Haz crecer tu alcance y apóyate en IA para vender mejor.", soon: true },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let nombreUsuario: string | null = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
+    nombreUsuario = profile?.full_name?.split(" ")[0] ?? "Mi panel";
+  }
+
   return (
     <main>
       <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-stone/20">
@@ -51,18 +67,29 @@ export default function LandingPage() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3 flex-shrink-0">
-            <a
-              href="/login"
-              className="rounded-lg border border-stone/30 px-4 py-2.5 text-sm font-semibold text-ink hover:border-ink transition whitespace-nowrap"
-            >
-              Iniciar sesión
-            </a>
-            <a
-              href="/registro"
-              className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition whitespace-nowrap"
-            >
-              Regístrate
-            </a>
+            {nombreUsuario ? (
+              <a
+                href="/dashboard"
+                className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition whitespace-nowrap"
+              >
+                Hola, {nombreUsuario} · Mi panel
+              </a>
+            ) : (
+              <>
+                <a
+                  href="/login"
+                  className="rounded-lg border border-stone/30 px-4 py-2.5 text-sm font-semibold text-ink hover:border-ink transition whitespace-nowrap"
+                >
+                  Iniciar sesión
+                </a>
+                <a
+                  href="/registro"
+                  className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition whitespace-nowrap"
+                >
+                  Regístrate
+                </a>
+              </>
+            )}
           </div>
 
           <details className="md:hidden relative">
@@ -73,8 +100,16 @@ export default function LandingPage() {
               </svg>
             </summary>
             <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-stone/20 rounded-lg shadow-lg py-2 flex flex-col">
-              <a href="/registro" className="px-4 py-2.5 text-sm font-semibold text-copper">Regístrate</a>
-              <a href="/login" className="px-4 py-2.5 text-sm font-semibold">Iniciar sesión</a>
+              {nombreUsuario ? (
+                <a href="/dashboard" className="px-4 py-2.5 text-sm font-semibold text-copper">
+                  Hola, {nombreUsuario} · Mi panel
+                </a>
+              ) : (
+                <>
+                  <a href="/registro" className="px-4 py-2.5 text-sm font-semibold text-copper">Regístrate</a>
+                  <a href="/login" className="px-4 py-2.5 text-sm font-semibold">Iniciar sesión</a>
+                </>
+              )}
               <div className="border-t border-stone/20 my-1" />
               <a href="/catalogo" className="px-4 py-2.5 text-sm">Productos digitales</a>
               <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido</a>
