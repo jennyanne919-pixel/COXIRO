@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const TYPE_LABELS: Record<string, string> = {
   video: "Vídeo",
   pdf: "PDF",
+  audio: "Audio",
   link: "Enlace",
   document: "Documento",
 };
@@ -13,34 +15,39 @@ export default async function MiContenidoPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Servicios a los que este cliente tiene acceso (ya pagados)
-  const { data: access } = await supabase
+  // Cliente admin: necesitamos leer content_items de servicios que
+  // no son "nuestros" en el sentido de RLS estándar -- la
+  // autorización real ya se comprobó al conceder content_access, y
+  // el archivo en sí solo se sirve a través de /api/access, nunca
+  // aquí directamente.
+  const admin = createAdminClient();
+
+  const { data: accessRows } = await admin
     .from("content_access")
     .select(
       `
       service_id,
-      services ( title, providers ( business_name ) )
+      services ( title, provider_id, providers ( business_name ) )
     `
     )
     .eq("client_id", user?.id ?? "");
 
-  const serviceIds = access?.map((a) => a.service_id) ?? [];
+  const serviceIds = [...new Set(accessRows?.map((a) => a.service_id) ?? [])];
 
-  const { data: items } = serviceIds.length
-    ? await supabase
+  const { data: allItems } = serviceIds.length
+    ? await admin
         .from("content_items")
         .select("*")
         .in("service_id", serviceIds)
         .order("sort_order", { ascending: true })
     : { data: [] };
 
-  // Agrupamos el contenido por servicio para mostrarlo organizado
-  const grouped = access?.map((a) => ({
-    serviceId: a.service_id,
-    title: (a.services as any)?.title ?? "Servicio",
-    provider: (a.services as any)?.providers?.business_name ?? "Profesional",
-    items: items?.filter((i) => i.service_id === a.service_id) ?? [],
-  }));
+  const serviciosUnicos = new Map<string, any>();
+  accessRows?.forEach((a) => {
+    if (!serviciosUnicos.has(a.service_id)) {
+      serviciosUnicos.set(a.service_id, a.services);
+    }
+  });
 
   return (
     <div>
@@ -51,42 +58,45 @@ export default async function MiContenidoPage() {
         </p>
       </div>
 
-      {!grouped?.length && (
-        <p className="text-sm text-stone">
-          Todavía no has comprado ningún servicio con contenido.
-        </p>
-      )}
-
-      <div className="grid gap-4">
-        {grouped?.map((group) => (
-          <div key={group.serviceId} className="rounded-lg bg-paper p-5">
-            <p className="text-xs text-stone uppercase tracking-wide font-semibold mb-1">
-              {group.provider}
-            </p>
-            <h2 className="text-base font-medium mb-3">{group.title}</h2>
-
-            {group.items.length ? (
-              <div className="grid gap-2">
-                {group.items.map((item) => (
-                  <a
-                    key={item.id}
-                    href={`/api/access/${item.id}`}
-                    className="flex items-center justify-between rounded-lg bg-white border border-stone/20 px-4 py-3 text-sm hover:border-copper transition"
-                  >
-                    <span>{item.title}</span>
-                    <span className="text-xs text-stone">
-                      {TYPE_LABELS[item.content_type] ?? item.content_type}
-                    </span>
-                  </a>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-stone">
-                El profesional todavía no ha subido contenido para esto.
+      <div className="grid gap-6">
+        {[...serviciosUnicos.entries()].map(([serviceId, service]) => {
+          const items = allItems?.filter((i) => i.service_id === serviceId) ?? [];
+          return (
+            <div key={serviceId} className="rounded-lg bg-paper p-5">
+              <p className="font-medium mb-0.5">{service?.title}</p>
+              <p className="text-xs text-stone mb-4">
+                {service?.providers?.business_name ?? "Profesional en Coxiro"}
               </p>
-            )}
-          </div>
-        ))}
+
+              {items.length ? (
+                <div className="grid gap-2">
+                  {items.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`/api/access/${item.id}`}
+                      target="_blank"
+                      className="flex items-center justify-between rounded-lg bg-white border border-stone/20 px-4 py-3 hover:border-copper transition"
+                    >
+                      <span className="text-sm">{item.title}</span>
+                      <span className="text-xs text-copper font-medium">
+                        {TYPE_LABELS[item.content_type] ?? item.content_type} →
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-stone">
+                  El profesional todavía no ha subido contenido para esto.
+                </p>
+              )}
+            </div>
+          );
+        })}
+        {!serviciosUnicos.size && (
+          <p className="text-sm text-stone bg-paper rounded-lg p-4">
+            Todavía no has comprado ningún servicio con contenido.
+          </p>
+        )}
       </div>
     </div>
   );
