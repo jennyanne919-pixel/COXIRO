@@ -38,7 +38,7 @@ export default function NewServiceForm({
 
       <div>
         <label className="text-xs text-stone block mb-1">
-          Imagen o logo (opcional)
+          Imagen o logo (opcional, máximo 4 MB)
         </label>
         <input
           name="image"
