@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
 import { notFound } from "next/navigation";
 import { submitInquiry } from "./inquiry-actions";
@@ -49,6 +50,24 @@ export default async function ServicioPage({
 
   const provider = service.providers as any;
 
+  // Si ya tiene sesión iniciada, comprobamos si ya compró este
+  // servicio -- para no ofrecerle pagar otra vez algo que ya tiene.
+  const sessionClient = await createClient();
+  const {
+    data: { user },
+  } = await sessionClient.auth.getUser();
+
+  let yaComprado = false;
+  if (user) {
+    const { data: access } = await supabase
+      .from("content_access")
+      .select("id")
+      .eq("client_id", user.id)
+      .eq("service_id", service.id)
+      .maybeSingle();
+    yaComprado = !!access;
+  }
+
   return (
     <main className="min-h-screen bg-paper">
       <header className="px-8 py-5">
@@ -92,7 +111,25 @@ export default async function ServicioPage({
             </p>
           )}
 
-          {provider?.kyc_status !== "verified" && !service.requires_inquiry ? (
+          {yaComprado ? (
+            <div className="grid gap-2">
+              <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
+                Ya tienes acceso a este servicio.
+              </p>
+              <a
+                href="/dashboard/contenido"
+                className="block text-center rounded-lg bg-copper text-paper font-semibold text-sm py-3 hover:bg-copper-dark transition"
+              >
+                Ver mi contenido
+              </a>
+              <a
+                href="/catalogo"
+                className="block text-center rounded-lg border border-stone/25 text-ink font-semibold text-sm py-3 hover:border-ink transition"
+              >
+                Descubrir más servicios
+              </a>
+            </div>
+          ) : provider?.kyc_status !== "verified" && !service.requires_inquiry ? (
             <p className="text-sm text-stone">
               Este profesional todavía no puede recibir cobros. Vuelve más
               adelante.
