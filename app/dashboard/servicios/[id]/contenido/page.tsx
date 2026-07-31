@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { addContentItem, updateContentItem } from "./actions";
+import { deleteContentItem } from "./actions";
+import AddContentForm from "./AddContentForm";
 import { notFound } from "next/navigation";
 
 const TYPE_LABELS: Record<string, string> = {
   video: "Vídeo",
   pdf: "PDF",
+  audio: "Audio",
   link: "Enlace",
   document: "Documento",
 };
@@ -26,8 +28,6 @@ export default async function ContenidoServicioPage({
     .eq("id", id)
     .single();
 
-  // Si no es tu servicio, RLS ya lo habría bloqueado -- esto es
-  // además una comprobación explícita para no mostrar nada ajeno.
   if (!service || service.provider_id !== user?.id) {
     notFound();
   }
@@ -50,77 +50,36 @@ export default async function ContenidoServicioPage({
         </p>
       </div>
 
-      <form
-        action={addContentItem}
-        className="rounded-lg bg-paper p-5 mb-8 grid gap-3 max-w-lg"
-      >
-        <input type="hidden" name="service_id" value={service.id} />
-        <div>
-          <label className="text-xs text-stone block mb-1">Título</label>
-          <input
-            name="title"
-            required
-            placeholder="Ej. Sesión grabada 1"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-stone block mb-1">
-            Enlace (vídeo, PDF, Drive, Zoom...)
-          </label>
-          <input
-            name="file_url"
-            type="url"
-            required
-            placeholder="https://..."
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-stone block mb-1">Tipo</label>
-          <select
-            name="content_type"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          >
-            <option value="link">Enlace</option>
-            <option value="video">Vídeo</option>
-            <option value="pdf">PDF</option>
-            <option value="document">Documento</option>
-          </select>
-        </div>
-        <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
-          Añadir contenido
-        </button>
-      </form>
+      <AddContentForm serviceId={service.id} />
 
       <div className="rounded-lg bg-paper overflow-hidden">
-        <div className="grid grid-cols-3 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
-          <span>Título</span>
+        <div className="grid grid-cols-4 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
+          <span className="col-span-2">Título</span>
           <span>Tipo</span>
-          <span>Enlace</span>
+          <span></span>
         </div>
         {items?.map((item) => (
-          <form
-            action={updateContentItem}
+          <div
             key={item.id}
-            className="grid grid-cols-3 px-3.5 py-3 text-sm items-center border-b border-stone/20 last:border-0 gap-2"
+            className="grid grid-cols-4 px-3.5 py-3 text-sm items-center border-b border-stone/20 last:border-0 gap-2"
           >
-            <input type="hidden" name="item_id" value={item.id} />
-            <input type="hidden" name="service_id" value={service.id} />
-            <span>{item.title}</span>
+            <span className="col-span-2">
+              {item.title}
+              {item.is_free && (
+                <span className="ml-2 text-[10px] font-semibold uppercase text-emerald-700 bg-emerald-50 rounded-full px-2 py-0.5">
+                  Gratis
+                </span>
+              )}
+            </span>
             <span className="text-stone">{TYPE_LABELS[item.content_type] ?? item.content_type}</span>
-            <div className="flex gap-2">
-              <input
-                name="file_url"
-                type="url"
-                defaultValue={item.file_url}
-                className="flex-1 min-w-0 rounded-lg border border-stone/25 bg-white px-2.5 py-1.5 text-xs"
-              />
-              <button className="text-xs font-medium text-copper hover:underline whitespace-nowrap">
-                Guardar
+            <form action={deleteContentItem}>
+              <input type="hidden" name="item_id" value={item.id} />
+              <input type="hidden" name="service_id" value={service.id} />
+              <button className="text-xs text-red-600 hover:underline justify-self-end">
+                Eliminar
               </button>
-            </div>
-          </form>
+            </form>
+          </div>
         ))}
         {!items?.length && (
           <p className="text-sm text-stone p-4">

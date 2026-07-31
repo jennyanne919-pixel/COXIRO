@@ -13,17 +13,31 @@ export async function addContentItem(formData: FormData) {
 
   const serviceId = formData.get("service_id") as string;
   const title = formData.get("title") as string;
-  const fileUrl = formData.get("file_url") as string;
   const contentType = formData.get("content_type") as string;
+  const isFree = formData.get("is_free") === "on";
+  const fileUrl = (formData.get("file_url") as string) || null;
+  const r2Key = (formData.get("r2_key") as string) || null;
+  const fileSize = formData.get("file_size")
+    ? Number(formData.get("file_size"))
+    : null;
 
-  // RLS ya garantiza que solo el proveedor dueño del servicio puede
-  // insertar contenido en él (política "proveedores gestionan sus
-  // servicios" cubre también content_items a través de su relación).
+  // Comprobación explícita de propiedad, aunque RLS ya proteja esto
+  const { data: service } = await supabase
+    .from("services")
+    .select("provider_id")
+    .eq("id", serviceId)
+    .single();
+
+  if (!service || service.provider_id !== user.id) return;
+
   await supabase.from("content_items").insert({
     service_id: serviceId,
     title,
-    file_url: fileUrl,
     content_type: contentType,
+    file_url: fileUrl,
+    r2_key: r2Key,
+    is_free: isFree,
+    file_size: fileSize,
   });
 
   revalidatePath(`/dashboard/servicios/${serviceId}/contenido`);
@@ -31,18 +45,24 @@ export async function addContentItem(formData: FormData) {
 
 export async function updateContentItem(formData: FormData) {
   const supabase = await createClient();
-
   const itemId = formData.get("item_id") as string;
   const serviceId = formData.get("service_id") as string;
   const fileUrl = formData.get("file_url") as string;
 
-  // RLS comprueba que quien edita es el dueño del servicio al que
-  // pertenece este contenido -- si no lo es, esta actualización no
-  // afecta a ninguna fila.
   await supabase
     .from("content_items")
     .update({ file_url: fileUrl })
     .eq("id", itemId);
+
+  revalidatePath(`/dashboard/servicios/${serviceId}/contenido`);
+}
+
+export async function deleteContentItem(formData: FormData) {
+  const supabase = await createClient();
+  const itemId = formData.get("item_id") as string;
+  const serviceId = formData.get("service_id") as string;
+
+  await supabase.from("content_items").delete().eq("id", itemId);
 
   revalidatePath(`/dashboard/servicios/${serviceId}/contenido`);
 }
