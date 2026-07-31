@@ -7,8 +7,9 @@ import { signOut } from "@/app/auth/actions";
 const PROVIDER_NAV = [
   { label: "Cobros y facturas", href: "/dashboard", soon: false },
   { label: "Mis servicios", href: "/dashboard/servicios", soon: false },
-  { label: "Mis clientes", href: "#", soon: true },
+  { label: "Solicitudes", href: "/dashboard/solicitudes", soon: false },
   { label: "Mis partners", href: "/dashboard/referidos", soon: false },
+  { label: "Mis clientes", href: "#", soon: true },
 ];
 
 // Menú del cliente: lo que ha comprado, no lo que cobra.
@@ -44,7 +45,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
       <aside className="w-full md:w-52 bg-ink flex-shrink-0 py-3 md:py-6 px-3 flex flex-row md:flex-col items-center md:items-stretch gap-3 md:gap-0">
-        <a href="/dashboard" className="px-1 md:px-2 md:pb-6 flex-shrink-0">
+        <a href="/" className="px-1 md:px-2 md:pb-6 flex-shrink-0">
           <Logo variant="dark" size={20} />
         </a>
 
