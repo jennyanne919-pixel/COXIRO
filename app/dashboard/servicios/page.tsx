@@ -1,10 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { createService, toggleServiceActive, toggleServicePublic } from "./actions";
+import NewServiceForm from "./NewServiceForm";
 
 const TYPE_LABELS: Record<string, string> = {
   content: "Contenido",
   consult: "Consulta",
   course: "Curso",
+  custom: "Servicios IA",
+  membership: "Membresía / Suscripción",
 };
 
 export default async function ServiciosPage() {
@@ -43,64 +46,10 @@ export default async function ServiciosPage() {
         )}
       </div>
 
-      <form
-        action={createService}
-        className="rounded-lg bg-paper p-5 mb-8 grid gap-3 max-w-lg"
-      >
-        <div>
-          <label className="text-xs text-stone block mb-1">Título</label>
-          <input
-            name="title"
-            required
-            placeholder="Ej. Consulta laboral inicial"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-stone block mb-1">Descripción</label>
-          <textarea
-            name="description"
-            rows={2}
-            placeholder="Qué incluye este servicio"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs text-stone block mb-1">Precio (€)</label>
-            <input
-              name="price"
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              placeholder="90.00"
-              className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-stone block mb-1">Tipo</label>
-            <select
-              name="type"
-              className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-            >
-              <option value="consult">Consulta</option>
-              <option value="content">Contenido</option>
-              <option value="course">Curso</option>
-            </select>
-          </div>
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="is_public" />
-          Mostrar en el catálogo público de Coxiro
-        </label>
-        <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
-          Publicar servicio
-        </button>
-      </form>
+      <NewServiceForm createService={createService} />
+
 
       <div className="rounded-lg bg-paper overflow-hidden hidden md:block">
-     
         <div className="grid grid-cols-7 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
           <span className="col-span-2">Servicio</span>
           <span>Tipo</span>
@@ -116,7 +65,7 @@ export default async function ServiciosPage() {
           >
             <span className="col-span-2">{s.title}</span>
             <span className="text-stone">{TYPE_LABELS[s.type] ?? s.type}</span>
-            <span>{Number(s.price).toFixed(2)} €</span>
+            <span>{s.requires_inquiry ? "A medida" : `${Number(s.price).toFixed(2)} €`}</span>
             <form action={toggleServiceActive}>
               <input type="hidden" name="id" value={s.id} />
               <input type="hidden" name="is_active" value={String(s.is_active)} />
@@ -164,7 +113,7 @@ export default async function ServiciosPage() {
             <div className="flex items-start justify-between mb-2 gap-2">
               <p className="font-medium">{s.title}</p>
               <p className="font-display font-semibold whitespace-nowrap">
-                {Number(s.price).toFixed(2)} €
+                {s.requires_inquiry ? "A medida" : `${Number(s.price).toFixed(2)} €`}
               </p>
             </div>
             <p className="text-stone text-xs mb-3">{TYPE_LABELS[s.type] ?? s.type}</p>
