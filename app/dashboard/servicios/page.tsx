@@ -6,12 +6,8 @@ const TYPE_LABELS: Record<string, string> = {
   content: "Contenido",
   consult: "Consulta",
   course: "Curso",
-<<<<<<< HEAD
   custom: "Servicios IA",
   membership: "Membresía / Suscripción",
-=======
-  custom: "Servicios a medida",
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
 };
 
 export default async function ServiciosPage() {

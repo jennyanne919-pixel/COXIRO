@@ -11,14 +11,13 @@ export async function createService(formData: FormData) {
 
   if (!user) return;
 
-const title = formData.get("title") as string;
+  const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const price = formData.get("price") as string;
   const type = formData.get("type") as string;
   const topic = formData.get("topic") as string;
   const isPublic = formData.get("is_public") === "on";
   const requiresInquiry = formData.get("requires_inquiry") === "on";
-<<<<<<< HEAD
   const inquiryUrl = (formData.get("inquiry_url") as string) || null;
 
   // Subida de imagen (opcional) -- si el proveedor no adjunta nada,
@@ -43,8 +42,6 @@ const title = formData.get("title") as string;
       imageUrl = publicUrlData.publicUrl;
     }
   }
-=======
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
 
   await supabase.from("services").insert({
     provider_id: user.id,
@@ -55,11 +52,8 @@ const title = formData.get("title") as string;
     topic: topic || null,
     is_public: isPublic,
     requires_inquiry: requiresInquiry,
-<<<<<<< HEAD
     inquiry_url: inquiryUrl,
     image_url: imageUrl,
-=======
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
   });
 
   revalidatePath("/dashboard/servicios");

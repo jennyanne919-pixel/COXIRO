@@ -32,10 +32,7 @@ export default async function ServicioPage({
       is_active,
       requires_inquiry,
       inquiry_url,
-<<<<<<< HEAD
       image_url,
-=======
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
       providers ( business_name, kyc_status )
     `
     )

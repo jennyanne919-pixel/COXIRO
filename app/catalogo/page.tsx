@@ -5,7 +5,6 @@ import { TOPICS } from "@/lib/topics";
 export default async function CatalogoPage({
   searchParams,
 }: {
-<<<<<<< HEAD
   searchParams: Promise<{ categoria?: string; q?: string; tema?: string }>;
 }) {
   const sp = await searchParams;
@@ -14,13 +13,6 @@ export default async function CatalogoPage({
     : "curso";
   const busqueda = sp.q?.trim() ?? "";
   const temaActivo = sp.tema ?? "";
-=======
-  searchParams: Promise<{ categoria?: string; q?: string }>;
-}) {
-  const sp = await searchParams;
-  const categoriaActiva = sp.categoria === "mentoria" ? "mentoria" : "curso";
-  const busqueda = sp.q?.trim() ?? "";
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
 
   const supabase = createAdminClient();
 
@@ -44,7 +36,6 @@ export default async function CatalogoPage({
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-<<<<<<< HEAD
   if (busqueda) {
     query = query.or(`title.ilike.%${busqueda}%,description.ilike.%${busqueda}%`);
   }
@@ -55,17 +46,6 @@ export default async function CatalogoPage({
   const { data: services } = await query;
 
   const cursos = services?.filter((s) => s.type === "content" || s.type === "course") ?? [];
-=======
-  // Buscador por título o descripción (por ahora sin categorías por
-  // tema -- cuando existan, se añade aquí un filtro adicional).
-  if (busqueda) {
-    query = query.or(`title.ilike.%${busqueda}%,description.ilike.%${busqueda}%`);
-  }
-
-  const { data: services } = await query;
-
-  const cursos = services?.filter((s) => s.type !== "consult") ?? [];
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
   const mentorias = services?.filter((s) => s.type === "consult") ?? [];
   const membresias = services?.filter((s) => s.type === "membership") ?? [];
   const aMedida = services?.filter((s) => s.type === "custom") ?? [];
@@ -112,15 +92,9 @@ export default async function CatalogoPage({
           Catálogo de Coxiro
         </h1>
 
-<<<<<<< HEAD
         <form method="GET" className="mb-6 flex gap-2">
           <input type="hidden" name="categoria" value={categoriaActiva} />
           {temaActivo && <input type="hidden" name="tema" value={temaActivo} />}
-=======
-        {/* Buscador: formulario GET, sin necesitar JavaScript */}
-        <form method="GET" className="mb-6 flex gap-2">
-          <input type="hidden" name="categoria" value={categoriaActiva} />
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
           <input
             type="text"
             name="q"
@@ -133,15 +107,9 @@ export default async function CatalogoPage({
           </button>
         </form>
 
-<<<<<<< HEAD
         <div className="flex gap-2 mb-4 border-b border-stone/20 flex-wrap">
           <a
             href={`/catalogo${qs({ categoria: "curso" })}`}
-=======
-        <div className="flex gap-2 mb-8 border-b border-stone/20">
-          <a
-            href={`/catalogo?categoria=curso${busqueda ? `&q=${encodeURIComponent(busqueda)}` : ""}`}
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "curso"
                 ? "border-copper text-ink"
@@ -151,11 +119,7 @@ export default async function CatalogoPage({
             Curso online ({cursos.length})
           </a>
           <a
-<<<<<<< HEAD
             href={`/catalogo${qs({ categoria: "mentoria" })}`}
-=======
-            href={`/catalogo?categoria=mentoria${busqueda ? `&q=${encodeURIComponent(busqueda)}` : ""}`}
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "mentoria"
                 ? "border-copper text-ink"
@@ -251,15 +215,9 @@ export default async function CatalogoPage({
           })}
           {!listaActiva?.length && (
             <p className="text-sm text-stone">
-<<<<<<< HEAD
               {busqueda || temaActivo
                 ? "Ninguna coincidencia con ese filtro."
                 : "Todavía no hay servicios publicados en esta categoría."}
-=======
-              {busqueda
-                ? `Ninguna coincidencia para "${busqueda}" en esta categoría.`
-                : `Todavía no hay ${categoriaActiva === "mentoria" ? "mentorías" : "cursos"} publicados en el catálogo.`}
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
             </p>
           )}
         </div>

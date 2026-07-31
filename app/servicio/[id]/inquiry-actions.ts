@@ -11,12 +11,9 @@ export async function submitInquiry(formData: FormData) {
 
   const admin = createAdminClient();
 
-<<<<<<< HEAD
-=======
   // Guardamos siempre la solicitud primero -- esto es lo que nos da
   // constancia de que este lead pasó por Coxiro, aunque después se
   // le redirija a un formulario externo de la propia empresa.
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
   await admin.from("service_inquiries").insert({
     service_id: serviceId,
     name,
@@ -24,10 +21,6 @@ export async function submitInquiry(formData: FormData) {
     message,
   });
 
-<<<<<<< HEAD
-  redirect(`/servicio/${serviceId}?inquiry_sent=1`);
-}
-=======
   const { data: service } = await admin
     .from("services")
     .select("inquiry_url")
@@ -40,4 +33,3 @@ export async function submitInquiry(formData: FormData) {
 
   redirect(`/servicio/${serviceId}?inquiry_sent=1`);
 }
->>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
