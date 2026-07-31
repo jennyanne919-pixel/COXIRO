@@ -20,10 +20,10 @@ export default function AyudaPage() {
           Escríbenos y te responderemos lo antes posible.
         </p>
         <a
-          href="mailto:info.coxiro@gmail.com"
+          href="mailto:coxiro.info@gmail.com"
           className="inline-block rounded-lg bg-copper px-6 py-3 text-sm font-semibold text-paper hover:bg-copper-dark transition"
         >
-          info.coxiro@gmail.com
+          coxiro.info@gmail.com
         </a>
 
         <div className="mt-12 grid gap-3">

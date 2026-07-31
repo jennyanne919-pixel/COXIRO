@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+<<<<<<< HEAD
 import { TOPICS, SERVICE_TYPES } from "@/lib/topics";
+=======
+>>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
 
 export default function NewServiceForm({
   createService,
@@ -34,6 +37,7 @@ export default function NewServiceForm({
           className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
         />
       </div>
+<<<<<<< HEAD
 
       <div>
         <label className="text-xs text-stone block mb-1">
@@ -47,6 +51,8 @@ export default function NewServiceForm({
         />
       </div>
 
+=======
+>>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs text-stone block mb-1">
@@ -70,15 +76,23 @@ export default function NewServiceForm({
             onChange={(e) => setType(e.target.value)}
             className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
           >
+<<<<<<< HEAD
             {SERVICE_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
               </option>
             ))}
+=======
+            <option value="consult">Consulta</option>
+            <option value="content">Contenido</option>
+            <option value="course">Curso</option>
+            <option value="custom">Servicios a medida</option>
+>>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
           </select>
         </div>
       </div>
 
+<<<<<<< HEAD
       <div>
         <label className="text-xs text-stone block mb-1">
           Temática (para que te encuentren en el buscador)
@@ -97,6 +111,8 @@ export default function NewServiceForm({
         </select>
       </div>
 
+=======
+>>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="is_public" />
         Mostrar en el catálogo público de Coxiro
@@ -124,4 +140,8 @@ export default function NewServiceForm({
       </button>
     </form>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791

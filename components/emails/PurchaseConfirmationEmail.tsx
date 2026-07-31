@@ -74,7 +74,7 @@ export default function PurchaseConfirmationEmail({
           </Text>
 
           <Text style={{ fontSize: "13px", color: "#8A8A82", marginTop: "32px" }}>
-            ¿Alguna duda? Escríbenos a info.coxiro@gmail.com
+            ¿Alguna duda? Escríbenos a coxiro.info@gmail.com
           </Text>
         </Container>
       </Body>

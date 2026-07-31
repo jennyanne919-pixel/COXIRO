@@ -10,6 +10,13 @@ import {
   COXIRO_TAX_ID,
   COXIRO_LEGAL_NAME,
 } from "@/lib/invoicing";
+import {
+  sendCreatePasswordEmail,
+  sendPurchaseConfirmation,
+  sendProviderSale,
+  sendInternalSale,
+} from "@/lib/email/send";
+import { generateInvoicePdf } from "@/lib/invoice-pdf";
 import Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -56,6 +63,7 @@ export async function POST(request: Request) {
       const { service_id, provider_id, platform_fee } =
         session.metadata as Record<string, string>;
       let client_id = (session.metadata as Record<string, string>).client_id;
+      let esClienteNuevo = false;
 
       if (!client_id) {
         const email = session.customer_details?.email ?? session.customer_email;
@@ -90,6 +98,7 @@ export async function POST(request: Request) {
           }
 
           client_id = newAuthUser.user.id;
+          esClienteNuevo = true;
 
           await supabase.from("users").insert({
             id: client_id,
@@ -105,22 +114,12 @@ export async function POST(request: Request) {
             client_type: "particular",
           });
 
-          // Envía automáticamente el email para que el cliente cree su
-          // contraseña -- es el mismo mecanismo de "recuperar
-          // contraseña" que ya construimos, reutilizado como email de
-          // bienvenida para cuentas creadas tras un pago sin registro
-          // previo.
-          const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-            email,
-            {
-              redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/actualizar-contrasena`,
-            }
-          );
-
-          if (resetError) {
-            console.error("Error enviando el email de bienvenida:", resetError);
-          } else {
-            console.log("[checkout] Email de creacion de contrasena enviado a:", email);
+          // Email de "crea tu contraseña" -- ahora con nuestra propia
+          // plantilla vía Resend, en vez del sistema por defecto de
+          // Supabase (limitado en volumen de envíos).
+          const resultado = await sendCreatePasswordEmail({ to: email, nombre: name });
+          if (!resultado.success) {
+            console.error("Error enviando el email de crear contrasena");
           }
         }
       }
@@ -145,12 +144,19 @@ export async function POST(request: Request) {
       }
 
       if (transaction) {
-        const [{ data: service }, { data: client }, { data: provider }] =
-          await Promise.all([
-            supabase.from("services").select("title").eq("id", service_id).single(),
-            supabase.from("clients").select("billing_name, tax_id").eq("user_id", client_id).single(),
-            supabase.from("providers").select("business_name, tax_id").eq("user_id", provider_id).single(),
-          ]);
+        const [
+          { data: service },
+          { data: client },
+          { data: provider },
+          { data: clientUser },
+          { data: providerUser },
+        ] = await Promise.all([
+          supabase.from("services").select("title").eq("id", service_id).single(),
+          supabase.from("clients").select("billing_name, tax_id").eq("user_id", client_id).single(),
+          supabase.from("providers").select("business_name, tax_id").eq("user_id", provider_id).single(),
+          supabase.from("users").select("email").eq("id", client_id).single(),
+          supabase.from("users").select("email").eq("id", provider_id).single(),
+        ]);
 
         const totalCliente = (session.amount_total ?? 0) / 100;
         const totalComision = Number(platform_fee);
@@ -166,6 +172,10 @@ export async function POST(request: Request) {
         const TAX_RATE_CLIENTE = 0.5; // IPSI Melilla, único punto de cobro
         const TAX_RATE_PROVEEDOR = 0; // Sin impuesto en la autofactura
         const netoProveedor = totalCliente - totalComision;
+
+        let cliInvoiceId: string | null = null;
+        let cliInvoicePdf: Buffer | undefined;
+        let provInvoicePdf: Buffer | undefined;
 
         try {
           const cliInvoiceNumber = await getNextInvoiceNumber("CLI");
@@ -199,42 +209,58 @@ export async function POST(request: Request) {
             previousHash: provPreviousHash,
           });
 
-          await supabase.from("invoices").insert([
-            {
-              transaction_id: transaction.id,
-              type: "client_invoice",
-              invoice_number: cliInvoiceNumber,
-              issued_at: cliIssuedAt,
-              concept: service?.title ?? "Servicio contratado en Coxiro",
-              tax_base: Number(cliBase.toFixed(2)),
-              tax_rate: TAX_RATE_CLIENTE,
-              tax_amount: Number(cliTaxAmount.toFixed(2)),
-              total: totalCliente,
-              issuer_name: COXIRO_LEGAL_NAME,
-              issuer_tax_id: COXIRO_TAX_ID,
-              recipient_name: client?.billing_name ?? "Cliente",
-              recipient_tax_id: client?.tax_id ?? null,
-              hash: cliHash,
-              previous_hash: cliPreviousHash,
-            },
-            {
-              transaction_id: transaction.id,
-              type: "provider_settlement",
-              invoice_number: provInvoiceNumber,
-              issued_at: provIssuedAt,
-              concept: `Autofactura — venta de servicio a Coxiro: ${service?.title ?? "servicio"} (emitida por Coxiro en nombre del proveedor, art. 5 RD 1619/2012)`,
-              tax_base: Number(provBase.toFixed(2)),
-              tax_rate: TAX_RATE_PROVEEDOR,
-              tax_amount: Number(provTaxAmount.toFixed(2)),
-              total: netoProveedor,
-              issuer_name: provider?.business_name ?? "Proveedor",
-              issuer_tax_id: provider?.tax_id ?? null,
-              recipient_name: COXIRO_LEGAL_NAME,
-              recipient_tax_id: COXIRO_TAX_ID,
-              hash: provHash,
-              previous_hash: provPreviousHash,
-            },
-          ]);
+          const { data: insertedInvoices } = await supabase
+            .from("invoices")
+            .insert([
+              {
+                transaction_id: transaction.id,
+                type: "client_invoice",
+                invoice_number: cliInvoiceNumber,
+                issued_at: cliIssuedAt,
+                concept: service?.title ?? "Servicio contratado en Coxiro",
+                tax_base: Number(cliBase.toFixed(2)),
+                tax_rate: TAX_RATE_CLIENTE,
+                tax_amount: Number(cliTaxAmount.toFixed(2)),
+                total: totalCliente,
+                issuer_name: COXIRO_LEGAL_NAME,
+                issuer_tax_id: COXIRO_TAX_ID,
+                recipient_name: client?.billing_name ?? "Cliente",
+                recipient_tax_id: client?.tax_id ?? null,
+                hash: cliHash,
+                previous_hash: cliPreviousHash,
+              },
+              {
+                transaction_id: transaction.id,
+                type: "provider_settlement",
+                invoice_number: provInvoiceNumber,
+                issued_at: provIssuedAt,
+                concept: `Autofactura — venta de servicio a Coxiro: ${service?.title ?? "servicio"} (emitida por Coxiro en nombre del proveedor, art. 5 RD 1619/2012)`,
+                tax_base: Number(provBase.toFixed(2)),
+                tax_rate: TAX_RATE_PROVEEDOR,
+                tax_amount: Number(provTaxAmount.toFixed(2)),
+                total: netoProveedor,
+                issuer_name: provider?.business_name ?? "Proveedor",
+                issuer_tax_id: provider?.tax_id ?? null,
+                recipient_name: COXIRO_LEGAL_NAME,
+                recipient_tax_id: COXIRO_TAX_ID,
+                hash: provHash,
+                previous_hash: provPreviousHash,
+              },
+            ])
+            .select("*");
+
+          const cliInvoiceRow = insertedInvoices?.find((i) => i.type === "client_invoice") ?? null;
+          const provInvoiceRow = insertedInvoices?.find((i) => i.type === "provider_settlement") ?? null;
+          cliInvoiceId = cliInvoiceRow?.id ?? null;
+
+          if (cliInvoiceRow) {
+            const verifyUrlCli = `${process.env.NEXT_PUBLIC_SITE_URL}/verificar-factura/${cliInvoiceRow.id}`;
+            cliInvoicePdf = await generateInvoicePdf(cliInvoiceRow, verifyUrlCli);
+          }
+          if (provInvoiceRow) {
+            const verifyUrlProv = `${process.env.NEXT_PUBLIC_SITE_URL}/verificar-factura/${provInvoiceRow.id}`;
+            provInvoicePdf = await generateInvoicePdf(provInvoiceRow, verifyUrlProv);
+          }
         } catch (invoiceError) {
           console.error("Error generando las facturas:", invoiceError);
         }
@@ -244,6 +270,46 @@ export async function POST(request: Request) {
           client_id,
           service_id,
         });
+
+        // Los tres emails de la compra, en paralelo -- no se bloquea
+        // la respuesta a Stripe por esto, y un fallo en uno no afecta
+        // a los demás.
+        const invoiceUrl = cliInvoiceId
+          ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/invoices/${cliInvoiceId}/pdf`
+          : `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`;
+
+        await Promise.allSettled([
+          clientUser?.email
+            ? sendPurchaseConfirmation({
+                to: clientUser.email,
+                nombreCliente: client?.billing_name ?? "Cliente",
+                servicio: service?.title ?? "Servicio",
+                proveedor: provider?.business_name ?? "Profesional en Coxiro",
+                importe: `${totalCliente.toFixed(2)} €`,
+                invoiceUrl,
+                invoicePdf: cliInvoicePdf,
+              })
+            : Promise.resolve(),
+          providerUser?.email
+            ? sendProviderSale({
+                to: providerUser.email,
+                nombreProveedor: provider?.business_name ?? "Profesional",
+                cliente: client?.billing_name ?? "Cliente",
+                servicio: service?.title ?? "Servicio",
+                importeTotal: `${totalCliente.toFixed(2)} €`,
+                neto: `${netoProveedor.toFixed(2)} €`,
+                invoicePdf: provInvoicePdf,
+              })
+            : Promise.resolve(),
+          sendInternalSale({
+            cliente: client?.billing_name ?? "Cliente",
+            clienteEmail: clientUser?.email ?? "No disponible",
+            proveedor: provider?.business_name ?? "Profesional",
+            servicio: service?.title ?? "Servicio",
+            importe: `${totalCliente.toFixed(2)} €`,
+            stripePaymentIntentId: session.payment_intent as string,
+          }),
+        ]);
       }
 
       break;

@@ -13,6 +13,7 @@ export async function sendEmail(params: {
   subject: string;
   react: React.ReactElement;
   emailType: string;
+  attachments?: { filename: string; content: Buffer }[];
 }) {
   const admin = createAdminClient();
 
@@ -22,6 +23,7 @@ export async function sendEmail(params: {
       to: params.to,
       subject: params.subject,
       react: params.react,
+      attachments: params.attachments,
     });
 
     if (error) {

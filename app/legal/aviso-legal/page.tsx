@@ -34,7 +34,7 @@ export default function AvisoLegalPage() {
             <strong>Domicilio:</strong> Grupo Gómez Jordana, Melilla, España.
           </li>
           <li>
-            <strong>Email de contacto:</strong> info.coxiro@gmail.com.
+            <strong>Email de contacto:</strong> coxiro.info@gmail.com.
           </li>
           <li>
             <strong>Epígrafe IAE:</strong> 849.9 — Otros servicios

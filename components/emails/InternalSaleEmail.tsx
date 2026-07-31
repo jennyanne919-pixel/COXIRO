@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   Html,
   Head,
@@ -16,10 +17,31 @@ export default function CreatePasswordEmail({
 }: {
   nombre: string;
   enlace: string;
+=======
+import { Html, Head, Body, Container, Text, Hr } from "@react-email/components";
+
+export default function InternalSaleEmail({
+  cliente,
+  clienteEmail,
+  proveedor,
+  servicio,
+  importe,
+  stripePaymentIntentId,
+  fecha,
+}: {
+  cliente: string;
+  clienteEmail: string;
+  proveedor: string;
+  servicio: string;
+  importe: string;
+  stripePaymentIntentId: string;
+  fecha: string;
+>>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
 }) {
   return (
     <Html>
       <Head />
+<<<<<<< HEAD
       <Preview>Hemos creado tu cuenta en Coxiro</Preview>
       <Body style={{ backgroundColor: "#F7F3EC", fontFamily: "Helvetica, Arial, sans-serif" }}>
         <Container style={{ padding: "40px 24px", maxWidth: "480px" }}>
@@ -52,6 +74,19 @@ export default function CreatePasswordEmail({
           <Text style={{ fontSize: "13px", color: "#8A8A82", marginTop: "40px" }}>
             Si no reconoces esta compra, escríbenos a info.coxiro@gmail.com
           </Text>
+=======
+      <Body style={{ fontFamily: "monospace", fontSize: "13px", padding: "20px" }}>
+        <Container>
+          <Text style={{ fontWeight: 700 }}>Nueva venta en Coxiro</Text>
+          <Hr />
+          <Text>Cliente: {cliente}</Text>
+          <Text>Email del cliente: {clienteEmail}</Text>
+          <Text>Proveedor: {proveedor}</Text>
+          <Text>Servicio: {servicio}</Text>
+          <Text>Importe: {importe}</Text>
+          <Text>Fecha: {fecha}</Text>
+          <Text>Stripe Payment Intent: {stripePaymentIntentId}</Text>
+>>>>>>> 528f0a2c63b3c1b7d8ad12c8a1893c1bf0763791
         </Container>
       </Body>
     </Html>
