@@ -19,6 +19,7 @@ export async function createService(formData: FormData) {
   const isPublic = formData.get("is_public") === "on";
   const requiresInquiry = formData.get("requires_inquiry") === "on";
   const inquiryUrl = (formData.get("inquiry_url") as string) || null;
+  const billingInterval = (formData.get("billing_interval") as string) || null;
 
   // Subida de imagen (opcional) -- si el proveedor no adjunta nada,
   // el campo llega como un File vacío, se ignora sin más.
@@ -54,6 +55,7 @@ export async function createService(formData: FormData) {
     requires_inquiry: requiresInquiry,
     inquiry_url: inquiryUrl,
     image_url: imageUrl,
+    billing_interval: billingInterval,
   });
 
   revalidatePath("/dashboard/servicios");

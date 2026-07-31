@@ -10,6 +10,7 @@ export default function NewServiceForm({
 }) {
   const [type, setType] = useState("consult");
   const esAMedida = type === "custom";
+  const esMembresia = type === "membership";
 
   return (
     <form
@@ -101,6 +102,26 @@ export default function NewServiceForm({
         <input type="checkbox" name="is_public" />
         Mostrar en el catálogo público de Coxiro
       </label>
+
+      {esMembresia && (
+        <div>
+          <label className="text-xs text-stone block mb-1">
+            Frecuencia de cobro
+          </label>
+          <select
+            name="billing_interval"
+            required
+            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          >
+            <option value="month">Mensual</option>
+            <option value="year">Anual</option>
+          </select>
+          <p className="text-xs text-stone mt-1">
+            El cliente domicilia el pago una vez, y se cobra solo cada
+            periodo, automáticamente.
+          </p>
+        </div>
+      )}
 
       {esAMedida && (
         <>

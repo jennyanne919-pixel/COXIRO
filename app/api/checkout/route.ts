@@ -39,6 +39,8 @@ export async function GET(request: Request) {
       title,
       price,
       currency,
+      type,
+      billing_interval,
       provider_id,
       providers ( stripe_account_id, commission_rate, kyc_status )
     `
@@ -81,36 +83,71 @@ export async function GET(request: Request) {
     process.env.STRIPE_SECRET_KEY?.slice(0, 7)
   );
 
-  try {
-    console.log("[checkout] Llamando a stripe.checkout.sessions.create...");
+  const esMembresia = service.type === "membership";
+  const commissionPercent = Number(provider.commission_rate);
+  const metadataComun = {
+    service_id: service.id,
+    client_id: user?.id ?? "",
+    provider_id: service.provider_id,
+    platform_fee: (feeCents / 100).toFixed(2),
+  };
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: user?.email,
-      billing_address_collection: "auto",
-      line_items: [
-        {
-          price_data: {
-            currency: service.currency?.toLowerCase() ?? "eur",
-            product_data: { name: service.title },
-            unit_amount: amountCents,
+  try {
+    console.log(
+      "[checkout] Llamando a stripe.checkout.sessions.create... modo:",
+      esMembresia ? "subscription" : "payment"
+    );
+
+    const session = esMembresia
+      ? await stripe.checkout.sessions.create({
+          mode: "subscription",
+          customer_email: user?.email,
+          billing_address_collection: "auto",
+          payment_method_types: ["card", "sepa_debit"],
+          line_items: [
+            {
+              price_data: {
+                currency: service.currency?.toLowerCase() ?? "eur",
+                product_data: { name: service.title },
+                unit_amount: amountCents,
+                recurring: {
+                  interval: (service.billing_interval as "month" | "year") ?? "month",
+                },
+              },
+              quantity: 1,
+            },
+          ],
+          subscription_data: {
+            application_fee_percent: commissionPercent,
+            transfer_data: { destination: provider.stripe_account_id },
+            metadata: metadataComun,
           },
-          quantity: 1,
-        },
-      ],
-      payment_intent_data: {
-        application_fee_amount: feeCents,
-        transfer_data: { destination: provider.stripe_account_id },
-      },
-      metadata: {
-        service_id: service.id,
-        client_id: user?.id ?? "",
-        provider_id: service.provider_id,
-        platform_fee: (feeCents / 100).toFixed(2),
-      },
-      success_url: `${origin}/servicio/${service.id}?paid=1`,
-      cancel_url: `${origin}/servicio/${service.id}?cancelled=1`,
-    });
+          metadata: metadataComun,
+          success_url: `${origin}/servicio/${service.id}?paid=1`,
+          cancel_url: `${origin}/servicio/${service.id}?cancelled=1`,
+        })
+      : await stripe.checkout.sessions.create({
+          mode: "payment",
+          customer_email: user?.email,
+          billing_address_collection: "auto",
+          line_items: [
+            {
+              price_data: {
+                currency: service.currency?.toLowerCase() ?? "eur",
+                product_data: { name: service.title },
+                unit_amount: amountCents,
+              },
+              quantity: 1,
+            },
+          ],
+          payment_intent_data: {
+            application_fee_amount: feeCents,
+            transfer_data: { destination: provider.stripe_account_id },
+          },
+          metadata: metadataComun,
+          success_url: `${origin}/servicio/${service.id}?paid=1`,
+          cancel_url: `${origin}/servicio/${service.id}?cancelled=1`,
+        });
 
     console.log("[checkout] Sesion creada con exito. id:", session.id, "url:", session.url);
 
