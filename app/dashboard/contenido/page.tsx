@@ -15,11 +15,6 @@ export default async function MiContenidoPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Cliente admin: necesitamos leer content_items de servicios que
-  // no son "nuestros" en el sentido de RLS estándar -- la
-  // autorización real ya se comprobó al conceder content_access, y
-  // el archivo en sí solo se sirve a través de /api/access, nunca
-  // aquí directamente.
   const admin = createAdminClient();
 
   const { data: accessRows } = await admin
@@ -71,7 +66,7 @@ export default async function MiContenidoPage() {
               {items.length ? (
                 <div className="grid gap-2">
                   {items.map((item) => (
-                    <a
+                    
                       key={item.id}
                       href={`/api/access/${item.id}`}
                       target="_blank"
