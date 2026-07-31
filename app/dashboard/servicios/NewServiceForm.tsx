@@ -104,23 +104,38 @@ export default function NewServiceForm({
       </label>
 
       {esMembresia && (
-        <div>
-          <label className="text-xs text-stone block mb-1">
-            Frecuencia de cobro
-          </label>
-          <select
-            name="billing_interval"
-            required
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          >
-            <option value="month">Mensual</option>
-            <option value="year">Anual</option>
-          </select>
-          <p className="text-xs text-stone mt-1">
-            El cliente domicilia el pago una vez, y se cobra solo cada
-            periodo, automáticamente.
-          </p>
-        </div>
+        <>
+          <div>
+            <label className="text-xs text-stone block mb-1">
+              Frecuencia de cobro
+            </label>
+            <select
+              name="billing_interval"
+              required
+              className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+            >
+              <option value="month">Mensual</option>
+              <option value="year">Anual</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-stone block mb-1">
+              Número de pagos (opcional)
+            </label>
+            <input
+              name="total_installments"
+              type="number"
+              min="1"
+              placeholder="Déjalo en blanco para suscripción sin fin"
+              className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+            />
+            <p className="text-xs text-stone mt-1">
+              Ej. "6" para una mentoría de 6 meses con 6 pagos, que se
+              detiene sola al final. Déjalo vacío si el cliente debe
+              seguir pagando indefinidamente hasta que cancele.
+            </p>
+          </div>
+        </>
       )}
 
       {esAMedida && (

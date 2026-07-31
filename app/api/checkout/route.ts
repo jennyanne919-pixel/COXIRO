@@ -41,6 +41,7 @@ export async function GET(request: Request) {
       currency,
       type,
       billing_interval,
+      total_installments,
       provider_id,
       providers ( stripe_account_id, commission_rate, kyc_status )
     `
@@ -84,6 +85,20 @@ export async function GET(request: Request) {
   );
 
   const esMembresia = service.type === "membership";
+
+  // Si el proveedor puso un numero de pagos, calculamos la fecha en
+  // la que Stripe debe dejar de cobrar solo -- si no puso nada, la
+  // suscripcion es indefinida hasta que se cancele.
+  let cancelAt: number | undefined;
+  if (esMembresia && service.total_installments) {
+    const cancelDate = new Date();
+    if (service.billing_interval === "year") {
+      cancelDate.setFullYear(cancelDate.getFullYear() + service.total_installments);
+    } else {
+      cancelDate.setMonth(cancelDate.getMonth() + service.total_installments);
+    }
+    cancelAt = Math.floor(cancelDate.getTime() / 1000);
+  }
   const commissionPercent = Number(provider.commission_rate);
   const metadataComun = {
     service_id: service.id,
@@ -121,6 +136,7 @@ export async function GET(request: Request) {
             application_fee_percent: commissionPercent,
             transfer_data: { destination: provider.stripe_account_id },
             metadata: metadataComun,
+            ...(cancelAt ? { cancel_at: cancelAt } : {}),
           },
           metadata: metadataComun,
           success_url: `${origin}/servicio/${service.id}?paid=1`,
