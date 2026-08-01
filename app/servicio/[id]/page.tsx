@@ -34,6 +34,9 @@ export default async function ServicioPage({
       requires_inquiry,
       inquiry_url,
       image_url,
+      type,
+      billing_interval,
+      total_installments,
       providers ( business_name, kyc_status )
     `
     )
@@ -106,9 +109,24 @@ export default async function ServicioPage({
 
         <div className="rounded-lg bg-white border border-stone/20 p-6">
           {!service.requires_inquiry && (
-            <p className="text-3xl font-display font-semibold mb-4">
-              {Number(service.price).toFixed(2)} €
-            </p>
+            <div className="mb-4">
+              <p className="text-3xl font-display font-semibold">
+                {Number(service.price).toFixed(2)} €
+                {service.type === "membership" && (
+                  <span className="text-base font-normal text-stone">
+                    {" "}
+                    / {service.billing_interval === "year" ? "año" : "mes"}
+                  </span>
+                )}
+              </p>
+              {service.type === "membership" && (
+                <p className="text-xs text-stone mt-1">
+                  {service.total_installments
+                    ? `Domiciliación ${service.billing_interval === "year" ? "anual" : "mensual"} — se cobrará ${service.total_installments} ${service.total_installments === 1 ? "vez" : "veces"} en total, y se detiene sola.`
+                    : `Domiciliación ${service.billing_interval === "year" ? "anual" : "mensual"} — se renueva automáticamente hasta que canceles.`}
+                </p>
+              )}
+            </div>
           )}
 
           {yaComprado ? (

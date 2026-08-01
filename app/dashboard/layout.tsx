@@ -16,7 +16,7 @@ const PROVIDER_NAV = [
 const CLIENT_NAV = [
   { label: "Mis compras", href: "/dashboard", soon: false },
   { label: "Mi contenido", href: "/dashboard/contenido", soon: false },
-  { label: "Mis facturas", href: "#", soon: true },
+  { label: "Productos digitales", href: "/catalogo", soon: false },
 ];
 
 export default async function DashboardLayout({
