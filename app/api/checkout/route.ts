@@ -105,6 +105,7 @@ export async function GET(request: Request) {
     client_id: user?.id ?? "",
     provider_id: service.provider_id,
     platform_fee: (feeCents / 100).toFixed(2),
+    ...(cancelAt ? { cancel_at: String(cancelAt) } : {}),
   };
 
   try {
@@ -136,7 +137,6 @@ export async function GET(request: Request) {
             application_fee_percent: commissionPercent,
             transfer_data: { destination: provider.stripe_account_id },
             metadata: metadataComun,
-            ...(cancelAt ? { cancel_at: cancelAt } : {}),
           },
           metadata: metadataComun,
           success_url: `${origin}/servicio/${service.id}?paid=1`,

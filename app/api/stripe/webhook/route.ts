@@ -119,6 +119,22 @@ export async function POST(request: Request) {
           stripe_subscription_id: session.subscription as string,
           status: "active",
         });
+
+        // Si el servicio tiene un numero de pagos limitado, aplicamos
+        // ahora la fecha de fin -- Stripe solo admite este campo
+        // sobre una suscripcion ya creada, no en la creacion del
+        // Checkout.
+        const cancelAtRaw = (session.metadata as Record<string, string>).cancel_at;
+        if (cancelAtRaw) {
+          try {
+            await stripe.subscriptions.update(session.subscription as string, {
+              cancel_at: Number(cancelAtRaw),
+            });
+          } catch (err: any) {
+            console.error("Error aplicando cancel_at a la suscripcion:", err?.message);
+          }
+        }
+
         break;
       }
 
