@@ -70,19 +70,25 @@ export default async function MiContenidoPage() {
 
               {items.length ? (
                 <div className="grid gap-2">
-                  {items.map((item) => (
-                    <a
-                      key={item.id}
-                      href={`/api/access/${item.id}`}
-                      target="_blank"
-                      className="flex items-center justify-between rounded-lg bg-white border border-stone/20 px-4 py-3 hover:border-copper transition"
-                    >
-                      <span className="text-sm">{item.title}</span>
-                      <span className="text-xs text-copper font-medium">
-                        {TYPE_LABELS[item.content_type] ?? item.content_type} →
-                      </span>
-                    </a>
-                  ))}
+                  {items.map((item) => {
+                    const esReproducible = ["video", "audio"].includes(item.content_type);
+                    const href = esReproducible
+                      ? `/contenido/${item.id}`
+                      : `/api/access/${item.id}`;
+                    return (
+                      <a
+                        key={item.id}
+                        href={href}
+                        target={esReproducible ? "_self" : "_blank"}
+                        className="flex items-center justify-between rounded-lg bg-white border border-stone/20 px-4 py-3 hover:border-copper transition"
+                      >
+                        <span className="text-sm">{item.title}</span>
+                        <span className="text-xs text-copper font-medium">
+                          {TYPE_LABELS[item.content_type] ?? item.content_type} →
+                        </span>
+                      </a>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-sm text-stone">
