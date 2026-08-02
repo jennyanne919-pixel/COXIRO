@@ -214,11 +214,37 @@ export default async function CatalogoPage({
             );
           })}
           {!listaActiva?.length && (
-            <p className="text-sm text-stone">
-              {busqueda || temaActivo
-                ? "Ninguna coincidencia con ese filtro."
-                : "Todavía no hay servicios publicados en esta categoría."}
-            </p>
+            <div className="text-sm text-stone">
+              {(() => {
+                if (!busqueda && !temaActivo) {
+                  return <p>Todavía no hay servicios publicados en esta categoría.</p>;
+                }
+                const otraCategoria = Object.entries(listas).find(
+                  ([key, lista]) => key !== categoriaActiva && (lista?.length ?? 0) > 0
+                );
+                const NOMBRES: Record<string, string> = {
+                  curso: "Cursos / Formación",
+                  mentoria: "Mentoría",
+                  membresia: "Membresías y suscripciones",
+                  medida: "Servicios IA",
+                };
+                return otraCategoria ? (
+                  <p>
+                    No hay resultados en esta categoría, pero sí hay{" "}
+                    {otraCategoria[1]?.length} en{" "}
+                    <a
+                      href={`/catalogo${qs({ categoria: otraCategoria[0] })}`}
+                      className="text-copper underline font-medium"
+                    >
+                      {NOMBRES[otraCategoria[0]]}
+                    </a>
+                    .
+                  </p>
+                ) : (
+                  <p>Ninguna coincidencia con ese filtro, en ninguna categoría.</p>
+                );
+              })()}
+            </div>
           )}
         </div>
       </div>
