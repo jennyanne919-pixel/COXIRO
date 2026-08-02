@@ -8,8 +8,8 @@ import {
   DefaultAudioLayout,
 } from "@vidstack/react/player/layouts/default";
 import "@vidstack/react/player/styles/default/theme.css";
-import "@vidstack/react/player/styles/default/layout/video.css";
-import "@vidstack/react/player/styles/default/layout/audio.css";
+import "@vidstack/react/player/styles/default/layouts/video.css";
+import "@vidstack/react/player/styles/default/layouts/audio.css";
 import { saveProgress } from "./actions";
 
 export default function VideoPlayer({
