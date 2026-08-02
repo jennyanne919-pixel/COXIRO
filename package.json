@@ -15,7 +15,7 @@
     "@react-email/render": "^2.1.0",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.45.0",
-    "@vidstack/react": "^0.6.15",
+    "@vidstack/react": "^1.15.6",
     "next": "^16.2.11",
     "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",
