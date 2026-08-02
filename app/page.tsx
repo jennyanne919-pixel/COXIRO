@@ -42,6 +42,26 @@ export default async function LandingPage() {
 
   return (
     <main>
+      {/* Banner deslizante de anuncios */}
+      <div className="bg-ink text-paper overflow-hidden py-2 text-xs font-medium whitespace-nowrap">
+        <div className="inline-flex animate-marquee">
+          {[...Array(2)].map((_, i) => (
+            <span key={i} className="flex items-center gap-8 px-4">
+              <span>📈 Un incremento del 10% de tu beneficio garantizado</span>
+              <span className="text-copper">•</span>
+              <span>💰 Aumenta tus beneficios: cóbrate en 24-48h, sin gestionar nada</span>
+              <span className="text-copper">•</span>
+              <span>🧾 Olvídate de la factura — nosotros la emitimos por ti, automáticamente</span>
+              <span className="text-copper">•</span>
+              <span>📦 Aloja tus cursos, mentorías y contenido, todo en un mismo sitio</span>
+              <span className="text-copper">•</span>
+              <span>🔒 Cobros seguros con Stripe, domiciliación SEPA disponible</span>
+              <span className="text-copper">•</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
       <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-stone/20">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 md:px-8 py-4 gap-6">
           <a href="/" className="flex-shrink-0">
