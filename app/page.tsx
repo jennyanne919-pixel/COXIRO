@@ -49,8 +49,6 @@ export default async function LandingPage() {
             <span key={i} className="flex items-center gap-8 px-4">
               <span>📈 Un incremento del 10% de tu beneficio garantizado</span>
               <span className="text-copper">•</span>
-              <span>💰 Aumenta tus beneficios: cóbrate en 24-48h, sin gestionar nada</span>
-              <span className="text-copper">•</span>
               <span>🧾 Olvídate de la factura — nosotros la emitimos por ti, automáticamente</span>
               <span className="text-copper">•</span>
               <span>📦 Aloja tus cursos, mentorías y contenido, todo en un mismo sitio</span>
