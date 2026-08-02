@@ -116,7 +116,7 @@ export default async function CatalogoPage({
                 : "border-transparent text-stone hover:text-ink"
             }`}
           >
-            Curso online ({cursos.length})
+            Cursos / Formación ({cursos.length})
           </a>
           <a
             href={`/catalogo${qs({ categoria: "mentoria" })}`}

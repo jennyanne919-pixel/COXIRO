@@ -24,7 +24,12 @@ export default async function ReproductorPage({
 
   const { data: item } = await admin
     .from("content_items")
-    .select("id, title, service_id, content_type, r2_key, file_url, is_free")
+    .select(
+      `
+      id, title, service_id, content_type, r2_key, file_url, is_free,
+      services ( title, image_url )
+    `
+    )
     .eq("id", itemId)
     .single();
 
@@ -72,6 +77,12 @@ export default async function ReproductorPage({
         </a>
       </header>
       <div className="max-w-4xl mx-auto px-6 pb-16">
+        <a
+          href={`/servicio/${item.service_id}`}
+          className="text-xs text-stone hover:text-paper block mb-1"
+        >
+          ← {(item.services as any)?.title ?? "Volver al servicio"}
+        </a>
         <h1 className="text-paper text-lg font-medium mb-4">{item.title}</h1>
         <VideoPlayer
           src={src}

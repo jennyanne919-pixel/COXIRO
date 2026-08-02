@@ -142,9 +142,13 @@ export default async function ServicioPage({
           <h1 className="text-3xl font-display font-semibold mb-4">
             {service.title}
           </h1>
-          <p className="text-stone text-sm leading-relaxed mb-8 whitespace-pre-line">
-            {service.description}
-          </p>
+
+          <div className="mb-8">
+            <h2 className="text-lg font-medium mb-2">Descripción</h2>
+            <p className="text-stone text-sm leading-relaxed whitespace-pre-line">
+              {service.description}
+            </p>
+          </div>
 
           {/* Vídeo/contenido de presentación gratuito */}
           {contenidoGratis.length > 0 && (
