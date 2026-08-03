@@ -146,7 +146,7 @@ export default async function LandingPage() {
         </div>
       </header>
 
-      <HeroSection className="relative overflow-hidden bg-ink text-paper py-28 md:py-36">
+      <HeroSection className="relative overflow-hidden bg-[#0D0E11] text-paper py-28 md:py-36">
         <div className="max-w-5xl mx-auto px-8 max-w-xl">
           <span className="text-xs font-semibold uppercase tracking-wider text-copper">
             La infraestructura para profesionales
