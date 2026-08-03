@@ -1,4 +1,5 @@
 import Logo from "@/components/Logo";
+import HeroSection from "@/components/HeroSection";
 import { createClient } from "@/lib/supabase/server";
 
 const AUDIENCE = [
@@ -145,7 +146,7 @@ export default async function LandingPage() {
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-ink text-paper py-28 md:py-36">
+      <HeroSection className="relative overflow-hidden bg-ink text-paper py-28 md:py-36">
         <div className="max-w-5xl mx-auto px-8 max-w-xl">
           <span className="text-xs font-semibold uppercase tracking-wider text-copper">
             La infraestructura para profesionales
@@ -175,7 +176,7 @@ export default async function LandingPage() {
             Pasarela de pago, tu perfil y facturación, sin coste.
           </p>
         </div>
-      </section>
+      </HeroSection>
 
       <section id="para-quien" className="py-24 max-w-5xl mx-auto px-8">
         <div className="max-w-lg mb-14">
