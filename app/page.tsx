@@ -3,10 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 
 const AUDIENCE = [
   "Creadores de contenido",
-  "Entrenadores",
   "Mentores",
   "Formadores",
   "Diseñadores",
+  "Servicios de IA",
 ];
 
 const STEPS = [
@@ -47,7 +47,7 @@ export default async function LandingPage() {
         <div className="inline-flex animate-marquee">
           {[...Array(2)].map((_, i) => (
             <span key={i} className="flex items-center gap-8 px-4">
-              <span>📈 Un incremento del 10% de tu beneficio garantizado</span>
+              <span>📈 Hasta un 10% más de margen en tus ventas a clientes particulares</span>
               <span className="text-copper">•</span>
               <span>🧾 Olvídate de la factura — nosotros la emitimos por ti, automáticamente</span>
               <span className="text-copper">•</span>
@@ -155,19 +155,25 @@ export default async function LandingPage() {
             <br />
             Nosotros hacemos el resto.
           </h1>
-          <p className="text-lg text-paper/70 max-w-md mb-9">
+          <p className="text-lg text-paper/70 max-w-md mb-4">
             Tu talento. Nuestra infraestructura. Cobra a tus clientes, factura
             sin líos y comparte tu contenido, sin montar tú la tecnología
             detrás.
           </p>
+          <p className="text-sm font-medium text-copper max-w-md mb-9">
+            Hasta un 10% más de margen en tus ventas a clientes particulares.
+          </p>
           <div className="flex gap-3.5 flex-wrap">
             <a href="/registro" className="rounded-lg bg-copper px-6 py-3 text-sm font-semibold hover:bg-copper-dark transition">
-              Empieza gratis
+              Regístrate gratis
             </a>
             <a href="#como-funciona" className="rounded-lg border border-paper/30 px-6 py-3 text-sm font-semibold hover:border-paper transition">
               Ver cómo funciona
             </a>
           </div>
+          <p className="text-xs text-paper/50 mt-3.5">
+            Pasarela de pago, tu perfil y facturación, sin coste.
+          </p>
         </div>
       </section>
 
