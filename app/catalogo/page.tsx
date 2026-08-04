@@ -76,7 +76,7 @@ export default async function CatalogoPage({
             <Logo variant="light" />
           </a>
           <a
-            href="/registro"
+            href="/registro?role=client"
             className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition"
           >
             Regístrate

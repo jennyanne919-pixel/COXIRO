@@ -10,6 +10,7 @@ export default function LoginForm({
   searchParams: { error?: string; next?: string };
 }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [modo, setModo] = useState<"comprador" | "vendedor" | null>(null);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-paper px-6">
@@ -20,9 +21,41 @@ export default function LoginForm({
           </a>
         </div>
         <h1 className="text-xl font-medium mb-1">Inicia sesión</h1>
-        <p className="text-sm text-stone mb-6">Accede a tu panel de Coxiro</p>
+        <p className="text-sm text-stone mb-6">
+          {modo === "vendedor"
+            ? "Accede para gestionar tu negocio"
+            : modo === "comprador"
+            ? "Accede a tus compras"
+            : "Accede a tu panel de Coxiro"}
+        </p>
 
-        {searchParams.error && (
+        {!modo ? (
+          <div className="grid gap-3">
+            <button
+              onClick={() => setModo("comprador")}
+              className="text-left rounded-lg border border-stone/20 bg-white p-4 hover:border-copper transition"
+            >
+              <p className="text-sm font-semibold">Acceder a mis compras</p>
+              <p className="text-xs text-stone mt-0.5">Entra como comprador</p>
+            </button>
+            <button
+              onClick={() => setModo("vendedor")}
+              className="text-left rounded-lg border border-stone/20 bg-white p-4 hover:border-copper transition"
+            >
+              <p className="text-sm font-semibold">Gestionar mi negocio</p>
+              <p className="text-xs text-stone mt-0.5">Entra como profesional</p>
+            </button>
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={() => setModo(null)}
+              className="text-xs text-stone hover:text-ink mb-4"
+            >
+              ← Volver
+            </button>
+
+            {searchParams.error && (
           <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
             {searchParams.error}
           </p>
@@ -99,6 +132,8 @@ export default function LoginForm({
             Regístrate
           </a>
         </p>
+          </>
+        )}
       </div>
     </main>
   );

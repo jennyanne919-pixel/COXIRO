@@ -14,13 +14,12 @@ export default function HerramientaPublicaContenidoPage() {
           Herramientas
         </p>
         <h1 className="text-3xl font-display font-semibold mb-5">
-          Publica tu contenido
+          Publica tu contenido / servicios
         </h1>
         <p className="text-lg text-stone mb-8">
-          Sube tus cursos y mentorías, fija tu precio, y compártelos en tu
-          propio enlace o en el catálogo público de Coxiro. Tú decides dónde
-          vive tu contenido — nosotros nos encargamos del cobro, la factura
-          y el acceso.
+          Sube tus cursos online, mentorías o cualquier servicio que se pueda
+          prestar online. Fija tu precio, tú decides cómo lo entregas —
+          nosotros nos encargamos del cobro, la factura y el acceso.
         </p>
         <a
           href="/registro"

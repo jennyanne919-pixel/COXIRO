@@ -7,9 +7,11 @@ import { signUp } from "@/app/auth/actions";
 export default function RegistroForm({
   searchParams,
 }: {
-  searchParams: { error?: string; ["check-email"]?: string; ref?: string };
+  searchParams: { error?: string; ["check-email"]?: string; ref?: string; role?: string };
 }) {
-  const [role, setRole] = useState<"provider" | "client">("provider");
+  const [role, setRole] = useState<"provider" | "client">(
+    searchParams.role === "client" ? "client" : "provider"
+  );
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -42,7 +44,7 @@ export default function RegistroForm({
               role === "provider" ? "bg-ink text-paper" : "text-stone"
             }`}
           >
-            Soy profesional
+            Quiero vender
           </button>
           <button
             type="button"
@@ -51,7 +53,7 @@ export default function RegistroForm({
               role === "client" ? "bg-ink text-paper" : "text-stone"
             }`}
           >
-            Soy cliente
+            Quiero comprar
           </button>
         </div>
 

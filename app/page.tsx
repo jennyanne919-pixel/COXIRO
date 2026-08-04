@@ -8,10 +8,11 @@ const AUDIENCE = [
   "Formadores",
   "Diseñadores",
   "Servicios de IA",
+  "Consultoría",
 ];
 
 const STEPS = [
-  { n: "01", title: "Sube tu servicio", body: "Contenido, mentoría o asesoría. Fija tu precio, tú decides cómo lo entregas." },
+  { n: "01", title: "Sube tu servicio", body: "Contenido online, mentoría o consultoría, servicios a medida, servicios de inteligencia artificial. Fija tu precio y tú decides cómo lo entregas: directamente al catálogo público de Coxiro o mediante un enlace privado de pago para tu cliente." },
   { n: "02", title: "Tu cliente paga", body: "Procesamos el cobro y emitimos la factura, tanto a tu cliente como a ti." },
   { n: "03", title: "Tú cobras, sin gestión", body: "Recibes tu pago automáticamente. Sin hojas de cálculo, sin perseguir facturas." },
 ];
@@ -19,7 +20,7 @@ const STEPS = [
 const FEATURES = [
   { title: "Pagos y cobros", body: "Pasarela de pago integrada para cobrar a tus clientes de forma segura.", soon: false },
   { title: "Facturación automática", body: "Factura al proveedor y al cliente final en cada cobro, sin intervención manual.", soon: false },
-  { title: "Área privada de contenido", body: "Sube tus materiales y tus clientes acceden desde su propio espacio.", soon: false },
+  { title: "Área privada de contenido y servicios", body: "Sube tus materiales y tus clientes acceden desde su propio espacio.", soon: false },
   { title: "Automatizaciones", body: "Recordatorios y flujos que hoy haces a mano.", soon: true },
   { title: "Analítica de tu negocio", body: "Cuánto vendes, quién te compra, qué funciona.", soon: true },
   { title: "Afiliados e IA", body: "Haz crecer tu alcance y apóyate en IA para vender mejor.", soon: true },
@@ -44,10 +45,12 @@ export default async function LandingPage() {
   return (
     <main>
       {/* Banner deslizante de anuncios */}
-      <div className="bg-ink text-paper overflow-hidden py-2 text-xs font-medium whitespace-nowrap">
+      <div className="bg-ink text-paper overflow-hidden py-3 text-sm font-medium whitespace-nowrap">
         <div className="inline-flex animate-marquee">
           {[...Array(2)].map((_, i) => (
             <span key={i} className="flex items-center gap-8 px-4">
+              <span>🚀 Coxiro es para todo profesional que pueda vender sus servicios o infoproductos online</span>
+              <span className="text-copper">•</span>
               <span>📈 Hasta un 10% más de margen en tus ventas a clientes particulares</span>
               <span className="text-copper">•</span>
               <span>🧾 Olvídate de la factura — nosotros la emitimos por ti, automáticamente</span>
@@ -72,7 +75,7 @@ export default async function LandingPage() {
             <div className="relative group">
               <button className="hover:text-ink whitespace-nowrap">Herramientas</button>
               <div className="absolute left-0 top-full hidden group-hover:block bg-white border border-stone/20 rounded-lg shadow-lg py-2 min-w-[220px] z-50">
-                <a href="/herramientas/publica-tu-contenido" className="block px-4 py-2 text-sm hover:bg-paper">Publica tu contenido</a>
+                <a href="/herramientas/publica-tu-contenido" className="block px-4 py-2 text-sm hover:bg-paper">Publica tu contenido / servicios</a>
                 <a href="/herramientas/dashboard" className="block px-4 py-2 text-sm hover:bg-paper">Dashboard</a>
                 <a href="/herramientas/pasarela-de-pagos" className="block px-4 py-2 text-sm hover:bg-paper">Pasarela de pagos</a>
                 <a href="/herramientas/suscripciones" className="block px-4 py-2 text-sm hover:bg-paper">Suscripciones y pagos recurrentes</a>
@@ -97,7 +100,7 @@ export default async function LandingPage() {
               <>
                 <a
                   href="/login"
-                  className="rounded-lg border border-stone/30 px-4 py-2.5 text-sm font-semibold text-ink hover:border-ink transition whitespace-nowrap"
+                  className="rounded-lg border border-copper px-4 py-2.5 text-sm font-semibold text-copper hover:bg-copper/5 transition whitespace-nowrap"
                 >
                   Iniciar sesión
                 </a>
@@ -131,7 +134,7 @@ export default async function LandingPage() {
               )}
               <div className="border-t border-stone/20 my-1" />
               <a href="/catalogo" className="px-4 py-2.5 text-sm">Productos digitales</a>
-              <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido</a>
+              <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido / servicios</a>
               <a href="/herramientas/dashboard" className="px-4 py-2.5 text-sm">Dashboard</a>
               <a href="/herramientas/pasarela-de-pagos" className="px-4 py-2.5 text-sm">Pasarela de pagos</a>
               <a href="/herramientas/suscripciones" className="px-4 py-2.5 text-sm">Suscripciones y pagos recurrentes</a>
@@ -149,19 +152,20 @@ export default async function LandingPage() {
       <HeroSection className="relative overflow-hidden bg-[#0D0E11] text-paper py-28 md:py-36">
         <div className="max-w-5xl mx-auto px-8 max-w-xl">
           <span className="text-xs font-semibold uppercase tracking-wider text-copper">
-            La infraestructura para profesionales
+            La infraestructura para profesionales digitales
           </span>
           <h1 className="font-display font-semibold text-4xl md:text-5xl leading-tight mt-5 mb-5">
-            Gana hasta un 10% más vendiendo tus infoproductos, mentorías y
-            servicios online.
+            Gana un 10% más vendiendo tus infoproductos, mentorías y
+            servicios online con nosotros.
           </h1>
-          <p className="text-lg text-paper/70 max-w-md mb-4">
-            No somos un curso más, ni una simple pasarela de pago. Somos la
-            infraestructura que hay detrás de tu negocio.
+          <p className="text-base text-paper/60 max-w-md mb-4">
+            Sin cuotas mensuales, sin letra pequeña: aplicado automáticamente
+            en cada venta a clientes particulares.
           </p>
           <p className="text-sm text-stone max-w-md mb-9">
             Infoproductos · Mentorías privadas · Cursos online · Servicios de
-            IA a medida · Consultoría
+            IA a medida · Consultoría · Cualquier formación o servicio que
+            pueda prestarse online
           </p>
           <div className="flex items-center gap-5 flex-wrap">
             <a
@@ -198,7 +202,8 @@ export default async function LandingPage() {
             Para quién es Coxiro
           </span>
           <h2 className="font-display font-semibold text-3xl mt-3">
-            Cualquier profesional que venda su talento online
+            Cualquier profesional que pueda prestar sus servicios,
+            infoproductos o contenido online
           </h2>
         </div>
         <div className="flex flex-wrap gap-2.5">
@@ -208,6 +213,13 @@ export default async function LandingPage() {
             </span>
           ))}
         </div>
+        <p className="text-sm text-stone mt-6">
+          ¿Crees que puedes vender tus servicios online? Consúltanos o
+          escríbenos a{" "}
+          <a href="mailto:coxiro.info@gmail.com" className="text-copper underline">
+            coxiro.info@gmail.com
+          </a>
+        </p>
       </section>
 
       <section id="como-funciona" className="py-24 bg-white border-y border-stone/20">
@@ -217,7 +229,8 @@ export default async function LandingPage() {
               Cómo funciona
             </span>
             <h2 className="font-display font-semibold text-3xl mt-3">
-              De tu conocimiento a tu primer cobro, en tres pasos
+              De tus servicios, infoproductos o contenidos online
+              directamente a tu cartera, en tres pasos
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-px bg-stone/20 border border-stone/20 rounded-2xl overflow-hidden">
@@ -260,7 +273,7 @@ export default async function LandingPage() {
       <section className="bg-ink text-paper py-24 text-center">
         <p className="font-display text-2xl md:text-3xl font-medium max-w-2xl mx-auto leading-snug px-8">
           No somos un curso más, ni una simple pasarela de pago. Somos{" "}
-          <span className="text-copper">la infraestructura</span> que hay
+          <span className="text-copper">la infraestructura inteligente</span> que hay
           detrás de tu negocio.
         </p>
       </section>
