@@ -104,11 +104,6 @@ export default function RegistroForm({
                   </option>
                   <option value="Servicios">Servicios</option>
                 </select>
-                <p className="text-xs text-stone mt-1">
-                  De momento solo damos de alta mentorías, cursos y servicios
-                  de IA — pronto
-                  abriremos más categorías.
-                </p>
               </div>
             </>
           )}
