@@ -97,12 +97,12 @@ export default function RegistroForm({
                 >
                   <option value="">Selecciona una opción</option>
                   <option value="Mentor / Coach">Mentor / Coach</option>
-                  <option value="Creador de contenido / Cursos">
-                    Creador de contenido / Cursos
-                  </option>
+                  <option value="Creador de contenido">Creador de contenido</option>
+                  <option value="Cursos online">Cursos online</option>
                   <option value="Inteligencia Artificial">
                     Inteligencia Artificial
                   </option>
+                  <option value="Servicios">Servicios</option>
                 </select>
                 <p className="text-xs text-stone mt-1">
                   De momento solo damos de alta mentorías, cursos y servicios

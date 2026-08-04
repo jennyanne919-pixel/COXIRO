@@ -14,7 +14,7 @@ export default function HerramientaPublicaContenidoPage() {
           Herramientas
         </p>
         <h1 className="text-3xl font-display font-semibold mb-5">
-          Publica tu contenido / servicios
+          Publica tu contenido / servicio
         </h1>
         <p className="text-lg text-stone mb-8">
           Sube tus cursos online, mentorías o cualquier servicio que se pueda

@@ -8,7 +8,7 @@ export default async function CatalogoPage({
   searchParams: Promise<{ categoria?: string; q?: string; tema?: string }>;
 }) {
   const sp = await searchParams;
-  const categoriaActiva = ["curso", "mentoria", "membresia", "medida"].includes(sp.categoria ?? "")
+  const categoriaActiva = ["curso", "mentoria", "membresia", "medida", "otros"].includes(sp.categoria ?? "")
     ? sp.categoria!
     : "curso";
   const busqueda = sp.q?.trim() ?? "";
@@ -49,12 +49,14 @@ export default async function CatalogoPage({
   const mentorias = services?.filter((s) => s.type === "consult") ?? [];
   const membresias = services?.filter((s) => s.type === "membership") ?? [];
   const aMedida = services?.filter((s) => s.type === "custom") ?? [];
+  const otrosServicios = services?.filter((s) => s.type === "other") ?? [];
 
   const listas: Record<string, typeof services> = {
     curso: cursos,
     mentoria: mentorias,
     membresia: membresias,
     medida: aMedida,
+    otros: otrosServicios,
   };
   const listaActiva = listas[categoriaActiva] ?? [];
 
@@ -148,6 +150,16 @@ export default async function CatalogoPage({
           >
             Servicios IA ({aMedida.length})
           </a>
+          <a
+            href={`/catalogo${qs({ categoria: "otros" })}`}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
+              categoriaActiva === "otros"
+                ? "border-copper text-ink"
+                : "border-transparent text-stone hover:text-ink"
+            }`}
+          >
+            Otros servicios ({otrosServicios.length})
+          </a>
         </div>
 
         {/* Filtro por temática */}
@@ -227,6 +239,7 @@ export default async function CatalogoPage({
                   mentoria: "Mentoría",
                   membresia: "Membresías y suscripciones",
                   medida: "Servicios IA",
+                  otros: "Otros servicios",
                 };
                 return otraCategoria ? (
                   <p>
