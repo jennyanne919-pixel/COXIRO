@@ -152,28 +152,42 @@ export default async function LandingPage() {
             La infraestructura para profesionales
           </span>
           <h1 className="font-display font-semibold text-4xl md:text-5xl leading-tight mt-5 mb-5">
-            Haz lo que mejor sabes hacer.
-            <br />
-            Nosotros hacemos el resto.
+            Gana hasta un 10% más vendiendo tus infoproductos, mentorías y
+            servicios online.
           </h1>
           <p className="text-lg text-paper/70 max-w-md mb-4">
-            Tu talento. Nuestra infraestructura. Cobra a tus clientes, factura
-            sin líos y comparte tu contenido, sin montar tú la tecnología
-            detrás.
+            No somos un curso más, ni una simple pasarela de pago. Somos la
+            infraestructura que hay detrás de tu negocio.
           </p>
-          <p className="text-sm font-medium text-copper max-w-md mb-9">
-            Hasta un 10% más de margen en tus ventas a clientes particulares.
+          <p className="text-sm text-stone max-w-md mb-9">
+            Infoproductos · Mentorías privadas · Cursos online · Servicios de
+            IA a medida · Consultoría
           </p>
-          <div className="flex gap-3.5 flex-wrap">
-            <a href="/registro" className="rounded-lg bg-copper px-6 py-3 text-sm font-semibold hover:bg-copper-dark transition">
-              Regístrate gratis
+          <div className="flex items-center gap-5 flex-wrap">
+            <a
+              href="/registro"
+              className="rounded-lg bg-copper px-8 py-4 text-base font-semibold hover:bg-copper-dark transition"
+            >
+              Quiero vender
             </a>
-            <a href="#como-funciona" className="rounded-lg border border-paper/30 px-6 py-3 text-sm font-semibold hover:border-paper transition">
-              Ver cómo funciona
+            <a
+              href="/catalogo"
+              className="text-sm text-paper/60 underline decoration-paper/30 hover:text-paper hover:decoration-paper transition"
+            >
+              ¿Buscas comprar? →
             </a>
           </div>
-          <p className="text-xs text-paper/50 mt-3.5">
-            Pasarela de pago, tu perfil y facturación, sin coste.
+        </div>
+
+        {/* Diagrama de 3 pasos, justo debajo del hero */}
+        <div className="max-w-5xl mx-auto px-8 mt-16 pt-10 border-t border-paper/10">
+          <p className="text-sm text-paper/60 flex flex-wrap items-center gap-2">
+            <span className="text-paper font-medium">Sube tu contenido</span>
+            <span className="text-copper">→</span>
+            <span className="text-paper font-medium">Fija tu precio</span>
+            <span className="text-copper">→</span>
+            <span className="text-paper font-medium">Cobra sin gestión</span>
+            <span className="text-paper/50">(factura automática)</span>
           </p>
         </div>
       </HeroSection>
