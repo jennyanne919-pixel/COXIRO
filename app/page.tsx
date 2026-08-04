@@ -22,9 +22,9 @@ const FEATURES = [
   { title: "Pagos y cobros", body: "Pasarela de pago integrada para cobrar a tus clientes de forma segura.", soon: false },
   { title: "Facturación automática", body: "Factura al proveedor y al cliente final en cada cobro, sin intervención manual.", soon: false },
   { title: "Área privada de contenido y servicios", body: "Sube tus materiales y tus clientes acceden desde su propio espacio.", soon: false },
-  { title: "Automatizaciones", body: "Recordatorios y flujos que hoy haces a mano.", soon: true },
-  { title: "Analítica de tu negocio", body: "Cuánto vendes, quién te compra, qué funciona.", soon: true },
-  { title: "Afiliados e IA", body: "Haz crecer tu alcance y apóyate en IA para vender mejor.", soon: true },
+  { title: "Gestiona tu negocio", body: "Cuánto vendes, quién te compra, qué funciona.", soon: false },
+  { title: "Automatizaciones", body: "Recordatorios, flujos y emails que hoy haces a mano.", soon: true },
+  { title: "Inteligencia Artificial", body: "Haz crecer tu alcance y apóyate en la inteligencia artificial para crear y vender mejor.", soon: true },
 ];
 
 export default async function LandingPage() {
@@ -84,7 +84,8 @@ export default async function LandingPage() {
             </div>
             <a href="#como-funciona" className="hover:text-ink whitespace-nowrap">Cómo funciona</a>
             <a href="#para-quien" className="hover:text-ink whitespace-nowrap">Para quién</a>
-            <a href="#incluye" className="hover:text-ink whitespace-nowrap">Qué incluye</a>
+            <a href="/catalogo" className="hover:text-ink whitespace-nowrap">Comprar producto</a>
+            <a href="/registro?role=provider" className="hover:text-ink whitespace-nowrap">Vender producto</a>
             <a href="/herramientas/partners" className="hover:text-ink whitespace-nowrap">Partners</a>
             <a href="/ayuda" className="hover:text-ink whitespace-nowrap">Ayuda</a>
           </nav>
@@ -153,7 +154,8 @@ export default async function LandingPage() {
               <div className="border-t border-stone/20 my-1" />
               <a href="#como-funciona" className="px-4 py-2.5 text-sm">Cómo funciona</a>
               <a href="#para-quien" className="px-4 py-2.5 text-sm">Para quién</a>
-              <a href="#incluye" className="px-4 py-2.5 text-sm">Qué incluye</a>
+              <a href="/catalogo" className="px-4 py-2.5 text-sm">Comprar producto</a>
+              <a href="/registro?role=provider" className="px-4 py-2.5 text-sm">Vender producto</a>
               <a href="/herramientas/partners" className="px-4 py-2.5 text-sm">Partners</a>
               <a href="/ayuda" className="px-4 py-2.5 text-sm">Ayuda</a>
             </div>
@@ -226,7 +228,7 @@ export default async function LandingPage() {
           ))}
         </div>
         <p className="text-sm text-stone mt-6">
-          Si crees que puedes vender tus servicios online, consúltanos en{" "}
+          Si crees que puedes vender tus servicios online, consúltanos a{" "}
           <a href="mailto:coxiro.info@gmail.com" className="text-copper underline">
             coxiro.info@gmail.com
           </a>
