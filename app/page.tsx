@@ -226,7 +226,7 @@ export default async function LandingPage() {
           ))}
         </div>
         <p className="text-sm text-stone mt-6">
-          Si crees que puedes vender tus servicios online, consúltanos a{" "}
+          Si crees que puedes vender tus servicios online, consúltanos en{" "}
           <a href="mailto:coxiro.info@gmail.com" className="text-copper underline">
             coxiro.info@gmail.com
           </a>
