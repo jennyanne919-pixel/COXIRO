@@ -15,9 +15,9 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Coxiro — Haz lo que mejor sabes hacer. Nosotros hacemos el resto.",
+  title: "Coxiro — Gana un 10% más vendiendo tus infoproductos y servicios online",
   description:
-    "Coxiro — Gana un 10% más vendiendo tus infoproductos y servicios online",
+    "La infraestructura para profesionales digitales: pasarela de pago, facturación automática y alojamiento de tu contenido, sin coste.",
 };
 
 export default function RootLayout({
