@@ -6,6 +6,8 @@ import PurchaseConfirmationEmail from "@/components/emails/PurchaseConfirmationE
 import ProviderSaleEmail from "@/components/emails/ProviderSaleEmail";
 import InternalSaleEmail from "@/components/emails/InternalSaleEmail";
 import InternalRegistrationEmail from "@/components/emails/InternalRegistrationEmail";
+import WaitlistWelcomeEmail from "@/components/emails/WaitlistWelcomeEmail";
+import WaitlistWarmupEmail from "@/components/emails/WaitlistWarmupEmail";
 
 const EMAIL_INTERNO_COXIRO = "coxiro.info@gmail.com";
 
@@ -130,5 +132,31 @@ export async function sendInternalRegistration(params: {
       fecha: new Date().toLocaleString("es-ES"),
     }),
     emailType: "internal_registration",
+  });
+}
+export async function sendWaitlistWelcome(params: { to: string; nombre: string }) {
+  return sendEmail({
+    to: params.to,
+    subject: "Ya estás en la lista de espera de Coxiro",
+    react: WaitlistWelcomeEmail({ nombre: params.nombre }),
+    emailType: "waitlist_welcome",
+  });
+}
+
+// PREPARADA PERO SIN USAR TODAVIA -- para cuando se active la
+// secuencia de calentamiento. No se llama desde ningun sitio.
+export async function sendWaitlistWarmup(params: {
+  to: string;
+  nombre: string;
+  numeroEnSecuencia: number;
+}) {
+  return sendEmail({
+    to: params.to,
+    subject: `[Pendiente de redactar] — email ${params.numeroEnSecuencia}`,
+    react: WaitlistWarmupEmail({
+      nombre: params.nombre,
+      numeroEnSecuencia: params.numeroEnSecuencia,
+    }),
+    emailType: "waitlist_warmup",
   });
 }

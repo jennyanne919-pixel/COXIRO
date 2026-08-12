@@ -1,5 +1,6 @@
 import Logo from "@/components/Logo";
 import HeroSection from "@/components/HeroSection";
+import WaitlistForm from "@/components/WaitlistForm";
 import { createClient } from "@/lib/supabase/server";
 
 const AUDIENCE = [
@@ -301,17 +302,7 @@ export default async function LandingPage() {
               Empieza a cobrar a tus primeros clientes esta semana
             </h2>
           </div>
-          <form className="flex gap-2.5 flex-wrap">
-            <input
-              type="email"
-              required
-              placeholder="tu@email.com"
-              className="rounded-lg border border-stone/25 bg-paper px-4 py-3 text-sm min-w-[240px]"
-            />
-            <button className="rounded-lg bg-copper px-6 py-3 text-sm font-semibold text-paper hover:bg-copper-dark transition">
-              Quiero acceso
-            </button>
-          </form>
+          <WaitlistForm fuente="landing" />
         </div>
       </section>
 
