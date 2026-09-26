@@ -170,8 +170,8 @@ export default async function LandingPage() {
             La infraestructura para profesionales digitales
           </span>
           <h1 className="font-display font-semibold text-4xl md:text-5xl leading-tight mt-5 mb-5">
-            Gana un 10% más vendiendo tus infoproductos, mentorías y
-            servicios online con nosotros.
+            Vende tus servicios online en España a clientes particulares y
+            gana hasta un 10% más desde tu primera venta.
           </h1>
           <p className="text-base text-paper/60 max-w-md mb-4">
             Sin cuotas mensuales, sin letra pequeña: aplicado automáticamente
