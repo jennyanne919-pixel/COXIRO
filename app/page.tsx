@@ -299,7 +299,7 @@ export default async function LandingPage() {
               Acceso anticipado
             </span>
             <h2 className="font-display font-semibold text-2xl mt-3 max-w-sm">
-              Empieza a cobrar a tus primeros clientes esta semana
+              Empieza a ganar hasta un 10% más en tus ventas digitales
             </h2>
           </div>
           <WaitlistForm fuente="landing" />
