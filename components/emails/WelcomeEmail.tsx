@@ -34,6 +34,23 @@ export default function WelcomeEmail({
               ? "Tu cuenta de profesional en Coxiro ya está lista. Publica tu primer servicio y empieza a cobrar sin complicaciones."
               : "Tu cuenta en Coxiro ya está lista. Desde aquí podrás ver tus compras y acceder a tu contenido."}
           </Text>
+
+          <Section
+            style={{
+              marginTop: "20px",
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E2703A33",
+              borderRadius: "8px",
+              padding: "14px 16px",
+            }}
+          >
+            <Text style={{ fontSize: "13px", color: "#16181D", lineHeight: "1.5", margin: 0 }}>
+              {esProveedor
+                ? "📋 Estamos en fase de pruebas internas antes del lanzamiento público. Te avisaremos por email en cuanto Coxiro esté completamente operativo para el público."
+                : "📋 Ahora mismo estamos en fase de pruebas internas antes del lanzamiento público — cualquier compra que realices en este momento es parte de esas pruebas. Te avisaremos por email en cuanto el servicio esté completamente operativo."}
+            </Text>
+          </Section>
+
           <Section style={{ marginTop: "28px" }}>
             <Button
               href={`${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`}
