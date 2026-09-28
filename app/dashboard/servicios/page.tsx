@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { createService, toggleServiceActive, toggleServicePublic } from "./actions";
+import { createService, toggleServiceActive, toggleServicePublic, deleteService } from "./actions";
 import NewServiceForm from "./NewServiceForm";
+import DeleteServiceButton from "./DeleteServiceButton";
 
 const TYPE_LABELS: Record<string, string> = {
   content: "Contenido",
@@ -50,18 +51,19 @@ export default async function ServiciosPage() {
 
 
       <div className="rounded-lg bg-paper overflow-hidden hidden md:block">
-        <div className="grid grid-cols-7 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
+        <div className="grid grid-cols-8 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
           <span className="col-span-2">Servicio</span>
           <span>Tipo</span>
           <span>Precio</span>
           <span>Estado</span>
           <span>Catálogo</span>
           <span>Contenido</span>
+          <span></span>
         </div>
         {services?.map((s) => (
           <div
             key={s.id}
-            className="grid grid-cols-7 px-3.5 py-3 text-sm items-center border-b border-stone/20 last:border-0"
+            className="grid grid-cols-8 px-3.5 py-3 text-sm items-center border-b border-stone/20 last:border-0"
           >
             <span className="col-span-2">{s.title}</span>
             <span className="text-stone">{TYPE_LABELS[s.type] ?? s.type}</span>
@@ -98,6 +100,15 @@ export default async function ServiciosPage() {
             >
               Gestionar →
             </a>
+            <div className="flex items-center gap-3">
+              <a
+                href={`/dashboard/servicios/${s.id}/editar`}
+                className="text-xs text-stone hover:underline"
+              >
+                Editar
+              </a>
+              <DeleteServiceButton id={s.id} deleteService={deleteService} />
+            </div>
           </div>
         ))}
         {!services?.length && (
@@ -146,10 +157,19 @@ export default async function ServiciosPage() {
               </form>
               <a
                 href={`/dashboard/servicios/${s.id}/contenido`}
-                className="text-xs text-copper font-medium ml-auto"
+                className="text-xs text-copper font-medium"
               >
                 Gestionar →
               </a>
+              <a
+                href={`/dashboard/servicios/${s.id}/editar`}
+                className="text-xs text-stone font-medium"
+              >
+                Editar
+              </a>
+              <div className="ml-auto">
+                <DeleteServiceButton id={s.id} deleteService={deleteService} />
+              </div>
             </div>
           </div>
         ))}
