@@ -47,9 +47,16 @@ export async function generateInvoicePdf(
   try {
     const fontPath = path.join(process.cwd(), "assets/fonts/SpaceGrotesk-VariableFont_wght.ttf");
     const fontBytes = fs.readFileSync(fontPath);
-    wordmarkFont = await pdfDoc.embedFont(fontBytes);
-  } catch {
-    // sin archivo de fuente disponible -- se queda con Helvetica Bold
+    const embedded = await pdfDoc.embedFont(fontBytes);
+    // Fuerza el acceso a las métricas del glifo aquí mismo -- si el archivo
+    // de la fuente está corrupto o mal parseado, fontkit lanza el error en
+    // este punto (no al leer el archivo), así que lo comprobamos ya para
+    // poder caer a Helvetica Bold sin romper el resto del PDF.
+    embedded.widthOfTextAtSize("coxiro", 20);
+    wordmarkFont = embedded;
+  } catch (err) {
+    console.error("[invoice-pdf] No se pudo usar Space Grotesk, uso Helvetica Bold:", err);
+    // se queda con Helvetica Bold
   }
 
   const qrImage = await pdfDoc.embedPng(qrPng);
@@ -168,7 +175,7 @@ export async function generateInvoicePdf(
     totalRow("Base imponible", `${base} €`);
     totalRow("IVA (0,00 %)", "0,00 €");
     totalRow("Ret. I.R.P.F. (0,00 %)", "0,00 €");
-    totalRow(`Ipsi (${invoice.tax_rate.toFixed(2)} %)`, `${ipsi} €`);
+    totalRow(`Ipsi (${Number(invoice.tax_rate).toFixed(2)} %)`, `${ipsi} €`);
     totalRow("TOTAL", `${formatEUR(Number(invoice.total))} €`, true);
   }
 
