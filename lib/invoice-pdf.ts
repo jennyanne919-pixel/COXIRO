@@ -1,10 +1,32 @@
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, PDFFont, rgb, StandardFonts } from "pdf-lib";
 import QRCode from "qrcode";
 import fs from "fs";
 import path from "path";
 
 const formatEUR = (n: number) =>
   n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// Reparte un texto en varias líneas para que quepa en un ancho máximo dado,
+// palabra a palabra. Se usa para que el concepto de la factura nunca se
+// monte encima de las columnas de cantidad/precio/total.
+function wrapText(text: string, font: PDFFont, size: number, maxWidth: number): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (font.widthOfTextAtSize(candidate, size) > maxWidth && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) lines.push(current);
+
+  return lines;
+}
 
 // Datos fijos de Coxiro. Como autónoma, el nombre legal en factura es el de
 // la persona física (Jenny), con "Coxiro" como nombre comercial, y el NIF es
@@ -142,12 +164,23 @@ export async function generateInvoicePdf(
   page.drawText("Total", { x: 500, y: y + 2, size: 9, font: fontBold, color: white });
 
   y -= 26;
-  page.drawText(invoice.concept ?? "-", { x: 58, y, size: 10, font, color: ink });
+  // La columna "Concepto" solo tiene sitio hasta x=350 antes de chocar con
+  // "Cantidad" -- si el texto es más largo, lo partimos en varias líneas en
+  // vez de dejar que se monte encima de las columnas de precio/total.
+  const conceptMaxWidth = 290;
+  const conceptLines = wrapText(invoice.concept ?? "-", font, 10, conceptMaxWidth);
+
   page.drawText("1", { x: 368, y, size: 10, font, color: ink });
   page.drawText(`${precioUnico} €`, { x: 430, y, size: 10, font, color: ink });
   page.drawText(`${precioUnico} €`, { x: 495, y, size: 10, font, color: ink });
 
-  y -= 30;
+  conceptLines.forEach((line, i) => {
+    page.drawText(line, { x: 58, y: y - i * 12, size: 10, font, color: ink });
+  });
+
+  // Si el concepto ocupó más de una línea, bajamos más para no chocar con
+  // la línea horizontal ni con los totales de después.
+  y -= Math.max(30, conceptLines.length * 12 + 10);
   page.drawLine({ start: { x: 50, y: y + 10 }, end: { x: 545, y: y + 10 }, thickness: 0.5, color: stone });
 
   // ---- Totales ----

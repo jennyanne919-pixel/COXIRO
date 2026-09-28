@@ -127,7 +127,12 @@ export async function processPayment(params: {
           type: "provider_settlement",
           invoice_number: provInvoiceNumber,
           issued_at: provIssuedAt,
-          concept: `Autofactura — venta de servicio a Coxiro: ${service?.title ?? "servicio"} (emitida por Coxiro en nombre del proveedor, art. 5 RD 1619/2012)`,
+          // Texto corto a propósito: la cita legal (art. 5 RD 1619/2012) ya
+          // aparece en el pie de página de la autofactura, así que aquí no
+          // hace falta repetirla -- esto evita que el concepto se solape con
+          // las columnas de cantidad/precio/total en facturas con títulos
+          // de servicio largos.
+          concept: "Servicios de Coxiro",
           tax_base: Number(provBase.toFixed(2)),
           tax_rate: TAX_RATE_PROVEEDOR,
           tax_amount: Number(provTaxAmount.toFixed(2)),
