@@ -14,7 +14,9 @@ export const TOPICS = [
   "Salud y Bienestar",
   "Cocina y Gastronomía",
   "Legal y Fiscal",
+  "Fotografía y Vídeo",
   "Servicios",
+  "Otro",
 ] as const;
 
 export type Topic = (typeof TOPICS)[number];

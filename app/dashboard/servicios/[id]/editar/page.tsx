@@ -1,22 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { updateService } from "../../actions";
-
-const TOPICS = [
-  "Marketing",
-  "Ventas",
-  "Finanzas",
-  "Desarrollo personal",
-  "Productividad",
-  "Diseño",
-  "Programación",
-  "Idiomas",
-  "Salud y bienestar",
-  "Negocios",
-  "Fotografía / Vídeo",
-  "Música",
-  "Servicios",
-];
+import { TOPICS } from "@/lib/topics";
 
 export default async function EditarServicioPage({
   params,
