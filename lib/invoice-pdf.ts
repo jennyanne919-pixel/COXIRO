@@ -6,10 +6,12 @@ import path from "path";
 const formatEUR = (n: number) =>
   n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-// Datos fijos de Coxiro mientras no exista NIF/CIF de autónoma dado de alta.
-const COXIRO_NAME = "Coxiro";
+// Datos fijos de Coxiro. Como autónoma, el nombre legal en factura es el de
+// la persona física (Jenny), con "Coxiro" como nombre comercial, y el NIF es
+// su NIE personal -- no existe un CIF separado para una autónoma.
+const COXIRO_NAME = "Jenny Anne Abriam (Coxiro)";
 const COXIRO_ADDRESS = "Grupo Gómez Jordana, Portal 5, 2º D, 52006 Melilla, España";
-const COXIRO_TAX_ID_PENDING = "(pendiente de alta como autónoma)";
+const COXIRO_TAX_ID = "Y8056216C";
 
 export async function generateInvoicePdf(
   invoice: {
@@ -93,14 +95,14 @@ export async function generateInvoicePdf(
   // proveedor, el destinatario es Coxiro (el emisor es el propio proveedor).
   const issuerName = isClientInvoice ? invoice.issuer_name ?? COXIRO_NAME : invoice.issuer_name ?? "-";
   const issuerTaxId = isClientInvoice
-    ? invoice.issuer_tax_id ?? COXIRO_TAX_ID_PENDING
+    ? invoice.issuer_tax_id ?? COXIRO_TAX_ID
     : invoice.issuer_tax_id ?? "-";
   const issuerAddress = isClientInvoice ? invoice.issuer_address ?? COXIRO_ADDRESS : invoice.issuer_address;
 
   const recipientName = isClientInvoice ? invoice.recipient_name ?? "-" : invoice.recipient_name ?? COXIRO_NAME;
   const recipientTaxId = isClientInvoice
     ? invoice.recipient_tax_id ?? "No facilitado"
-    : invoice.recipient_tax_id ?? COXIRO_TAX_ID_PENDING;
+    : invoice.recipient_tax_id ?? COXIRO_TAX_ID;
   const recipientAddress = isClientInvoice
     ? invoice.recipient_address
     : invoice.recipient_address ?? COXIRO_ADDRESS;
