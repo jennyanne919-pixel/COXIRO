@@ -1,5 +1,4 @@
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import fontkit from "@pdf-lib/fontkit";
 import QRCode from "qrcode";
 import fs from "fs";
 import path from "path";
@@ -35,28 +34,21 @@ export async function generateInvoicePdf(
   const qrPng = await QRCode.toBuffer(verifyUrl, { margin: 1, width: 200 });
 
   const pdfDoc = await PDFDocument.create();
-  pdfDoc.registerFontkit(fontkit);
   const page = pdfDoc.addPage([595, 842]); // A4
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-  // Wordmark "coxiro" con la tipografía de marca (Space Grotesk). Si el
-  // archivo de la fuente no está presente en el proyecto, usamos Helvetica
-  // Bold como respaldo para que la generación de PDF nunca falle.
-  let wordmarkFont = fontBold;
+  // Logo real de Coxiro (icono + wordmark) como imagen -- mucho más fiable
+  // que intentar embeber una fuente personalizada. Si el archivo no está
+  // presente en el proyecto, caemos de vuelta al texto "coxiro" en
+  // Helvetica Bold para que la factura nunca falle por esto.
+  let logoImage: Awaited<ReturnType<typeof pdfDoc.embedPng>> | null = null;
   try {
-    const fontPath = path.join(process.cwd(), "assets/fonts/SpaceGrotesk-VariableFont_wght.ttf");
-    const fontBytes = fs.readFileSync(fontPath);
-    const embedded = await pdfDoc.embedFont(fontBytes);
-    // Fuerza el acceso a las métricas del glifo aquí mismo -- si el archivo
-    // de la fuente está corrupto o mal parseado, fontkit lanza el error en
-    // este punto (no al leer el archivo), así que lo comprobamos ya para
-    // poder caer a Helvetica Bold sin romper el resto del PDF.
-    embedded.widthOfTextAtSize("coxiro", 20);
-    wordmarkFont = embedded;
+    const logoPath = path.join(process.cwd(), "assets/images/coxiro-logo.png");
+    const logoBytes = fs.readFileSync(logoPath);
+    logoImage = await pdfDoc.embedPng(logoBytes);
   } catch (err) {
-    console.error("[invoice-pdf] No se pudo usar Space Grotesk, uso Helvetica Bold:", err);
-    // se queda con Helvetica Bold
+    console.error("[invoice-pdf] No se pudo cargar el logo, uso texto:", err);
   }
 
   const qrImage = await pdfDoc.embedPng(qrPng);
@@ -73,7 +65,13 @@ export async function generateInvoicePdf(
   let y = 800;
 
   // ---- Cabecera ----
-  page.drawText("coxiro", { x: 50, y, size: 20, font: wordmarkFont, color: ink });
+  if (logoImage) {
+    const logoW = 130;
+    const logoH = logoW * (logoImage.height / logoImage.width);
+    page.drawImage(logoImage, { x: 50, y: y - logoH + 16, width: logoW, height: logoH });
+  } else {
+    page.drawText("coxiro", { x: 50, y, size: 20, font: fontBold, color: ink });
+  }
   const title = isClientInvoice ? "Factura" : "Autofactura";
   const titleWidth = fontBold.widthOfTextAtSize(title, 22);
   page.drawText(title, { x: 545 - titleWidth, y: y + 2, size: 22, font: fontBold, color: ink });
