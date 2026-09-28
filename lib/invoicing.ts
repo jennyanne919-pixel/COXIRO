@@ -2,10 +2,12 @@ import { createHash } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // Datos fiscales de la propia Coxiro (emisor en las facturas al
-// cliente, y quien liquida la comisión al proveedor). Rellenar con
-// los datos reales antes de facturar con clientes de verdad.
-export const COXIRO_TAX_ID = process.env.COXIRO_TAX_ID ?? "PENDIENTE-DE-CONFIGURAR";
-export const COXIRO_LEGAL_NAME = process.env.COXIRO_LEGAL_NAME ?? "Coxiro (nombre legal pendiente)";
+// cliente, y quien liquida la comisión al proveedor). Como autónoma,
+// el nombre legal es el de la persona física (Jenny), con "Coxiro"
+// como nombre comercial, y el NIF es su NIE personal -- no existe un
+// CIF separado para una autónoma.
+export const COXIRO_TAX_ID = process.env.COXIRO_TAX_ID ?? "Y8056216C";
+export const COXIRO_LEGAL_NAME = process.env.COXIRO_LEGAL_NAME ?? "Jenny Anne Abriam (Coxiro)";
 
 /**
  * Obtiene el siguiente número correlativo para una serie de
