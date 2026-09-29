@@ -58,6 +58,30 @@ export default async function EditarServicioPage({
         </div>
 
         <div>
+          <label className="text-xs font-medium text-stone block mb-1">
+            Imagen o logo (opcional, maximo 4 MB)
+          </label>
+          {service.image_url && (
+            <img
+              src={service.image_url}
+              alt="Imagen actual del servicio"
+              className="w-32 h-32 object-cover rounded-lg mb-2 border border-stone/25"
+            />
+          )}
+          <input
+            name="image"
+            type="file"
+            accept="image/*"
+            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-ink file:text-paper file:px-3 file:py-1.5 file:text-xs"
+          />
+          <p className="text-xs text-stone mt-1">
+            {service.image_url
+              ? "Si subes una nueva, sustituye a la actual."
+              : "Este servicio todavia no tiene imagen."}
+          </p>
+        </div>
+
+        <div>
           <label className="text-xs font-medium text-stone block mb-1">Precio (€)</label>
           <input
             type="number"

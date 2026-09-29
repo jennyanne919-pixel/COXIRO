@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createService, toggleServiceActive, toggleServicePublic, deleteService } from "./actions";
 import NewServiceForm from "./NewServiceForm";
 import DeleteServiceButton from "./DeleteServiceButton";
+import CopyLinkButton from "./CopyLinkButton";
 
 const TYPE_LABELS: Record<string, string> = {
   content: "Contenido",
@@ -101,6 +102,7 @@ export default async function ServiciosPage() {
               Gestionar →
             </a>
             <div className="flex items-center gap-3">
+              <CopyLinkButton id={s.id} />
               <a
                 href={`/dashboard/servicios/${s.id}/editar`}
                 className="text-xs text-stone hover:underline"
@@ -167,6 +169,7 @@ export default async function ServiciosPage() {
               >
                 Editar
               </a>
+              <CopyLinkButton id={s.id} />
               <div className="ml-auto">
                 <DeleteServiceButton id={s.id} deleteService={deleteService} />
               </div>

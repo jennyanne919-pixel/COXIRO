@@ -149,7 +149,7 @@ export async function updateService(formData: FormData) {
   // Comprueba que el servicio es tuyo antes de tocar nada.
   const { data: service } = await supabase
     .from("services")
-    .select("id, provider_id")
+    .select("id, provider_id, image_url")
     .eq("id", id)
     .single();
 
@@ -162,6 +162,29 @@ export async function updateService(formData: FormData) {
   const price = formData.get("price") as string;
   const topic = formData.get("topic") as string;
 
+  // Subida de imagen nueva (opcional) -- misma logica que en createService.
+  // Si no se adjunta nada, se mantiene la imagen que ya tenia el servicio.
+  const imageFile = formData.get("image") as File | null;
+  let imageUrl: string | null = service.image_url ?? null;
+
+  if (imageFile && imageFile.size > 0) {
+    const fileExt = imageFile.name.split(".").pop();
+    const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("service-images")
+      .upload(fileName, imageFile);
+
+    if (uploadError) {
+      console.error("Error subiendo la imagen del servicio:", uploadError);
+    } else {
+      const { data: publicUrlData } = supabase.storage
+        .from("service-images")
+        .getPublicUrl(fileName);
+      imageUrl = publicUrlData.publicUrl;
+    }
+  }
+
   await supabase
     .from("services")
     .update({
@@ -169,6 +192,7 @@ export async function updateService(formData: FormData) {
       description,
       price: Number(price) || 0,
       topic: topic || null,
+      image_url: imageUrl,
     })
     .eq("id", id);
 
