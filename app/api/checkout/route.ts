@@ -43,6 +43,8 @@ export async function GET(request: Request) {
       billing_interval,
       total_installments,
       provider_id,
+      secondary_transfer_account_id,
+      secondary_transfer_percent,
       providers ( stripe_account_id, commission_rate, kyc_status )
     `
     )
@@ -85,6 +87,17 @@ export async function GET(request: Request) {
   );
 
   const esMembresia = service.type === "membership";
+
+  // Reparto a tres partes (ej. José Luis/María Luisa en la membresía de
+  // Natalie): si el servicio tiene configurado un tercero, el pago entra
+  // ENTERO en el balance de Coxiro -- no se usa destination charge/
+  // application_fee aquí. El reparto real (proveedor + tercero) se hace
+  // con Transfers manuales desde payment-processing.ts, tanto en el
+  // primer cobro como en cada renovación si es una membresía.
+  const tieneRepartoATresPartes = !!(
+    service.secondary_transfer_account_id && service.secondary_transfer_percent
+  );
+  console.log("[checkout] Reparto a tres partes:", tieneRepartoATresPartes);
 
   // Si el proveedor puso un numero de pagos, calculamos la fecha en
   // la que Stripe debe dejar de cobrar solo -- si no puso nada, la
@@ -134,8 +147,12 @@ export async function GET(request: Request) {
             },
           ],
           subscription_data: {
-            application_fee_percent: commissionPercent,
-            transfer_data: { destination: provider.stripe_account_id },
+            ...(tieneRepartoATresPartes
+              ? {}
+              : {
+                  application_fee_percent: commissionPercent,
+                  transfer_data: { destination: provider.stripe_account_id },
+                }),
             metadata: metadataComun,
           },
           metadata: metadataComun,
@@ -156,10 +173,12 @@ export async function GET(request: Request) {
               quantity: 1,
             },
           ],
-          payment_intent_data: {
-            application_fee_amount: feeCents,
-            transfer_data: { destination: provider.stripe_account_id },
-          },
+          payment_intent_data: tieneRepartoATresPartes
+            ? {}
+            : {
+                application_fee_amount: feeCents,
+                transfer_data: { destination: provider.stripe_account_id },
+              },
           metadata: metadataComun,
           success_url: `${origin}/servicio/${service.id}?paid=1`,
           cancel_url: `${origin}/servicio/${service.id}?cancelled=1`,

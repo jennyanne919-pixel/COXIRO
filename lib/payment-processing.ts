@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { stripe } from "@/lib/stripe";
 import {
   getNextInvoiceNumber,
   getLastHash,
@@ -55,9 +56,17 @@ export async function processPayment(params: {
     { data: clientUser },
     { data: providerUser },
   ] = await Promise.all([
-    supabase.from("services").select("title").eq("id", serviceId).single(),
+    supabase
+      .from("services")
+      .select("title, secondary_transfer_account_id, secondary_transfer_percent")
+      .eq("id", serviceId)
+      .single(),
     supabase.from("clients").select("billing_name, tax_id").eq("user_id", clientId).single(),
-    supabase.from("providers").select("business_name, tax_id").eq("user_id", providerId).single(),
+    supabase
+      .from("providers")
+      .select("business_name, tax_id, stripe_account_id")
+      .eq("user_id", providerId)
+      .single(),
     supabase.from("users").select("email").eq("id", clientId).single(),
     supabase.from("users").select("email").eq("id", providerId).single(),
   ]);
@@ -68,6 +77,55 @@ export async function processPayment(params: {
   const TAX_RATE_CLIENTE = 0.5;
   const TAX_RATE_PROVEEDOR = 0;
   const netoProveedor = amountTotal - platformFee;
+
+  // ---- Reparto a tres partes (ej. Natalie / José Luis y María Luisa) ----
+  // Si el servicio tiene un tercero configurado, el pago completo entró
+  // en el balance de Coxiro (ver checkout/route.ts, que omite el
+  // destination charge automático para estos servicios). Aquí se hacen
+  // las dos transferencias manuales, con el mismo transfer_group para
+  // que queden ligadas en el dashboard de Stripe. Si no hay tercero
+  // configurado, no se hace nada aquí -- Stripe ya transfirió al
+  // proveedor automáticamente al cobrar.
+  if (service?.secondary_transfer_account_id && service?.secondary_transfer_percent && provider?.stripe_account_id) {
+    const transferGroup = `tx_${transaction.id}`;
+    const secondaryShare = Number(
+      ((netoProveedor * Number(service.secondary_transfer_percent)) / 100).toFixed(2)
+    );
+    const providerShare = Number((netoProveedor - secondaryShare).toFixed(2));
+
+    try {
+      await stripe.transfers.create({
+        amount: Math.round(providerShare * 100),
+        currency: "eur",
+        destination: provider.stripe_account_id,
+        transfer_group: transferGroup,
+        metadata: { transaction_id: transaction.id, role: "provider" },
+      });
+      console.log(
+        `[processPayment] Transfer proveedor OK: ${providerShare}€ -> ${provider.stripe_account_id}`
+      );
+
+      await stripe.transfers.create({
+        amount: Math.round(secondaryShare * 100),
+        currency: "eur",
+        destination: service.secondary_transfer_account_id,
+        transfer_group: transferGroup,
+        metadata: { transaction_id: transaction.id, role: "secondary" },
+      });
+      console.log(
+        `[processPayment] Transfer socio OK: ${secondaryShare}€ -> ${service.secondary_transfer_account_id}`
+      );
+    } catch (transferError: any) {
+      // No se corta el resto del flujo (facturas, emails) si esto falla --
+      // se deja constancia en el log para revisarlo y transferir a mano
+      // si hiciera falta. El dinero sigue seguro en el balance de Coxiro.
+      console.error(
+        "[processPayment] ERROR en las transferencias del reparto a tres partes:",
+        transferError?.message,
+        transferError
+      );
+    }
+  }
 
   let cliInvoiceId: string | null = null;
   let cliInvoicePdf: Buffer | undefined;
