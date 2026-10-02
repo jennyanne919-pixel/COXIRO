@@ -12,6 +12,19 @@ const TIPOS = [
   { value: "otro", label: "Otro" },
 ];
 
+// Fuerza colores explícitos en los campos. Dentro del navegador integrado
+// de Instagram/Facebook (el webview in-app), el texto que escribe el
+// usuario heredaba un esquema de color distinto y se quedaba invisible
+// (blanco sobre blanco) aunque el campo sí recibía el valor. Con esto se
+// fija el color de fondo y de texto explícitamente, incluyendo las
+// propiedades -webkit- que ese webview respeta por encima del CSS normal.
+const inputFixStyle: React.CSSProperties = {
+  color: "#1a1a1a",
+  backgroundColor: "#ffffff",
+  WebkitTextFillColor: "#1a1a1a",
+  colorScheme: "light",
+};
+
 export default function WaitlistForm({ fuente = "landing" }: { fuente?: string }) {
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<{ success: boolean; error?: string; yaEstaba?: boolean } | null>(null);
@@ -42,20 +55,23 @@ export default function WaitlistForm({ fuente = "landing" }: { fuente?: string }
         name="nombre"
         required
         placeholder="Tu nombre"
-        className="rounded-lg border border-stone/25 bg-paper px-4 py-3 text-sm min-w-[160px]"
+        style={inputFixStyle}
+        className="rounded-lg border border-stone/25 px-4 py-3 text-sm min-w-[160px]"
       />
       <input
         type="email"
         name="email"
         required
         placeholder="tu@email.com"
-        className="rounded-lg border border-stone/25 bg-paper px-4 py-3 text-sm min-w-[200px]"
+        style={inputFixStyle}
+        className="rounded-lg border border-stone/25 px-4 py-3 text-sm min-w-[200px]"
       />
       <select
         name="tipo_servicio"
         required
         defaultValue=""
-        className="rounded-lg border border-stone/25 bg-paper px-4 py-3 text-sm"
+        style={inputFixStyle}
+        className="rounded-lg border border-stone/25 px-4 py-3 text-sm"
       >
         <option value="" disabled>
           ¿Qué vendes?
