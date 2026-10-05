@@ -1,6 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { updateBio, updateContacto } from "./actions";
+import { updateBio, updateContacto, cambiarPassword } from "./actions";
+
+const ERRORES: Record<string, string> = {
+  email:
+    "No se ha podido cambiar el email. Comprueba que es válido y que no está ya registrado en Coxiro.",
+  telefono:
+    "El teléfono no es válido. Usa solo números, con o sin prefijo (por ejemplo +34 600 000 000).",
+  foto: "No se ha podido subir la foto. Usa una imagen (JPG, PNG o WebP) de máximo 4 MB. La descripción sí se ha guardado.",
+  password_actual: "La contraseña actual no es correcta.",
+  password_coinciden: "La contraseña nueva y su repetición no coinciden.",
+  password_corta: "La contraseña nueva debe tener al menos 8 caracteres.",
+  password: "No se ha podido cambiar la contraseña. Inténtalo de nuevo.",
+};
 
 export default async function PerfilPage({
   searchParams,
@@ -8,6 +20,7 @@ export default async function PerfilPage({
   searchParams: Promise<{
     saved?: string;
     emailPending?: string;
+    passwordOk?: string;
     error?: string;
   }>;
 }) {
@@ -19,7 +32,7 @@ export default async function PerfilPage({
 
   const { data: provider } = await supabase
     .from("providers")
-    .select("business_name, bio, slug")
+    .select("business_name, bio, slug, avatar_url")
     .eq("user_id", user?.id ?? "")
     .single();
 
@@ -36,6 +49,8 @@ export default async function PerfilPage({
   if (user?.email && appUser && appUser.email !== user.email) {
     await admin.from("users").update({ email: user.email }).eq("id", user.id);
   }
+
+  const mensajeError = sp.error ? ERRORES[sp.error] : null;
 
   return (
     <div>
@@ -61,29 +76,57 @@ export default async function PerfilPage({
         </p>
       )}
 
+      {sp.passwordOk && (
+        <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-4 max-w-lg">
+          Contraseña cambiada correctamente.
+        </p>
+      )}
+
       {sp.emailPending && (
         <p className="text-sm text-stone bg-paper border border-stone/25 rounded-lg px-3 py-2 mb-4 max-w-lg">
-          Te hemos enviado un enlace de confirmación al email nuevo. El cambio
-          se aplica cuando lo confirmes (puede que también te pida confirmarlo
-          desde tu email actual).
+          Te hemos enviado un enlace de confirmación a tu email actual y otro
+          al nuevo. El cambio se aplica cuando confirmes los dos.
         </p>
       )}
 
-      {sp.error === "email" && (
+      {mensajeError && (
         <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4 max-w-lg">
-          No se ha podido cambiar el email. Comprueba que es válido y que no
-          está ya registrado en Coxiro.
-        </p>
-      )}
-
-      {sp.error === "telefono" && (
-        <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4 max-w-lg">
-          El teléfono no es válido. Usa solo números, con o sin prefijo (por
-          ejemplo +34 600 000 000).
+          {mensajeError}
         </p>
       )}
 
       <form action={updateBio} className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
+        <div>
+          <label className="text-xs text-stone block mb-2">
+            Tu foto (aparece junto a tu descripción)
+          </label>
+          <div className="flex items-center gap-4">
+            {provider?.avatar_url ? (
+              <img
+                src={provider.avatar_url}
+                alt="Tu foto de perfil"
+                className="w-20 h-20 rounded-full object-cover border border-stone/25"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-white border border-stone/25 flex items-center justify-center text-xs text-stone text-center px-2">
+                Sin foto
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <input
+                name="avatar"
+                type="file"
+                accept="image/*"
+                className="w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-ink file:text-paper file:px-3 file:py-1.5 file:text-xs"
+              />
+              <p className="text-xs text-stone mt-1">
+                {provider?.avatar_url
+                  ? "Si subes una nueva, sustituye a la actual."
+                  : "JPG, PNG o WebP, máximo 4 MB."}
+              </p>
+            </div>
+          </div>
+        </div>
         <div>
           <label className="text-xs text-stone block mb-1">
             Sobre ti (aparece en cada servicio que publiques)
@@ -118,9 +161,14 @@ export default async function PerfilPage({
             defaultValue={user?.email ?? ""}
             className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
           />
+          <p className="text-xs text-stone mt-1">
+            Para cambiarlo, escribe el email nuevo y pulsa Guardar. Te
+            enviaremos un enlace de confirmación a tu email actual y otro al
+            nuevo; el cambio se aplica cuando confirmes los dos.
+          </p>
           {user?.new_email && (
-            <p className="text-xs text-stone mt-1">
-              Pendiente de confirmar: {user.new_email}
+            <p className="text-xs text-copper mt-1">
+              Cambio pendiente de confirmar: {user.new_email}
             </p>
           )}
         </div>
@@ -136,6 +184,53 @@ export default async function PerfilPage({
         </div>
         <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
           Guardar datos de contacto
+        </button>
+      </form>
+
+      <div className="mt-8 mb-4 max-w-lg">
+        <h2 className="text-base font-medium">Cambiar contraseña</h2>
+        <p className="text-sm text-stone mt-0.5">
+          Escribe tu contraseña actual y la nueva dos veces.
+        </p>
+      </div>
+
+      <form action={cambiarPassword} className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
+        <div>
+          <label className="text-xs text-stone block mb-1">Contraseña actual</label>
+          <input
+            type="password"
+            name="current_password"
+            required
+            autoComplete="current-password"
+            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-stone block mb-1">
+            Contraseña nueva (mínimo 8 caracteres)
+          </label>
+          <input
+            type="password"
+            name="new_password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-stone block mb-1">Repite la contraseña nueva</label>
+          <input
+            type="password"
+            name="confirm_password"
+            required
+            minLength={8}
+            autoComplete="new-password"
+            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          />
+        </div>
+        <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
+          Cambiar contraseña
         </button>
       </form>
     </div>
