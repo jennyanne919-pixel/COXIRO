@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 export default function ActualizarContrasenaPage() {
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [ok, setOk] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -15,8 +16,17 @@ export default function ActualizarContrasenaPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    const supabase = createClient();
 
+    if (password.length < 8) {
+      setError("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Las dos contraseñas no coinciden. Revísalas.");
+      return;
+    }
+
+    const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
@@ -28,6 +38,9 @@ export default function ActualizarContrasenaPage() {
     setTimeout(() => router.push("/dashboard"), 1500);
   }
 
+  const inputClass =
+    "w-full rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm pr-11";
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-paper px-6">
       <div className="w-full max-w-sm">
@@ -38,7 +51,8 @@ export default function ActualizarContrasenaPage() {
         </div>
         <h1 className="text-xl font-medium mb-1">Crea tu contraseña nueva</h1>
         <p className="text-sm text-stone mb-6">
-          Esta será la contraseña que uses a partir de ahora
+          Esta será la contraseña que uses a partir de ahora. Escríbela dos
+          veces para asegurarte de que es correcta.
         </p>
 
         {ok ? (
@@ -56,17 +70,18 @@ export default function ActualizarContrasenaPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 required
-                minLength={6}
-                placeholder="Nueva contraseña (mínimo 6 caracteres)"
+                minLength={8}
+                autoComplete="new-password"
+                placeholder="Nueva contraseña (mínimo 8 caracteres)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm pr-11"
+                className={inputClass}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink"
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={showPassword ? "Ocultar contraseñas" : "Mostrar contraseñas"}
               >
                 {showPassword ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -81,6 +96,19 @@ export default function ActualizarContrasenaPage() {
                 )}
               </button>
             </div>
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              minLength={8}
+              autoComplete="new-password"
+              placeholder="Repite la contraseña nueva"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              className={inputClass}
+            />
+            {confirm.length > 0 && password !== confirm && (
+              <p className="text-xs text-red-700">Las contraseñas no coinciden todavía.</p>
+            )}
             <button className="rounded-lg bg-copper text-paper font-semibold text-sm py-2.5 mt-1 hover:bg-copper-dark transition">
               Guardar contraseña
             </button>
