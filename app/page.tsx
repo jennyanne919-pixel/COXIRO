@@ -78,9 +78,13 @@ export default async function LandingPage() {
               <button className="hover:text-ink whitespace-nowrap">Herramientas</button>
               <div className="absolute left-0 top-full hidden group-hover:block bg-white border border-stone/20 rounded-lg shadow-lg py-2 min-w-[220px] z-50">
                 <a href="/herramientas/publica-tu-contenido" className="block px-4 py-2 text-sm hover:bg-paper">Publica tu contenido / servicio</a>
-                <a href="/herramientas/dashboard" className="block px-4 py-2 text-sm hover:bg-paper">Dashboard</a>
-                <a href="/herramientas/pasarela-de-pagos" className="block px-4 py-2 text-sm hover:bg-paper">Pasarela de pagos</a>
-                <a href="/herramientas/suscripciones" className="block px-4 py-2 text-sm hover:bg-paper">Suscripciones y pagos recurrentes</a>
+                               {!nombreUsuario && (
+                  <>
+                    <a href="/herramientas/dashboard" className="block px-4 py-2 text-sm hover:bg-paper">Dashboard</a>
+                    <a href="/herramientas/pasarela-de-pagos" className="block px-4 py-2 text-sm hover:bg-paper">Pasarela de pagos</a>
+                    <a href="/herramientas/suscripciones" className="block px-4 py-2 text-sm hover:bg-paper">Suscripciones y pagos recurrentes</a>
+                  </>
+                )}
               </div>
             </div>
             <a href="#como-funciona" className="hover:text-ink whitespace-nowrap">Cómo funciona</a>
@@ -149,9 +153,13 @@ export default async function LandingPage() {
               <div className="border-t border-stone/20 my-1" />
               <a href="/catalogo" className="px-4 py-2.5 text-sm">Productos digitales</a>
               <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido / servicio</a>
-              <a href="/herramientas/dashboard" className="px-4 py-2.5 text-sm">Dashboard</a>
-              <a href="/herramientas/pasarela-de-pagos" className="px-4 py-2.5 text-sm">Pasarela de pagos</a>
-              <a href="/herramientas/suscripciones" className="px-4 py-2.5 text-sm">Suscripciones y pagos recurrentes</a>
+                           {!nombreUsuario && (
+                <>
+                  <a href="/herramientas/dashboard" className="px-4 py-2.5 text-sm">Dashboard</a>
+                  <a href="/herramientas/pasarela-de-pagos" className="px-4 py-2.5 text-sm">Pasarela de pagos</a>
+                  <a href="/herramientas/suscripciones" className="px-4 py-2.5 text-sm">Suscripciones y pagos recurrentes</a>
+                </>
+              )}
               <div className="border-t border-stone/20 my-1" />
               <a href="#como-funciona" className="px-4 py-2.5 text-sm">Cómo funciona</a>
               <a href="#para-quien" className="px-4 py-2.5 text-sm">Para quién</a>
