@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import PasswordField from "@/components/PasswordField";
 import { updateBio, updateContacto, cambiarPassword } from "./actions";
 
 const ERRORES: Record<string, string> = {
@@ -32,7 +33,7 @@ export default async function PerfilPage({
 
   const { data: provider } = await supabase
     .from("providers")
-    .select("business_name, bio, slug, avatar_url")
+    .select("business_name, bio, slug, avatar_url, stripe_account_id, kyc_status")
     .eq("user_id", user?.id ?? "")
     .single();
 
@@ -190,49 +191,71 @@ export default async function PerfilPage({
       <div className="mt-8 mb-4 max-w-lg">
         <h2 className="text-base font-medium">Cambiar contraseña</h2>
         <p className="text-sm text-stone mt-0.5">
-          Escribe tu contraseña actual y la nueva dos veces.
+          Escribe tu contraseña actual y la nueva dos veces. Pulsa el ojo para
+          ver lo que escribes.
         </p>
       </div>
 
       <form action={cambiarPassword} className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
-        <div>
-          <label className="text-xs text-stone block mb-1">Contraseña actual</label>
-          <input
-            type="password"
-            name="current_password"
-            required
-            autoComplete="current-password"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-stone block mb-1">
-            Contraseña nueva (mínimo 8 caracteres)
-          </label>
-          <input
-            type="password"
-            name="new_password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-stone block mb-1">Repite la contraseña nueva</label>
-          <input
-            type="password"
-            name="confirm_password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
-        </div>
+        <PasswordField
+          name="current_password"
+          label="Contraseña actual"
+          autoComplete="current-password"
+        />
+        <PasswordField
+          name="new_password"
+          label="Contraseña nueva (mínimo 8 caracteres)"
+          autoComplete="new-password"
+          minLength={8}
+        />
+        <PasswordField
+          name="confirm_password"
+          label="Repite la contraseña nueva"
+          autoComplete="new-password"
+          minLength={8}
+        />
         <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
           Cambiar contraseña
         </button>
       </form>
+
+      <div className="mt-8 mb-4 max-w-lg">
+        <h2 className="text-base font-medium">Cobros con Stripe</h2>
+        <p className="text-sm text-stone mt-0.5">
+          Tus cobros llegan a tu cuenta de Stripe. Desde su panel ves tus
+          pagos, tu saldo y tu cuenta bancaria.
+        </p>
+      </div>
+
+      <div className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
+        {provider?.stripe_account_id ? (
+          <>
+            {provider.kyc_status === "verified" ? (
+              <p className="text-xs text-emerald-700">Cuenta verificada</p>
+            ) : (
+              <p className="text-xs text-stone">
+                Verificación pendiente: termina el alta en Stripe para poder
+                cobrar.
+              </p>
+            )}
+            <a
+              href="/api/stripe/dashboard"
+              target="_blank"
+              rel="noopener"
+              className="rounded-lg bg-ink text-paper text-sm font-semibold py-2.5 text-center hover:opacity-90 transition"
+            >
+              Abrir mi cuenta de Stripe →
+            </a>
+          </>
+        ) : (
+          <a
+            href="/api/stripe/connect"
+            className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 text-center hover:bg-copper-dark transition"
+          >
+            Conectar mi cuenta de Stripe
+          </a>
+        )}
+      </div>
     </div>
   );
 }

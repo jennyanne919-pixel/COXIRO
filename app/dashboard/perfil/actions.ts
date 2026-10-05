@@ -89,7 +89,13 @@ export async function updateContacto(formData: FormData) {
       redirect("/dashboard/perfil?error=email");
     }
 
-    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    // emailRedirectTo: a dónde se vuelve tras pulsar el enlace de
+    // confirmación del email. Si esa dirección no está en la lista de
+    // URLs permitidas de Supabase, se usa la "Site URL" por defecto.
+    const { error } = await supabase.auth.updateUser(
+      { email: newEmail },
+      { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/perfil` }
+    );
     if (error) {
       console.error("[updateContacto] Error cambiando el email:", error.message);
       redirect("/dashboard/perfil?error=email");
