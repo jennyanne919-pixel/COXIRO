@@ -1,6 +1,7 @@
 import Logo from "@/components/Logo";
 import HeroSection from "@/components/HeroSection";
 import WaitlistForm from "@/components/WaitlistForm";
+import EntraMenu from "@/components/EntraMenu";
 import { createClient } from "@/lib/supabase/server";
 
 const AUDIENCE = [
@@ -78,7 +79,7 @@ export default async function LandingPage() {
               <button className="hover:text-ink whitespace-nowrap">Herramientas</button>
               <div className="absolute left-0 top-full hidden group-hover:block bg-white border border-stone/20 rounded-lg shadow-lg py-2 min-w-[220px] z-50">
                 <a href="/herramientas/publica-tu-contenido" className="block px-4 py-2 text-sm hover:bg-paper">Publica tu contenido / servicio</a>
-                               {!nombreUsuario && (
+                {!nombreUsuario && (
                   <>
                     <a href="/herramientas/dashboard" className="block px-4 py-2 text-sm hover:bg-paper">Dashboard</a>
                     <a href="/herramientas/pasarela-de-pagos" className="block px-4 py-2 text-sm hover:bg-paper">Pasarela de pagos</a>
@@ -105,22 +106,7 @@ export default async function LandingPage() {
               </a>
             ) : (
               <>
-                <div className="relative group">
-                  <button className="rounded-lg border border-copper px-4 py-2.5 text-sm font-semibold text-copper hover:bg-copper/5 transition whitespace-nowrap flex items-center gap-1">
-                    Entra
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M6 9l6 6 6-6" />
-                    </svg>
-                  </button>
-                  <div className="absolute right-0 top-full mt-2 hidden group-hover:block bg-white border border-stone/20 rounded-lg shadow-lg py-2 min-w-[220px] z-50">
-                    <a href="/login" className="block px-4 py-3 text-sm hover:bg-paper">
-                      <p className="font-medium">Acceder a mis compras</p>
-                    </a>
-                    <a href="/login" className="block px-4 py-3 text-sm hover:bg-paper">
-                      <p className="font-medium">Gestionar mi negocio</p>
-                    </a>
-                  </div>
-                </div>
+                <EntraMenu />
                 <a
                   href="/registro"
                   className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition whitespace-nowrap"
@@ -153,7 +139,7 @@ export default async function LandingPage() {
               <div className="border-t border-stone/20 my-1" />
               <a href="/catalogo" className="px-4 py-2.5 text-sm">Productos digitales</a>
               <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido / servicio</a>
-                           {!nombreUsuario && (
+              {!nombreUsuario && (
                 <>
                   <a href="/herramientas/dashboard" className="px-4 py-2.5 text-sm">Dashboard</a>
                   <a href="/herramientas/pasarela-de-pagos" className="px-4 py-2.5 text-sm">Pasarela de pagos</a>
