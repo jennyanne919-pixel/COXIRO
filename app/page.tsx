@@ -36,13 +36,15 @@ export default async function LandingPage() {
   } = await supabase.auth.getUser();
 
   let nombreUsuario: string | null = null;
+  let esVendedor = false;
   if (user) {
     const { data: profile } = await supabase
       .from("users")
-      .select("full_name")
+      .select("full_name, role")
       .eq("id", user.id)
       .single();
     nombreUsuario = profile?.full_name?.split(" ")[0] ?? "Mi panel";
+    esVendedor = profile?.role === "provider";
   }
 
   return (
@@ -75,6 +77,7 @@ export default async function LandingPage() {
 
           <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-stone flex-1 justify-center">
             <a href="/catalogo" className="hover:text-ink whitespace-nowrap">Productos digitales</a>
+            {!nombreUsuario && (
             <div className="relative group">
               <button className="hover:text-ink whitespace-nowrap">Herramientas</button>
               <div className="absolute left-0 top-full hidden group-hover:block bg-white border border-stone/20 rounded-lg shadow-lg py-2 min-w-[220px] z-50">
@@ -88,8 +91,13 @@ export default async function LandingPage() {
                 )}
               </div>
             </div>
-            <a href="#como-funciona" className="hover:text-ink whitespace-nowrap">Cómo funciona</a>
-            <a href="#para-quien" className="hover:text-ink whitespace-nowrap">Para quién</a>
+            )}
+            {(!nombreUsuario || esVendedor) && (
+              <a href="#como-funciona" className="hover:text-ink whitespace-nowrap">Cómo funciona</a>
+            )}
+            {!nombreUsuario && (
+              <a href="#para-quien" className="hover:text-ink whitespace-nowrap">Para quién</a>
+            )}
             <a href="/catalogo" className="hover:text-ink whitespace-nowrap">Comprar producto</a>
             <a href="/registro?role=provider" className="hover:text-ink whitespace-nowrap">Vender producto</a>
             <a href="/herramientas/partners" className="hover:text-ink whitespace-nowrap">Partners</a>
@@ -138,17 +146,23 @@ export default async function LandingPage() {
               )}
               <div className="border-t border-stone/20 my-1" />
               <a href="/catalogo" className="px-4 py-2.5 text-sm">Productos digitales</a>
-              <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido / servicio</a>
               {!nombreUsuario && (
                 <>
-                  <a href="/herramientas/dashboard" className="px-4 py-2.5 text-sm">Dashboard</a>
-                  <a href="/herramientas/pasarela-de-pagos" className="px-4 py-2.5 text-sm">Pasarela de pagos</a>
-                  <a href="/herramientas/suscripciones" className="px-4 py-2.5 text-sm">Suscripciones y pagos recurrentes</a>
+                <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido / servicio</a>
+                {!nombreUsuario && (
+                  <>
+                    <a href="/herramientas/dashboard" className="px-4 py-2.5 text-sm">Dashboard</a>
+                    <a href="/herramientas/pasarela-de-pagos" className="px-4 py-2.5 text-sm">Pasarela de pagos</a>
+                    <a href="/herramientas/suscripciones" className="px-4 py-2.5 text-sm">Suscripciones y pagos recurrentes</a>
+                  </>
+                )}
+                <div className="border-t border-stone/20 my-1" />
+                <a href="#para-quien" className="px-4 py-2.5 text-sm">Para quién</a>
                 </>
               )}
-              <div className="border-t border-stone/20 my-1" />
-              <a href="#como-funciona" className="px-4 py-2.5 text-sm">Cómo funciona</a>
-              <a href="#para-quien" className="px-4 py-2.5 text-sm">Para quién</a>
+              {(!nombreUsuario || esVendedor) && (
+                <a href="#como-funciona" className="px-4 py-2.5 text-sm">Cómo funciona</a>
+              )}
               <a href="/catalogo" className="px-4 py-2.5 text-sm">Comprar producto</a>
               <a href="/registro?role=provider" className="px-4 py-2.5 text-sm">Vender producto</a>
               <a href="/herramientas/partners" className="px-4 py-2.5 text-sm">Partners</a>
