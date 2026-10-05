@@ -5,7 +5,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-// Guarda nombre y teléfono y, si ha cambiado, pide el cambio de email.
+// Guarda el teléfono y, si ha cambiado, pide el cambio de email.
+// El nombre NO se puede cambiar desde aquí: es el que figura en las
+// facturas, así que solo se corrige por soporte.
 // El email NO se cambia al instante: Supabase manda un enlace de
 // confirmación al email actual y otro al nuevo, y el cambio solo se
 // aplica cuando se confirman los dos. La copia de public.users.email se
@@ -18,13 +20,9 @@ export async function updateDatos(formData: FormData) {
 
   if (!user) return;
 
-  const nombre = String(formData.get("full_name") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const newEmail = String(formData.get("email") ?? "").trim().toLowerCase();
 
-  if (!nombre || nombre.length > 100) {
-    redirect("/dashboard/mi-cuenta?error=nombre");
-  }
   if (phone && !/^\+?[0-9 ()-]{6,20}$/.test(phone)) {
     redirect("/dashboard/mi-cuenta?error=telefono");
   }
@@ -35,7 +33,7 @@ export async function updateDatos(formData: FormData) {
   const admin = createAdminClient();
   await admin
     .from("users")
-    .update({ full_name: nombre, phone: phone || null })
+    .update({ phone: phone || null })
     .eq("id", user.id);
 
   let emailPendiente = false;

@@ -5,7 +5,6 @@ import PasswordField from "@/components/PasswordField";
 import { updateDatos, cambiarPassword } from "./actions";
 
 const ERRORES: Record<string, string> = {
-  nombre: "Escribe tu nombre (máximo 100 caracteres).",
   email:
     "No se ha podido cambiar el email. Comprueba que es válido y que no está ya registrado en Coxiro.",
   telefono:
@@ -98,14 +97,17 @@ export default async function MiCuentaPage({
       <form action={updateDatos} className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
         <div>
           <label className="text-xs text-stone block mb-1">Nombre</label>
-          <input
-            type="text"
-            name="full_name"
-            required
-            maxLength={100}
-            defaultValue={appUser?.full_name ?? ""}
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
+          <p className="w-full rounded-lg border border-stone/15 bg-white/60 px-3.5 py-2 text-sm text-ink">
+            {appUser?.full_name ?? "—"}
+          </p>
+          <p className="text-xs text-stone mt-1">
+            El nombre no se puede cambiar desde aquí porque es el que figura en
+            tus facturas. Si necesitas corregirlo, escríbenos a{" "}
+            <a href="mailto:coxiro.info@gmail.com" className="text-copper underline">
+              coxiro.info@gmail.com
+            </a>
+            .
+          </p>
         </div>
         <div>
           <label className="text-xs text-stone block mb-1">Email</label>
