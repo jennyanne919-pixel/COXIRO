@@ -18,6 +18,7 @@ const CLIENT_NAV = [
   { label: "Mis compras", href: "/dashboard", soon: false },
   { label: "Mi contenido", href: "/dashboard/contenido", soon: false },
   { label: "Productos digitales", href: "/catalogo", soon: false },
+  { label: "Mi perfil", href: "/dashboard/mi-cuenta", soon: false },
 ];
 
 export default async function DashboardLayout({
