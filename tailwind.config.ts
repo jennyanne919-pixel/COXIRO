@@ -33,7 +33,7 @@ const config: Config = {
         },
       },
       animation: {
-        marquee: "marquee 28s linear infinite",
+        marquee: "marquee 56s linear infinite",
       },
     },
   },
