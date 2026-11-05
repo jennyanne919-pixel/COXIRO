@@ -314,12 +314,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-stone/20 py-10">
-        <div className="max-w-5xl mx-auto px-8 flex items-center justify-between flex-wrap gap-4">
-          <Logo variant="light" size={20} />
-          <p className="text-xs text-stone">© 2026 Coxiro. Todos los derechos reservados.</p>
-        </div>
-      </footer>
     </main>
   );
 }
