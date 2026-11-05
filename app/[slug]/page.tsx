@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import Logo from "@/components/Logo";
 import { notFound } from "next/navigation";
+import { totalCliente } from "@/lib/pricing";
 
 export default async function PerfilProfesionalPage({
   params,
@@ -64,7 +65,7 @@ export default async function PerfilProfesionalPage({
                 )}
               </div>
               <p className="font-display font-semibold whitespace-nowrap ml-4">
-                {Number(s.price).toFixed(2)} €
+                {totalCliente(Number(s.price)).toFixed(2)} €
               </p>
             </a>
           ))}

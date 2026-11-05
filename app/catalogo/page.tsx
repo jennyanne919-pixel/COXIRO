@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import Logo from "@/components/Logo";
 import { TOPICS } from "@/lib/topics";
+import { totalCliente } from "@/lib/pricing";
 
 export default async function CatalogoPage({
   searchParams,
@@ -220,7 +221,7 @@ export default async function CatalogoPage({
                   </p>
                 </div>
                 <p className="font-display font-semibold whitespace-nowrap ml-4">
-                  {s.requires_inquiry ? "A medida" : `${Number(s.price).toFixed(2)} €`}
+                  {s.requires_inquiry ? "A medida" : `${totalCliente(Number(s.price)).toFixed(2)} €`}
                 </p>
               </a>
             );

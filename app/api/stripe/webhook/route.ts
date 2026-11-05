@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { processPayment } from "@/lib/payment-processing";
 import { sendCreatePasswordEmail } from "@/lib/email/send";
 import Stripe from "stripe";
+import { feeDesdeTotal } from "@/lib/pricing";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -181,8 +182,9 @@ export async function POST(request: Request) {
         .single();
 
       const amountTotal = (invoice.amount_paid ?? 0) / 100;
-      const platformFee = Number(
-        ((amountTotal * Number(provider?.commission_rate ?? 0)) / 100).toFixed(2)
+      const platformFee = feeDesdeTotal(
+        amountTotal,
+        Number(provider?.commission_rate ?? 0)
       );
 
       await processPayment({

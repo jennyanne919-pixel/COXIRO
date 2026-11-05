@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
 import { notFound } from "next/navigation";
 import { submitInquiry } from "./inquiry-actions";
+import { totalCliente } from "@/lib/pricing";
 
 const TYPE_LABELS: Record<string, string> = {
   video: "Vídeo",
@@ -259,7 +260,7 @@ export default async function ServicioPage({
                     <div className="p-3">
                       <p className="text-sm font-medium line-clamp-1">{s.title}</p>
                       <p className="text-xs text-stone mt-1">
-                        {s.requires_inquiry ? "A medida" : `${Number(s.price).toFixed(2)} €`}
+                        {s.requires_inquiry ? "A medida" : `${totalCliente(Number(s.price)).toFixed(2)} €`}
                       </p>
                     </div>
                   </a>
@@ -288,7 +289,7 @@ export default async function ServicioPage({
             {!service.requires_inquiry && (
               <div className="mb-4">
                 <p className="text-3xl font-display font-semibold">
-                  {Number(service.price).toFixed(2)} €
+                  {totalCliente(Number(service.price)).toFixed(2)} €
                   {service.type === "membership" && (
                     <span className="text-base font-normal text-stone">
                       {" "}
@@ -296,6 +297,7 @@ export default async function ServicioPage({
                     </span>
                   )}
                 </p>
+                <p className="text-xs text-stone mt-1">Impuestos incluidos</p>
                 {service.type === "membership" && (
                   <p className="text-xs text-stone mt-1">
                     {service.total_installments

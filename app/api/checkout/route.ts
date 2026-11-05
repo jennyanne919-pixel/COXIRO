@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
+import { calcularPrecios } from "@/lib/pricing";
 
 // GET /api/checkout?service=<id>
 // Ya NO exige sesión iniciada: el cliente paga directamente, Stripe le
@@ -73,11 +74,18 @@ export async function GET(request: Request) {
     );
   }
 
-  const amountCents = Math.round(Number(service.price) * 100);
-  const feeCents = Math.round(
-    (amountCents * Number(provider.commission_rate)) / 100
+  // Modelo económico (ver lib/pricing.ts): el precio del servicio es la
+  // base sin IVA; el cliente paga base + 21 % de IVA; Coxiro retiene
+  // comisión + IPSI y el resto va al profesional.
+  const precios = calcularPrecios(Number(service.price), Number(provider.commission_rate));
+  const amountCents = precios.totalCents;
+  const feeCents = precios.feeCents;
+  console.log(
+    "[checkout] Base:", precios.baseCents,
+    "| total cliente:", amountCents,
+    "| retiene Coxiro:", feeCents,
+    "| neto proveedor:", precios.netoProveedorCents
   );
-  console.log("[checkout] Importe:", amountCents, "| comision:", feeCents);
 
   console.log(
     "[checkout] STRIPE_SECRET_KEY presente:",
@@ -112,7 +120,8 @@ export async function GET(request: Request) {
     }
     cancelAt = Math.floor(cancelDate.getTime() / 1000);
   }
-  const commissionPercent = Number(provider.commission_rate);
+  // Stripe pide el % que retiene Coxiro sobre el TOTAL cobrado (2 decimales).
+  const commissionPercent = Number(((feeCents / amountCents) * 100).toFixed(2));
   const metadataComun = {
     service_id: service.id,
     client_id: user?.id ?? "",

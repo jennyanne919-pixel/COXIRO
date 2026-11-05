@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TOPICS, SERVICE_TYPES } from "@/lib/topics";
+import PrecioInput from "@/components/PrecioInput";
 
 export default function NewServiceForm({
   createService,
@@ -53,11 +54,7 @@ export default function NewServiceForm({
           <label className="text-xs text-stone block mb-1">
             Precio (€) {esAMedida && "— opcional"}
           </label>
-          <input
-            name="price"
-            type="number"
-            step="0.01"
-            min="0"
+          <PrecioInput
             required={!esAMedida}
             placeholder="90.00"
             className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
