@@ -27,14 +27,14 @@ export default function AyudaPage() {
         </a>
 
         <div className="mt-12 grid gap-3">
-          <a href="/legal/terminos" className="text-sm text-ink underline">
+          <a href="/terminos" className="text-sm text-ink underline">
             Términos y Condiciones
           </a>
-          <a href="/legal/privacidad" className="text-sm text-ink underline">
-            Política de Privacidad
+          <a href="/aviso-legal" className="text-sm text-ink underline">
+            Aviso Legal y Política de Privacidad
           </a>
-          <a href="/legal/aviso-legal" className="text-sm text-ink underline">
-            Aviso Legal
+          <a href="/cookies" className="text-sm text-ink underline">
+            Política de Cookies
           </a>
         </div>
       </div>

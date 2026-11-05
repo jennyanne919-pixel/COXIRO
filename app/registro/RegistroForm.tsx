@@ -175,11 +175,11 @@ export default function RegistroForm({
             <input type="checkbox" required className="mt-0.5" />
             <span>
               He leído y acepto los{" "}
-              <a href="/legal/terminos" target="_blank" className="text-ink underline">
+              <a href="/terminos" target="_blank" className="text-ink underline">
                 Términos y Condiciones
               </a>{" "}
               y la{" "}
-              <a href="/legal/privacidad" target="_blank" className="text-ink underline">
+              <a href="/aviso-legal" target="_blank" className="text-ink underline">
                 Política de Privacidad
               </a>
               {role === "provider" && (
