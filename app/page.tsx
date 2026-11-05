@@ -70,12 +70,12 @@ export default async function LandingPage() {
       </div>
 
       <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-stone/20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 xl:px-8 py-3 gap-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-8 py-3 gap-6">
           <a href="/" className="flex-shrink-0">
             <Logo variant="light" />
           </a>
 
-          <nav className="hidden xl:flex items-center gap-5 text-sm font-medium text-stone flex-1 justify-center min-w-0">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-6 text-sm font-medium text-stone flex-1 justify-center min-w-0">
             <a href="/catalogo" className="hover:text-ink whitespace-nowrap">Productos digitales</a>
             {!nombreUsuario && (
             <div className="relative group">
@@ -95,16 +95,12 @@ export default async function LandingPage() {
             {(!nombreUsuario || esVendedor) && (
               <a href="#como-funciona" className="hover:text-ink whitespace-nowrap">Cómo funciona</a>
             )}
-            {!nombreUsuario && (
-              <a href="#para-quien" className="hover:text-ink whitespace-nowrap">Para quién</a>
-            )}
-            <a href="/catalogo" className="hover:text-ink whitespace-nowrap">Comprar producto</a>
             <a href="/registro?role=provider" className="hover:text-ink whitespace-nowrap">Vender producto</a>
             <a href="/herramientas/partners" className="hover:text-ink whitespace-nowrap">Partners</a>
             <a href="/ayuda" className="hover:text-ink whitespace-nowrap">Ayuda</a>
           </nav>
 
-          <div className="hidden xl:flex items-center gap-3 flex-shrink-0">
+          <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
             {nombreUsuario ? (
               <a
                 href="/dashboard"
@@ -125,7 +121,7 @@ export default async function LandingPage() {
             )}
           </div>
 
-          <details className="xl:hidden relative">
+          <details className="lg:hidden relative">
             <summary className="list-none cursor-pointer w-9 h-9 flex items-center justify-center rounded-lg border border-stone/25">
               <span className="sr-only">Menú</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
