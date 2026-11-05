@@ -92,6 +92,7 @@ export default async function LandingPage() {
               </div>
             </div>
             )}
+            <a href="#para-quien" className="hover:text-ink whitespace-nowrap">Para quién</a>
             {(!nombreUsuario || esVendedor) && (
               <a href="#como-funciona" className="hover:text-ink whitespace-nowrap">Cómo funciona</a>
             )}
