@@ -2,23 +2,11 @@ import WaitlistForm from "@/components/WaitlistForm";
 import Banner from "@/components/home/Banner";
 import SiteHeader from "@/components/home/SiteHeader";
 import Hero from "@/components/home/Hero";
+import CintaProfesiones from "@/components/home/CintaProfesiones";
+import Calculadora from "@/components/home/Calculadora";
+import ComoFunciona from "@/components/home/ComoFunciona";
+import FranjaFoto from "@/components/home/FranjaFoto";
 import { createClient } from "@/lib/supabase/server";
-
-const AUDIENCE = [
-  "Creadores de contenido",
-  "Mentores",
-  "Formadores",
-  "Diseñadores",
-  "Servicios de IA",
-  "Consultoría",
-  "Otros servicios online",
-];
-
-const STEPS = [
-  { n: "01", title: "Sube tu servicio", body: "Contenido online, mentoría o consultoría, servicios a medida, servicios de inteligencia artificial. Fija tu precio y tú decides cómo lo entregas: directamente al catálogo público de Coxiro o mediante un enlace privado de pago para tu cliente." },
-  { n: "02", title: "Tu cliente paga", body: "Procesamos el cobro y emitimos la factura, tanto a tu cliente como a ti." },
-  { n: "03", title: "Tú cobras, sin gestión", body: "Recibes tu pago automáticamente. Sin hojas de cálculo, sin perseguir facturas." },
-];
 
 const FEATURES = [
   { title: "Pagos y cobros", body: "Pasarela de pago integrada para cobrar a tus clientes de forma segura.", soon: false },
@@ -51,53 +39,10 @@ export default async function LandingPage() {
       <SiteHeader nombreUsuario={nombreUsuario} />
       <Hero />
 
-      <section id="para-quien" className="py-24 max-w-5xl mx-auto px-8">
-        <div className="max-w-lg mb-14">
-          <span className="text-xs font-semibold uppercase tracking-wider text-cx-prof">
-            Para quién es Coxiro
-          </span>
-          <h2 className="font-display font-semibold text-3xl mt-3">
-            Cualquier profesional que pueda prestar sus servicios,
-            infoproductos o contenido online
-          </h2>
-        </div>
-        <div className="flex flex-wrap gap-2.5">
-          {AUDIENCE.map((a) => (
-            <span key={a} className="rounded-full border border-cx-borde bg-white px-4.5 py-2.5 text-sm font-medium">
-              {a}
-            </span>
-          ))}
-        </div>
-        <p className="text-sm text-cx-texto-2 mt-6">
-          Si crees que puedes vender tus servicios online, consúltanos en{" "}
-          <a href="mailto:coxiro.info@gmail.com" className="text-cx-prof underline">
-            coxiro.info@gmail.com
-          </a>
-        </p>
-      </section>
-
-      <section id="como-funciona" className="py-24 bg-white border-y border-cx-borde">
-        <div className="max-w-5xl mx-auto px-8">
-          <div className="max-w-lg mb-14">
-            <span className="text-xs font-semibold uppercase tracking-wider text-cx-prof">
-              Cómo funciona
-            </span>
-            <h2 className="font-display font-semibold text-3xl mt-3">
-              De tus servicios, infoproductos o contenidos online
-              directamente a tu cartera, en tres pasos
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-px bg-cx-borde border border-cx-borde rounded-2xl overflow-hidden">
-            {STEPS.map((s) => (
-              <div key={s.n} className="bg-white p-8">
-                <div className="font-display text-sm font-semibold text-cx-prof mb-4">{s.n}</div>
-                <h3 className="text-lg font-medium mb-2">{s.title}</h3>
-                <p className="text-sm text-cx-texto-2">{s.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CintaProfesiones />
+      <Calculadora />
+      <ComoFunciona />
+      <FranjaFoto />
 
       <section id="incluye" className="py-24 max-w-5xl mx-auto px-8">
         <div className="max-w-lg mb-14">

@@ -85,7 +85,7 @@ const MENUS: Menu[] = [
       {
         titulo: "Aprende",
         items: [
-          { titulo: "Cómo funciona", texto: "De tu conocimiento a tu cuenta en tres pasos", href: "/#como-funciona" },
+          { titulo: "Cómo funciona", texto: "De tu conocimiento a tu cuenta en tres pasos", href: "/#como" },
           { titulo: "Preguntas frecuentes", texto: "Resolvemos tus dudas", href: "/ayuda" },
         ],
       },

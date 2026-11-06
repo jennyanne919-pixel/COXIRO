@@ -1,0 +1,483 @@
+diff --git a/app/page.tsx b/app/page.tsx
+index 2f256c8..f4a5db5 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -2,24 +2,12 @@ import WaitlistForm from "@/components/WaitlistForm";
+ import Banner from "@/components/home/Banner";
+ import SiteHeader from "@/components/home/SiteHeader";
+ import Hero from "@/components/home/Hero";
++import CintaProfesiones from "@/components/home/CintaProfesiones";
++import Calculadora from "@/components/home/Calculadora";
++import ComoFunciona from "@/components/home/ComoFunciona";
++import FranjaFoto from "@/components/home/FranjaFoto";
+ import { createClient } from "@/lib/supabase/server";
+ 
+-const AUDIENCE = [
+-  "Creadores de contenido",
+-  "Mentores",
+-  "Formadores",
+-  "Diseñadores",
+-  "Servicios de IA",
+-  "Consultoría",
+-  "Otros servicios online",
+-];
+-
+-const STEPS = [
+-  { n: "01", title: "Sube tu servicio", body: "Contenido online, mentoría o consultoría, servicios a medida, servicios de inteligencia artificial. Fija tu precio y tú decides cómo lo entregas: directamente al catálogo público de Coxiro o mediante un enlace privado de pago para tu cliente." },
+-  { n: "02", title: "Tu cliente paga", body: "Procesamos el cobro y emitimos la factura, tanto a tu cliente como a ti." },
+-  { n: "03", title: "Tú cobras, sin gestión", body: "Recibes tu pago automáticamente. Sin hojas de cálculo, sin perseguir facturas." },
+-];
+-
+ const FEATURES = [
+   { title: "Pagos y cobros", body: "Pasarela de pago integrada para cobrar a tus clientes de forma segura.", soon: false },
+   { title: "Facturación automática", body: "Factura al proveedor y al cliente final en cada cobro, sin intervención manual.", soon: false },
+@@ -51,53 +39,10 @@ export default async function LandingPage() {
+       <SiteHeader nombreUsuario={nombreUsuario} />
+       <Hero />
+ 
+-      <section id="para-quien" className="py-24 max-w-5xl mx-auto px-8">
+-        <div className="max-w-lg mb-14">
+-          <span className="text-xs font-semibold uppercase tracking-wider text-cx-prof">
+-            Para quién es Coxiro
+-          </span>
+-          <h2 className="font-display font-semibold text-3xl mt-3">
+-            Cualquier profesional que pueda prestar sus servicios,
+-            infoproductos o contenido online
+-          </h2>
+-        </div>
+-        <div className="flex flex-wrap gap-2.5">
+-          {AUDIENCE.map((a) => (
+-            <span key={a} className="rounded-full border border-cx-borde bg-white px-4.5 py-2.5 text-sm font-medium">
+-              {a}
+-            </span>
+-          ))}
+-        </div>
+-        <p className="text-sm text-cx-texto-2 mt-6">
+-          Si crees que puedes vender tus servicios online, consúltanos en{" "}
+-          <a href="mailto:coxiro.info@gmail.com" className="text-cx-prof underline">
+-            coxiro.info@gmail.com
+-          </a>
+-        </p>
+-      </section>
+-
+-      <section id="como-funciona" className="py-24 bg-white border-y border-cx-borde">
+-        <div className="max-w-5xl mx-auto px-8">
+-          <div className="max-w-lg mb-14">
+-            <span className="text-xs font-semibold uppercase tracking-wider text-cx-prof">
+-              Cómo funciona
+-            </span>
+-            <h2 className="font-display font-semibold text-3xl mt-3">
+-              De tus servicios, infoproductos o contenidos online
+-              directamente a tu cartera, en tres pasos
+-            </h2>
+-          </div>
+-          <div className="grid md:grid-cols-3 gap-px bg-cx-borde border border-cx-borde rounded-2xl overflow-hidden">
+-            {STEPS.map((s) => (
+-              <div key={s.n} className="bg-white p-8">
+-                <div className="font-display text-sm font-semibold text-cx-prof mb-4">{s.n}</div>
+-                <h3 className="text-lg font-medium mb-2">{s.title}</h3>
+-                <p className="text-sm text-cx-texto-2">{s.body}</p>
+-              </div>
+-            ))}
+-          </div>
+-        </div>
+-      </section>
++      <CintaProfesiones />
++      <Calculadora />
++      <ComoFunciona />
++      <FranjaFoto />
+ 
+       <section id="incluye" className="py-24 max-w-5xl mx-auto px-8">
+         <div className="max-w-lg mb-14">
+diff --git a/components/Reveal.tsx b/components/Reveal.tsx
+new file mode 100644
+index 0000000..4ef3e58
+--- /dev/null
++++ b/components/Reveal.tsx
+@@ -0,0 +1,67 @@
++"use client";
++
++import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
++
++type Variante = "left" | "right" | "up" | "scale";
++
++const DESDE: Record<Variante, string> = {
++  left: "translate3d(-90px,0,0)",
++  right: "translate3d(90px,0,0)",
++  up: "translate3d(0,70px,0)",
++  scale: "scale(.85)",
++};
++
++// Entrada al hacer scroll. El contenido es visible por defecto (SSR, sin JS,
++// movimiento reducido); solo se oculta tras montar, si aún está fuera de pantalla.
++export default function Reveal({
++  variant = "up",
++  delay = 0,
++  className = "",
++  children,
++}: {
++  variant?: Variante;
++  delay?: number;
++  className?: string;
++  children: ReactNode;
++}) {
++  const ref = useRef<HTMLDivElement>(null);
++  const [estado, setEstado] = useState<"visible" | "oculto" | "entrando">("visible");
++
++  useEffect(() => {
++    const el = ref.current;
++    if (!el) return;
++    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
++    if (typeof IntersectionObserver === "undefined") return;
++    if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return;
++
++    setEstado("oculto");
++    const io = new IntersectionObserver(
++      ([e]) => {
++        if (e.isIntersecting) {
++          setEstado("entrando");
++          io.disconnect();
++        }
++      },
++      { threshold: 0.15 }
++    );
++    io.observe(el);
++    return () => io.disconnect();
++  }, []);
++
++  const style: CSSProperties =
++    estado === "oculto"
++      ? { opacity: 0, transform: DESDE[variant] }
++      : estado === "entrando"
++      ? {
++          opacity: 1,
++          transform: "none",
++          transition: `opacity .8s cubic-bezier(.2,.7,.2,1) ${delay}ms, transform .8s cubic-bezier(.2,.7,.2,1) ${delay}ms`,
++        }
++      : {};
++
++  return (
++    <div ref={ref} className={className} style={style}>
++      {children}
++    </div>
++  );
++}
+diff --git a/components/home/Calculadora.tsx b/components/home/Calculadora.tsx
+new file mode 100644
+index 0000000..2395f66
+--- /dev/null
++++ b/components/home/Calculadora.tsx
+@@ -0,0 +1,78 @@
++"use client";
++
++import Link from "next/link";
++import { useState } from "react";
++import Reveal from "@/components/Reveal";
++import { calcularPrecios } from "@/lib/pricing";
++
++// Separador de miles manual (es-ES no agrupa los números de 4 cifras).
++const eur = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
++
++export default function Calculadora() {
++  const [ventas, setVentas] = useState(3000);
++  const p = calcularPrecios(ventas, 10);
++  const mes = (p.netoProveedorCents - p.baseCents) / 100;
++  const anio = mes * 12;
++  const pct = ((ventas - 500) / (30000 - 500)) * 100;
++
++  return (
++    <section id="calc" className="bg-cx-hielo py-20 md:py-28">
++      <div className="max-w-6xl mx-auto px-6 md:px-8 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
++        <Reveal variant="left">
++          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-cx-prof">Pon tus números</span>
++          <h2 className="font-display font-bold text-4xl md:text-6xl leading-[1.02] mt-4 text-cx-noche">
++            ¿Cuánto vendes al mes a clientes particulares?
++          </h2>
++          <div className="mt-10">
++            <div className="font-display font-bold text-5xl md:text-6xl text-cx-noche tabular-nums">
++              {eur(ventas)} €
++            </div>
++            <input
++              type="range"
++              min={500}
++              max={30000}
++              step={500}
++              value={ventas}
++              onChange={(e) => setVentas(Number(e.target.value))}
++              aria-label="Ventas mensuales a clientes particulares en euros"
++              className="calc-range mt-5 w-full"
++              style={{ background: `linear-gradient(to right,#0874BD ${pct}%,#D6E6F5 ${pct}%)` }}
++            />
++            <div className="flex justify-between text-xs text-cx-texto-2 mt-2">
++              <span>500 €</span>
++              <span>30.000 €</span>
++            </div>
++          </div>
++          <p className="text-[13px] text-cx-texto-2 mt-6 max-w-md">
++            Estimación orientativa sobre ventas a clientes particulares, con comisión de Coxiro del 10 %.
++            La ganancia real depende de tu actividad y de tu situación fiscal.
++          </p>
++          <style>{`
++            .calc-range{-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;outline:none}
++            .calc-range::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#38C6FF;border:4px solid #fff;box-shadow:0 2px 8px rgba(8,116,189,.4);cursor:pointer}
++            .calc-range::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#38C6FF;border:4px solid #fff;box-shadow:0 2px 8px rgba(8,116,189,.4);cursor:pointer}
++          `}</style>
++        </Reveal>
++
++        <Reveal variant="right">
++          <div className="bg-cx-noche rounded-[32px] p-8 md:p-12 text-white">
++            <p className="text-lg md:text-xl text-[#C9D6EA]">Con Coxiro te puedes quedar hasta</p>
++            <div className="font-display font-bold text-cx-celeste text-7xl md:text-[96px] leading-none mt-3 tabular-nums break-words">
++              {eur(mes)} €
++            </div>
++            <p className="text-lg mt-2 text-white">al mes</p>
++            <p className="text-[#C9D6EA] mt-5">
++              que son hasta <strong className="text-white">{eur(anio)} €</strong> al año en tu bolsillo.
++            </p>
++            <Link
++              href="/registro?role=provider"
++              className="inline-block mt-8 rounded-full bg-cx-celeste text-cx-noche font-semibold px-7 py-3.5 hover:brightness-110 transition"
++            >
++              Quiero empezar a ganar más
++            </Link>
++          </div>
++        </Reveal>
++      </div>
++    </section>
++  );
++}
+diff --git a/components/home/CintaProfesiones.tsx b/components/home/CintaProfesiones.tsx
+new file mode 100644
+index 0000000..5575d1c
+--- /dev/null
++++ b/components/home/CintaProfesiones.tsx
+@@ -0,0 +1,37 @@
++const FILA_1 = ["Mentores", "Formadores", "Creadores de contenido", "Consultores", "Coaches", "Servicios de IA"];
++const FILA_2 = ["Diseñadores", "Profesores de idiomas", "Entrenadores", "Academias online", "Terapeutas online"];
++
++function Fila({ items, anim }: { items: string[]; anim: string }) {
++  const lista = [...items, ...items];
++  return (
++    <div className="cinta-fila flex w-max" style={{ animation: anim }}>
++      {lista.map((t, i) => (
++        <span
++          key={i}
++          aria-hidden={i >= items.length}
++          className="cinta-texto font-display font-bold text-5xl md:text-[76px] leading-[1.15] px-6 md:px-10 whitespace-nowrap select-none"
++        >
++          {t}
++          <span className="text-cx-celeste mx-6 md:mx-10" style={{ WebkitTextStroke: 0 }}>•</span>
++        </span>
++      ))}
++    </div>
++  );
++}
++
++export default function CintaProfesiones() {
++  return (
++    <section id="para-quien" className="cinta bg-white py-14 md:py-20 overflow-hidden" aria-label="Para quién es Coxiro">
++      <style>{`
++        .cinta-texto{color:transparent;-webkit-text-stroke:1.5px #0874BD;transition:color .25s}
++        .cinta-texto:hover{color:#38C6FF}
++        .cinta:hover .cinta-fila{animation-play-state:paused !important}
++        @media (prefers-reduced-motion: reduce){.cinta-fila{animation:none !important}}
++      `}</style>
++      <div className="space-y-2">
++        <Fila items={FILA_1} anim="marquee 38s linear infinite" />
++        <Fila items={FILA_2} anim="marqueeReverse 46s linear infinite" />
++      </div>
++    </section>
++  );
++}
+diff --git a/components/home/ComoFunciona.tsx b/components/home/ComoFunciona.tsx
+new file mode 100644
+index 0000000..32759a6
+--- /dev/null
++++ b/components/home/ComoFunciona.tsx
+@@ -0,0 +1,87 @@
++import Reveal from "@/components/Reveal";
++
++const NUM = "font-display font-bold text-[96px] md:text-[120px] leading-none select-none";
++const numStyle = { color: "#EAF6FF", WebkitTextStroke: "2px #0874BD" } as const;
++const mock =
++  "rounded-3xl border border-cx-borde bg-white p-6 shadow-[0_20px_50px_-20px_rgba(8,35,70,.25)] transition duration-300 hover:-translate-y-2 hover:border-cx-celeste";
++
++function Fila({ n, titulo, texto, invertir, children }: { n: string; titulo: string; texto: string; invertir?: boolean; children: React.ReactNode }) {
++  return (
++    <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
++      <Reveal variant={invertir ? "right" : "left"} className={invertir ? "md:order-2" : ""}>
++        <div className={NUM} style={numStyle} aria-hidden="true">{n}</div>
++        <h3 className="font-display font-bold text-3xl md:text-4xl text-cx-noche -mt-3">{titulo}</h3>
++        <p className="text-cx-texto-2 mt-3 max-w-md text-lg">{texto}</p>
++      </Reveal>
++      <Reveal variant={invertir ? "left" : "right"} delay={120} className={invertir ? "md:order-1" : ""}>
++        {children}
++      </Reveal>
++    </div>
++  );
++}
++
++export default function ComoFunciona() {
++  return (
++    <section id="como" className="bg-white py-20 md:py-28">
++      <div className="max-w-6xl mx-auto px-6 md:px-8">
++        <Reveal variant="up">
++          <h2 className="font-display font-bold text-4xl md:text-[80px] leading-[1] text-cx-noche max-w-4xl">
++            De tu conocimiento a tu cuenta en tres pasos
++          </h2>
++        </Reveal>
++
++        <div className="mt-16 space-y-20 md:space-y-28">
++          <Fila n="01" titulo="Sube lo que vendes" texto="Pon título, precio y cómo lo entregas. Publícalo en el catálogo o guárdalo para enviarlo solo con tu enlace.">
++            <div className={mock}>
++              <div className="text-xs font-semibold text-cx-texto-2 uppercase tracking-wide">Nuevo servicio</div>
++              <div className="mt-3 rounded-xl border border-cx-borde px-4 py-3 text-cx-noche font-medium">Mentoría de marca personal</div>
++              <div className="mt-3 grid grid-cols-2 gap-3">
++                <div className="rounded-xl border border-cx-borde px-4 py-3 text-cx-noche font-semibold">290 €</div>
++                <div className="rounded-xl bg-cx-hielo px-4 py-3 text-cx-prof font-medium text-sm">3 plazos SEPA</div>
++              </div>
++              <div className="mt-4 flex items-center justify-between text-sm text-cx-texto">
++                <span>Visible en el catálogo público</span>
++                <span className="w-10 h-6 rounded-full bg-cx-celeste relative"><span className="absolute right-0.5 top-0.5 w-5 h-5 rounded-full bg-white" /></span>
++              </div>
++              <p className="text-[11px] text-cx-texto-2 mt-4">Datos de ejemplo</p>
++            </div>
++          </Fila>
++
++          <Fila invertir n="02" titulo="Comparte tu enlace" texto="Cada servicio tiene su enlace de pago. Pégalo donde ya hablas con tus clientes y listo.">
++            <div className={`${mock} !bg-cx-noche !border-white/10 text-white`}>
++              <div className="text-xs font-semibold text-[#C9D6EA] uppercase tracking-wide">Tu enlace</div>
++              <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-white/10 px-4 py-3">
++                <span className="truncate font-medium">coxiro.es/p/marca-personal</span>
++                <span className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-4 py-1.5">Copiar</span>
++              </div>
++              <div className="mt-4 flex flex-wrap gap-2">
++                {["WhatsApp", "Bio de Instagram", "Email", "Telegram"].map((t) => (
++                  <span key={t} className="rounded-full border border-white/25 px-3.5 py-1.5 text-sm text-[#C9D6EA]">{t}</span>
++                ))}
++              </div>
++              <p className="text-[11px] text-[#C9D6EA]/70 mt-4">Datos de ejemplo</p>
++            </div>
++          </Fila>
++
++          <Fila n="03" titulo="Cobras sin hacer papeleo" texto="Tu cliente paga, la factura se emite sola y el dinero llega a tu cuenta. Tú no tocas nada.">
++            <div className={`${mock} !p-0 overflow-hidden`}>
++              <div className="p-6">
++                <div className="flex items-center justify-between">
++                  <span className="font-semibold text-cx-noche">COX-2026-0142</span>
++                  <span className="rounded-full bg-cx-hielo text-cx-prof text-xs font-semibold px-3 py-1">Enviada</span>
++                </div>
++                <div className="mt-3 text-sm text-cx-texto-2">Plazo 1/3 · Mentoría de marca personal</div>
++                <div className="mt-3 text-sm text-cx-noche">Registro VeriFactu: <strong>Correcto</strong></div>
++                <p className="text-[11px] text-cx-texto-2 mt-4">Datos de ejemplo</p>
++              </div>
++              <div className="bg-cx-noche text-white px-6 py-4 flex items-center justify-between text-sm">
++                <span>Transferencia a tu cuenta</span>
++                <span className="text-cx-celeste font-semibold">Viernes</span>
++              </div>
++            </div>
++          </Fila>
++        </div>
++      </div>
++    </section>
++  );
++}
+diff --git a/components/home/FranjaFoto.tsx b/components/home/FranjaFoto.tsx
+new file mode 100644
+index 0000000..24d2772
+--- /dev/null
++++ b/components/home/FranjaFoto.tsx
+@@ -0,0 +1,65 @@
++"use client";
++
++import Image from "next/image";
++import { useEffect, useRef } from "react";
++import Reveal from "@/components/Reveal";
++
++// Parallax suave: la foto se mueve ~10 % más lento que el scroll.
++export default function FranjaFoto() {
++  const caja = useRef<HTMLElement>(null);
++  const foto = useRef<HTMLDivElement>(null);
++
++  useEffect(() => {
++    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
++    let raf = 0;
++    const mover = () => {
++      raf = 0;
++      const c = caja.current;
++      const f = foto.current;
++      if (!c || !f) return;
++      const r = c.getBoundingClientRect();
++      if (r.bottom < 0 || r.top > window.innerHeight) return;
++      const desplaz = (window.innerHeight / 2 - (r.top + r.height / 2)) * 0.1;
++      f.style.transform = `translate3d(0,${desplaz.toFixed(1)}px,0)`;
++    };
++    const alScroll = () => {
++      if (!raf) raf = requestAnimationFrame(mover);
++    };
++    mover();
++    window.addEventListener("scroll", alScroll, { passive: true });
++    window.addEventListener("resize", alScroll);
++    return () => {
++      window.removeEventListener("scroll", alScroll);
++      window.removeEventListener("resize", alScroll);
++      if (raf) cancelAnimationFrame(raf);
++    };
++  }, []);
++
++  return (
++    <section ref={caja} className="relative w-full h-[460px] md:h-[560px] overflow-hidden bg-cx-noche">
++      <div ref={foto} className="absolute left-0 right-0 -top-[12%] h-[124%] will-change-transform">
++        <Image
++          src="/images/aula-mentoria.jpg"
++          alt="Mentora dando una sesión a un grupo de alumnos"
++          fill
++          sizes="100vw"
++          className="object-cover"
++        />
++      </div>
++      <div
++        className="absolute inset-0"
++        style={{ background: "linear-gradient(to right, rgba(7,20,43,.92) 0%, rgba(7,20,43,.92) 20%, rgba(7,20,43,0) 60%)" }}
++      />
++      <div className="relative h-full max-w-6xl mx-auto px-6 md:px-8 flex items-center">
++        <Reveal variant="left" className="max-w-xl">
++          <h2 className="font-display font-bold text-[38px] md:text-[64px] leading-[1.02] text-white">
++            Tú das la clase. Del resto se encarga Coxiro.
++          </h2>
++          <p className="mt-5 text-lg md:text-xl text-[#C9D6EA]">
++            Tus alumnos pagan y entran a su contenido sin crear cuenta. Tú te centras en enseñar.
++          </p>
++        </Reveal>
++      </div>
++    </section>
++  );
++}
+diff --git a/components/home/SiteHeader.tsx b/components/home/SiteHeader.tsx
+index 9ddd56a..c8121d9 100644
+--- a/components/home/SiteHeader.tsx
++++ b/components/home/SiteHeader.tsx
+@@ -85,7 +85,7 @@ const MENUS: Menu[] = [
+       {
+         titulo: "Aprende",
+         items: [
+-          { titulo: "Cómo funciona", texto: "De tu conocimiento a tu cuenta en tres pasos", href: "/#como-funciona" },
++          { titulo: "Cómo funciona", texto: "De tu conocimiento a tu cuenta en tres pasos", href: "/#como" },
+           { titulo: "Preguntas frecuentes", texto: "Resolvemos tus dudas", href: "/ayuda" },
+         ],
+       },
+diff --git a/tailwind.config.ts b/tailwind.config.ts
+index fb7371d..f7666c7 100644
+--- a/tailwind.config.ts
++++ b/tailwind.config.ts
+@@ -41,6 +41,10 @@ const config: Config = {
+           "0%": { transform: "translateX(0%)" },
+           "100%": { transform: "translateX(-50%)" },
+         },
++        marqueeReverse: {
++          "0%": { transform: "translateX(-50%)" },
++          "100%": { transform: "translateX(0%)" },
++        },
+         float: {
+           "0%, 100%": { transform: "translateY(0)" },
+           "50%": { transform: "translateY(-12px)" },
