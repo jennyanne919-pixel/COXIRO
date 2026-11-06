@@ -5,7 +5,7 @@ const MENSAJES = [
   "Sin cuota mensual",
   "Gana hasta un 10% más en tus ventas a particulares en España",
   "Factura automática con VeriFactu",
-  "Cobros con tarjeta y SEPA, también a plazos",
+  "Cobros con tarjeta y SEPA",
 ];
 
 export default function Banner() {

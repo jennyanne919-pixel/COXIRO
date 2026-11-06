@@ -14,10 +14,17 @@ const MENUS: Menu[] = [
     etiqueta: "Productos digitales",
     columnas: [
       {
+        titulo: "Explora",
+        items: [
+          { titulo: "Catálogo", texto: "Explora todo lo que ofrecen los profesionales", href: "/catalogo" },
+          { titulo: "Servicios de IA", texto: "Automatizaciones, agentes y trabajos con IA", href: "/catalogo" },
+        ],
+      },
+      {
         titulo: "Formación",
         items: [
           { titulo: "Cursos online", texto: "Vídeo, lecciones y progreso del alumno", href: "/herramientas/publica-tu-contenido" },
-          { titulo: "Membresías", texto: "Cuota mensual con cobro automático", href: "/herramientas/suscripciones" },
+          { titulo: "Membresías", texto: "Pago mensual con cobro automático", href: "/herramientas/suscripciones" },
         ],
       },
       {
@@ -25,13 +32,6 @@ const MENUS: Menu[] = [
         items: [
           { titulo: "Mentorías", texto: "Sesiones 1:1 o en grupo, con pago previo", href: "/herramientas/publica-tu-contenido" },
           { titulo: "Consultoría", texto: "Trabajos a medida con enlace privado", href: "/herramientas/publica-tu-contenido" },
-        ],
-      },
-      {
-        titulo: "Nuevos formatos",
-        items: [
-          { titulo: "Servicios de IA", texto: "Automatizaciones, agentes y trabajos con IA", href: "/catalogo" },
-          { titulo: "Comprar un servicio", texto: "Explora el catálogo de profesionales", href: "/catalogo" },
         ],
       },
     ],
@@ -50,7 +50,7 @@ const MENUS: Menu[] = [
       {
         titulo: "Cobros",
         items: [
-          { titulo: "Tarjeta y SEPA", texto: "Pago único, a plazos o suscripción", href: "/herramientas/pasarela-de-pagos" },
+          { titulo: "Tarjeta y SEPA", texto: "Pago único o suscripción", href: "/herramientas/pasarela-de-pagos" },
           { titulo: "Enlaces privados de pago", texto: "Cobra sin publicar nada", href: "/herramientas/publica-tu-contenido" },
         ],
       },
@@ -236,6 +236,12 @@ export default function SiteHeader({ nombreUsuario }: { nombreUsuario: string | 
               Entrar
             </a>
           )}
+          <a
+            href="/catalogo"
+            className="rounded-full border-[1.5px] border-white/40 px-5 py-2.5 text-sm font-semibold text-white hover:border-cx-celeste hover:text-cx-celeste transition whitespace-nowrap"
+          >
+            Comprar
+          </a>
           {botonPrincipal}
         </div>
 
@@ -383,13 +389,21 @@ export default function SiteHeader({ nombreUsuario }: { nombreUsuario: string | 
             </a>
             <div className="mt-6 grid gap-3">
               {nombreUsuario ? (
-                <a href="/dashboard" className="rounded-full bg-cx-celeste px-6 py-3.5 text-center font-semibold text-cx-noche">
-                  Hola, {nombreUsuario} · Mi panel
-                </a>
+                <>
+                  <a href="/dashboard" className="rounded-full bg-cx-celeste px-6 py-3.5 text-center font-semibold text-cx-noche">
+                    Hola, {nombreUsuario} · Mi panel
+                  </a>
+                  <a href="/catalogo" onClick={() => setMovil(false)} className="rounded-full border border-white/25 px-6 py-3.5 text-center font-semibold text-white">
+                    Comprar
+                  </a>
+                </>
               ) : (
                 <>
                   <a href="/registro?role=provider" className="rounded-full bg-cx-celeste px-6 py-3.5 text-center font-semibold text-cx-noche">
                     Empieza a vender
+                  </a>
+                  <a href="/catalogo" onClick={() => setMovil(false)} className="rounded-full border border-white/25 px-6 py-3.5 text-center font-semibold text-white">
+                    Comprar
                   </a>
                   <a href="/login" className="rounded-full border border-white/25 px-6 py-3.5 text-center font-semibold text-white">
                     Entrar

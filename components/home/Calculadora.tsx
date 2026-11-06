@@ -43,10 +43,6 @@ export default function Calculadora() {
               <span>30.000 €</span>
             </div>
           </div>
-          <p className="text-[13px] text-cx-texto-2 mt-6 max-w-md">
-            Estimación orientativa sobre ventas a clientes particulares, con comisión de Coxiro del 10 %.
-            La ganancia real depende de tu actividad y de tu situación fiscal.
-          </p>
           <style>{`
             .calc-range{-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;outline:none}
             .calc-range::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#38C6FF;border:4px solid #fff;box-shadow:0 2px 8px rgba(8,116,189,.4);cursor:pointer}
@@ -56,13 +52,13 @@ export default function Calculadora() {
 
         <Reveal variant="right">
           <div className="bg-cx-noche rounded-[32px] p-8 md:p-12 text-white">
-            <p className="text-lg md:text-xl text-[#C9D6EA]">Con Coxiro te puedes quedar hasta</p>
+            <p className="text-lg md:text-xl text-[#C9D6EA]">Con Coxiro ganas</p>
             <div className="font-display font-bold text-cx-celeste text-7xl md:text-[96px] leading-none mt-3 tabular-nums break-words">
               {eur(mes)} €
             </div>
             <p className="text-lg mt-2 text-white">al mes</p>
             <p className="text-[#C9D6EA] mt-5">
-              que son hasta <strong className="text-white">{eur(anio)} €</strong> al año en tu bolsillo.
+              que son <strong className="text-white">{eur(anio)} €</strong> al año en tu bolsillo.
             </p>
             <Link
               href="/registro?role=provider"

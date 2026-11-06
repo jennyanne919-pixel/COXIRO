@@ -31,14 +31,11 @@ export default function ComoFunciona() {
         </Reveal>
 
         <div className="mt-16 space-y-20 md:space-y-28">
-          <Fila n="01" titulo="Sube lo que vendes" texto="Pon título, precio y cómo lo entregas. Publícalo en el catálogo o guárdalo para enviarlo solo con tu enlace.">
+          <Fila n="01" titulo="Sube lo que vendes" texto="Pon título, precio y cómo lo entregas. Publícalo en el catálogo o guárdalo para enviarlo por privado.">
             <div className={mock}>
               <div className="text-xs font-semibold text-cx-texto-2 uppercase tracking-wide">Nuevo servicio</div>
               <div className="mt-3 rounded-xl border border-cx-borde px-4 py-3 text-cx-noche font-medium">Mentoría de marca personal</div>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-cx-borde px-4 py-3 text-cx-noche font-semibold">290 €</div>
-                <div className="rounded-xl bg-cx-hielo px-4 py-3 text-cx-prof font-medium text-sm">3 plazos SEPA</div>
-              </div>
+              <div className="mt-3 rounded-xl border border-cx-borde px-4 py-3 text-cx-noche font-semibold">290 €</div>
               <div className="mt-4 flex items-center justify-between text-sm text-cx-texto">
                 <span>Visible en el catálogo público</span>
                 <span className="w-10 h-6 rounded-full bg-cx-celeste relative"><span className="absolute right-0.5 top-0.5 w-5 h-5 rounded-full bg-white" /></span>
@@ -63,14 +60,14 @@ export default function ComoFunciona() {
             </div>
           </Fila>
 
-          <Fila n="03" titulo="Cobras sin hacer papeleo" texto="Tu cliente paga, la factura se emite sola y el dinero llega a tu cuenta. Tú no tocas nada.">
+          <Fila n="03" titulo="Cobras sin hacer papeleo" texto="Tu cliente paga, la factura se emite automáticamente y el dinero llega a tu cuenta.">
             <div className={`${mock} !p-0 overflow-hidden`}>
               <div className="p-6">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-cx-noche">COX-2026-0142</span>
                   <span className="rounded-full bg-cx-hielo text-cx-prof text-xs font-semibold px-3 py-1">Enviada</span>
                 </div>
-                <div className="mt-3 text-sm text-cx-texto-2">Plazo 1/3 · Mentoría de marca personal</div>
+                <div className="mt-3 text-sm text-cx-texto-2">Pago único · Mentoría de marca personal</div>
                 <div className="mt-3 text-sm text-cx-noche">Registro VeriFactu: <strong>Correcto</strong></div>
                 <p className="text-[11px] text-cx-texto-2 mt-4">Datos de ejemplo</p>
               </div>

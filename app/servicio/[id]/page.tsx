@@ -299,7 +299,7 @@ export default async function ServicioPage({
                 </p>
                 <p className="text-xs text-cx-texto-2 mt-1">
                   Impuestos incluidos
-                  {service.type === "membership" && service.total_installments ? ` · ${service.total_installments} plazos` : ""}
+                  {service.type === "membership" && service.total_installments ? ` · ${service.total_installments} pagos` : ""}
                 </p>
                 {service.type === "membership" && (
                   <p className="text-xs text-cx-texto-2 mt-1">

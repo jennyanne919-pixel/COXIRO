@@ -5,7 +5,7 @@ const FAQ = [
   { q: "¿Tengo que pagar una cuota mensual?", a: "No. Las funcionalidades no tienen cuota. Solo se cobraría el alojamiento si subes mucho contenido." },
   { q: "¿Mis clientes tienen que registrarse?", a: "No. Pagan con nombre, email y tarjeta o cuenta bancaria, y reciben su factura por email." },
   { q: "¿Quién emite las facturas?", a: "Coxiro, en cada cobro: la factura de tu cliente y tu autofactura, registradas con VeriFactu." },
-  { q: "¿Puedo cobrar a plazos o con suscripción?", a: "Sí. Eliges el número de plazos o una cuota periódica, y los cobros por SEPA se hacen solos." },
+  { q: "¿Puedo cobrar a plazos?", a: "De momento no. Puedes cobrar con pago único o con membresías mensuales o anuales, con cobro automático por tarjeta o SEPA." },
 ];
 
 export function Partners() {

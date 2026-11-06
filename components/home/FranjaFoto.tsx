@@ -56,7 +56,7 @@ export default function FranjaFoto() {
             Tú das la clase. Del resto se encarga Coxiro.
           </h2>
           <p className="mt-5 text-lg md:text-xl text-[#C9D6EA]">
-            Tus alumnos pagan y entran a su contenido sin crear cuenta. Tú te centras en enseñar.
+            Tus alumnos pagan y entran a su contenido. Tú te centras en lo que mejor sabes hacer.
           </p>
         </Reveal>
       </div>

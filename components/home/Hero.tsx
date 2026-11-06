@@ -104,14 +104,20 @@ export default function Hero() {
               Vende tus <PalabraQueRota /> online
             </span>
           </h1>
-          <p className="text-lg md:text-[22px] leading-snug text-[#C9D6EA] mt-6 max-w-[540px]">
-            y gana hasta un 10% más desde tu primera venta a tus clientes en España. Sin cuota mensual y con la
-            factura hecha por ti.
+          <p className="text-2xl md:text-[30px] leading-snug text-[#C9D6EA] mt-6 max-w-[580px]">
+            y gana hasta un 10% más desde tu primera venta a tus clientes particulares en España.
+          </p>
+          <p className="text-base md:text-xl leading-snug text-[#A9B8D0] mt-4 max-w-[560px]">
+            Sin cuota mensual y con toda la infraestructura tecnológica incluida: pasarela de pago y facturación.
+          </p>
+
+          <p className="mt-8 mb-2 pl-1 text-sm font-semibold uppercase tracking-[0.14em] text-cx-celeste">
+            Tu tienda en un solo enlace
           </p>
 
           <form
             onSubmit={reservar}
-            className="mt-8 flex flex-col sm:flex-row sm:items-center gap-2 rounded-3xl sm:rounded-full bg-white p-2 sm:p-1.5 max-w-[540px] shadow-xl"
+            className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-3xl sm:rounded-full bg-white p-2 sm:p-1.5 max-w-[540px] shadow-xl"
           >
             <label htmlFor="hero-enlace" className="sr-only">
               Tu enlace personal en Coxiro
@@ -134,12 +140,15 @@ export default function Hero() {
               type="submit"
               className="rounded-full bg-cx-noche px-6 py-3 text-sm font-semibold text-white whitespace-nowrap hover:-translate-y-0.5 transition"
             >
-              Reservar mi enlace
+              Crear mi enlace
             </button>
           </form>
 
-          <p className="text-sm text-cx-texto-osc-2 mt-5">
-            Cobro con tarjeta o domiciliación SEPA · Facturas automáticas · ¿Buscas comprar?{" "}
+          <p className="text-sm text-cx-texto-osc-2 mt-3 max-w-[540px]">
+            Ponlo en tu bio de Instagram o en WhatsApp: tus clientes ven lo que vendes y pagan ahí mismo, sin crear cuenta.
+          </p>
+          <p className="text-sm text-cx-texto-osc-2 mt-4">
+            ¿Buscas comprar?{" "}
             <a href="/catalogo" className="text-white underline underline-offset-2 hover:text-cx-celeste">
               Explora el catálogo
             </a>
@@ -153,7 +162,7 @@ export default function Hero() {
           <p className="text-xs font-semibold uppercase tracking-wide text-cx-prof">Nueva venta</p>
           <p className="text-sm font-semibold mt-1">Mentoría 1:1 · 3 sesiones</p>
           <p className="font-display font-bold text-3xl mt-1">290,00 €</p>
-          <p className="text-xs text-cx-texto-2 mt-1">Pagado en 3 plazos con SEPA</p>
+          <p className="text-xs text-cx-texto-2 mt-1">Pago único con tarjeta</p>
         </div>
         <div className="absolute right-[20%] bottom-[9%] w-[290px] rounded-2xl bg-[#13254A] p-4 text-white shadow-2xl animate-floatSlow motion-reduce:animate-none">
           <div className="flex items-start gap-3">

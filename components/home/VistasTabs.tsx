@@ -60,7 +60,6 @@ function Pago() {
           </div>
         </div>
         <div className="mt-5 font-display font-bold text-4xl text-cx-prof">290 €</div>
-        <div className="text-sm text-cx-texto-2">o 3 plazos de 96,67 €</div>
         <div className="mt-5 space-y-3">
           <div className={campo}>Nombre</div>
           <div className={campo}>Email</div>

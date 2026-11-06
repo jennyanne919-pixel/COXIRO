@@ -1,0 +1,309 @@
+diff --git a/app/[slug]/page.tsx b/app/[slug]/page.tsx
+index dff83bc..4793f21 100644
+--- a/app/[slug]/page.tsx
++++ b/app/[slug]/page.tsx
+@@ -14,7 +14,7 @@ function detalle(s: {
+   if (s.type === "membership") {
+     const anual = s.billing_interval === "year";
+     return s.total_installments
+-      ? `${s.total_installments} plazos ${anual ? "anuales" : "mensuales"}`
++      ? `${s.total_installments} pagos ${anual ? "anuales" : "mensuales"}`
+       : `Suscripción ${anual ? "anual" : "mensual"}`;
+   }
+   return "Pago único";
+diff --git a/app/servicio/[id]/page.tsx b/app/servicio/[id]/page.tsx
+index 3cf44d7..da1f844 100644
+--- a/app/servicio/[id]/page.tsx
++++ b/app/servicio/[id]/page.tsx
+@@ -299,7 +299,7 @@ export default async function ServicioPage({
+                 </p>
+                 <p className="text-xs text-cx-texto-2 mt-1">
+                   Impuestos incluidos
+-                  {service.type === "membership" && service.total_installments ? ` · ${service.total_installments} plazos` : ""}
++                  {service.type === "membership" && service.total_installments ? ` · ${service.total_installments} pagos` : ""}
+                 </p>
+                 {service.type === "membership" && (
+                   <p className="text-xs text-cx-texto-2 mt-1">
+diff --git a/components/home/Banner.tsx b/components/home/Banner.tsx
+index 28eeabb..ca34101 100644
+--- a/components/home/Banner.tsx
++++ b/components/home/Banner.tsx
+@@ -5,7 +5,7 @@ const MENSAJES = [
+   "Sin cuota mensual",
+   "Gana hasta un 10% más en tus ventas a particulares en España",
+   "Factura automática con VeriFactu",
+-  "Cobros con tarjeta y SEPA, también a plazos",
++  "Cobros con tarjeta y SEPA",
+ ];
+ 
+ export default function Banner() {
+diff --git a/components/home/Calculadora.tsx b/components/home/Calculadora.tsx
+index 2395f66..a99db1d 100644
+--- a/components/home/Calculadora.tsx
++++ b/components/home/Calculadora.tsx
+@@ -43,10 +43,6 @@ export default function Calculadora() {
+               <span>30.000 €</span>
+             </div>
+           </div>
+-          <p className="text-[13px] text-cx-texto-2 mt-6 max-w-md">
+-            Estimación orientativa sobre ventas a clientes particulares, con comisión de Coxiro del 10 %.
+-            La ganancia real depende de tu actividad y de tu situación fiscal.
+-          </p>
+           <style>{`
+             .calc-range{-webkit-appearance:none;appearance:none;height:8px;border-radius:999px;outline:none}
+             .calc-range::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#38C6FF;border:4px solid #fff;box-shadow:0 2px 8px rgba(8,116,189,.4);cursor:pointer}
+@@ -56,13 +52,13 @@ export default function Calculadora() {
+ 
+         <Reveal variant="right">
+           <div className="bg-cx-noche rounded-[32px] p-8 md:p-12 text-white">
+-            <p className="text-lg md:text-xl text-[#C9D6EA]">Con Coxiro te puedes quedar hasta</p>
++            <p className="text-lg md:text-xl text-[#C9D6EA]">Con Coxiro ganas</p>
+             <div className="font-display font-bold text-cx-celeste text-7xl md:text-[96px] leading-none mt-3 tabular-nums break-words">
+               {eur(mes)} €
+             </div>
+             <p className="text-lg mt-2 text-white">al mes</p>
+             <p className="text-[#C9D6EA] mt-5">
+-              que son hasta <strong className="text-white">{eur(anio)} €</strong> al año en tu bolsillo.
++              que son <strong className="text-white">{eur(anio)} €</strong> al año en tu bolsillo.
+             </p>
+             <Link
+               href="/registro?role=provider"
+diff --git a/components/home/ComoFunciona.tsx b/components/home/ComoFunciona.tsx
+index 32759a6..62e1525 100644
+--- a/components/home/ComoFunciona.tsx
++++ b/components/home/ComoFunciona.tsx
+@@ -31,14 +31,11 @@ export default function ComoFunciona() {
+         </Reveal>
+ 
+         <div className="mt-16 space-y-20 md:space-y-28">
+-          <Fila n="01" titulo="Sube lo que vendes" texto="Pon título, precio y cómo lo entregas. Publícalo en el catálogo o guárdalo para enviarlo solo con tu enlace.">
++          <Fila n="01" titulo="Sube lo que vendes" texto="Pon título, precio y cómo lo entregas. Publícalo en el catálogo o guárdalo para enviarlo por privado.">
+             <div className={mock}>
+               <div className="text-xs font-semibold text-cx-texto-2 uppercase tracking-wide">Nuevo servicio</div>
+               <div className="mt-3 rounded-xl border border-cx-borde px-4 py-3 text-cx-noche font-medium">Mentoría de marca personal</div>
+-              <div className="mt-3 grid grid-cols-2 gap-3">
+-                <div className="rounded-xl border border-cx-borde px-4 py-3 text-cx-noche font-semibold">290 €</div>
+-                <div className="rounded-xl bg-cx-hielo px-4 py-3 text-cx-prof font-medium text-sm">3 plazos SEPA</div>
+-              </div>
++              <div className="mt-3 rounded-xl border border-cx-borde px-4 py-3 text-cx-noche font-semibold">290 €</div>
+               <div className="mt-4 flex items-center justify-between text-sm text-cx-texto">
+                 <span>Visible en el catálogo público</span>
+                 <span className="w-10 h-6 rounded-full bg-cx-celeste relative"><span className="absolute right-0.5 top-0.5 w-5 h-5 rounded-full bg-white" /></span>
+@@ -63,14 +60,14 @@ export default function ComoFunciona() {
+             </div>
+           </Fila>
+ 
+-          <Fila n="03" titulo="Cobras sin hacer papeleo" texto="Tu cliente paga, la factura se emite sola y el dinero llega a tu cuenta. Tú no tocas nada.">
++          <Fila n="03" titulo="Cobras sin hacer papeleo" texto="Tu cliente paga, la factura se emite automáticamente y el dinero llega a tu cuenta.">
+             <div className={`${mock} !p-0 overflow-hidden`}>
+               <div className="p-6">
+                 <div className="flex items-center justify-between">
+                   <span className="font-semibold text-cx-noche">COX-2026-0142</span>
+                   <span className="rounded-full bg-cx-hielo text-cx-prof text-xs font-semibold px-3 py-1">Enviada</span>
+                 </div>
+-                <div className="mt-3 text-sm text-cx-texto-2">Plazo 1/3 · Mentoría de marca personal</div>
++                <div className="mt-3 text-sm text-cx-texto-2">Pago único · Mentoría de marca personal</div>
+                 <div className="mt-3 text-sm text-cx-noche">Registro VeriFactu: <strong>Correcto</strong></div>
+                 <p className="text-[11px] text-cx-texto-2 mt-4">Datos de ejemplo</p>
+               </div>
+diff --git a/components/home/FranjaFoto.tsx b/components/home/FranjaFoto.tsx
+index 24d2772..c21589f 100644
+--- a/components/home/FranjaFoto.tsx
++++ b/components/home/FranjaFoto.tsx
+@@ -56,7 +56,7 @@ export default function FranjaFoto() {
+             Tú das la clase. Del resto se encarga Coxiro.
+           </h2>
+           <p className="mt-5 text-lg md:text-xl text-[#C9D6EA]">
+-            Tus alumnos pagan y entran a su contenido sin crear cuenta. Tú te centras en enseñar.
++            Tus alumnos pagan y entran a su contenido. Tú te centras en lo que mejor sabes hacer.
+           </p>
+         </Reveal>
+       </div>
+diff --git a/components/home/FuncionesGrid.tsx b/components/home/FuncionesGrid.tsx
+index b755aa9..b6aa7b6 100644
+--- a/components/home/FuncionesGrid.tsx
++++ b/components/home/FuncionesGrid.tsx
+@@ -10,12 +10,12 @@ const I = {
+ };
+ 
+ const ITEMS = [
+-  { icon: I.tarjeta, t: "Cobros con tarjeta y SEPA", d: "Pago único, a plazos o suscripción. Los cobros por SEPA se hacen solos." },
++  { icon: I.tarjeta, t: "Cobros con tarjeta y SEPA", d: "Pago único o suscripción. Cobros recurrentes por SEPA automatizados." },
+   { icon: I.factura, t: "Facturas automáticas", d: "La factura de tu cliente y tu autofactura, en cada cobro y con VeriFactu." },
+-  { icon: I.candado, t: "Área privada de contenido", d: "Tus alumnos entran a lo que han comprado, sin crear cuenta." },
++  { icon: I.candado, t: "Área privada de contenido", d: "Tus alumnos o clientes tienen su contenido alojado y ordenado, con el progreso de sus avances." },
+   { icon: I.enlace, t: "Enlaces privados de pago", d: "Cobra sin publicar nada: un enlace por cliente o por servicio." },
+   { icon: I.grafico, t: "Tu negocio de un vistazo", d: "Cuánto vendes, quién te compra y qué funciona." },
+-  { icon: I.correo, t: "Emails automáticos", d: "Confirmaciones de compra y avisos a tu cliente, sin que hagas nada." },
++  { icon: I.correo, t: "Emails automáticos", d: "Confirmaciones de compra y avisos a tu cliente, sin preocuparte de nada." },
+ ];
+ 
+ export default function FuncionesGrid() {
+diff --git a/components/home/Hero.tsx b/components/home/Hero.tsx
+index da1c7ea..36e4479 100644
+--- a/components/home/Hero.tsx
++++ b/components/home/Hero.tsx
+@@ -104,14 +104,20 @@ export default function Hero() {
+               Vende tus <PalabraQueRota /> online
+             </span>
+           </h1>
+-          <p className="text-lg md:text-[22px] leading-snug text-[#C9D6EA] mt-6 max-w-[540px]">
+-            y gana hasta un 10% más desde tu primera venta a tus clientes en España. Sin cuota mensual y con la
+-            factura hecha por ti.
++          <p className="text-2xl md:text-[30px] leading-snug text-[#C9D6EA] mt-6 max-w-[580px]">
++            y gana hasta un 10% más desde tu primera venta a tus clientes particulares en España.
++          </p>
++          <p className="text-base md:text-xl leading-snug text-[#A9B8D0] mt-4 max-w-[560px]">
++            Sin cuota mensual y con toda la infraestructura tecnológica incluida: pasarela de pago y facturación.
++          </p>
++
++          <p className="mt-8 mb-2 pl-1 text-sm font-semibold uppercase tracking-[0.14em] text-cx-celeste">
++            Tu tienda en un solo enlace
+           </p>
+ 
+           <form
+             onSubmit={reservar}
+-            className="mt-8 flex flex-col sm:flex-row sm:items-center gap-2 rounded-3xl sm:rounded-full bg-white p-2 sm:p-1.5 max-w-[540px] shadow-xl"
++            className="flex flex-col sm:flex-row sm:items-center gap-2 rounded-3xl sm:rounded-full bg-white p-2 sm:p-1.5 max-w-[540px] shadow-xl"
+           >
+             <label htmlFor="hero-enlace" className="sr-only">
+               Tu enlace personal en Coxiro
+@@ -134,12 +140,15 @@ export default function Hero() {
+               type="submit"
+               className="rounded-full bg-cx-noche px-6 py-3 text-sm font-semibold text-white whitespace-nowrap hover:-translate-y-0.5 transition"
+             >
+-              Reservar mi enlace
++              Crear mi enlace
+             </button>
+           </form>
+ 
+-          <p className="text-sm text-cx-texto-osc-2 mt-5">
+-            Cobro con tarjeta o domiciliación SEPA · Facturas automáticas · ¿Buscas comprar?{" "}
++          <p className="text-sm text-cx-texto-osc-2 mt-3 max-w-[540px]">
++            Ponlo en tu bio de Instagram o en WhatsApp: tus clientes ven lo que vendes y pagan ahí mismo, sin crear cuenta.
++          </p>
++          <p className="text-sm text-cx-texto-osc-2 mt-4">
++            ¿Buscas comprar?{" "}
+             <a href="/catalogo" className="text-white underline underline-offset-2 hover:text-cx-celeste">
+               Explora el catálogo
+             </a>
+@@ -153,7 +162,7 @@ export default function Hero() {
+           <p className="text-xs font-semibold uppercase tracking-wide text-cx-prof">Nueva venta</p>
+           <p className="text-sm font-semibold mt-1">Mentoría 1:1 · 3 sesiones</p>
+           <p className="font-display font-bold text-3xl mt-1">290,00 €</p>
+-          <p className="text-xs text-cx-texto-2 mt-1">Pagado en 3 plazos con SEPA</p>
++          <p className="text-xs text-cx-texto-2 mt-1">Pago único con tarjeta</p>
+         </div>
+         <div className="absolute right-[20%] bottom-[9%] w-[290px] rounded-2xl bg-[#13254A] p-4 text-white shadow-2xl animate-floatSlow motion-reduce:animate-none">
+           <div className="flex items-start gap-3">
+diff --git a/components/home/PartnersFaq.tsx b/components/home/PartnersFaq.tsx
+index 6828407..943c3a3 100644
+--- a/components/home/PartnersFaq.tsx
++++ b/components/home/PartnersFaq.tsx
+@@ -5,7 +5,7 @@ const FAQ = [
+   { q: "¿Tengo que pagar una cuota mensual?", a: "No. Las funcionalidades no tienen cuota. Solo se cobraría el alojamiento si subes mucho contenido." },
+   { q: "¿Mis clientes tienen que registrarse?", a: "No. Pagan con nombre, email y tarjeta o cuenta bancaria, y reciben su factura por email." },
+   { q: "¿Quién emite las facturas?", a: "Coxiro, en cada cobro: la factura de tu cliente y tu autofactura, registradas con VeriFactu." },
+-  { q: "¿Puedo cobrar a plazos o con suscripción?", a: "Sí. Eliges el número de plazos o una cuota periódica, y los cobros por SEPA se hacen solos." },
++  { q: "¿Puedo cobrar a plazos?", a: "De momento no. Puedes cobrar con pago único o con membresías mensuales o anuales, con cobro automático por tarjeta o SEPA." },
+ ];
+ 
+ export function Partners() {
+diff --git a/components/home/SiteHeader.tsx b/components/home/SiteHeader.tsx
+index c8121d9..6ff0757 100644
+--- a/components/home/SiteHeader.tsx
++++ b/components/home/SiteHeader.tsx
+@@ -13,11 +13,18 @@ const MENUS: Menu[] = [
+     clave: "productos",
+     etiqueta: "Productos digitales",
+     columnas: [
++      {
++        titulo: "Explora",
++        items: [
++          { titulo: "Catálogo", texto: "Explora todo lo que ofrecen los profesionales", href: "/catalogo" },
++          { titulo: "Servicios de IA", texto: "Automatizaciones, agentes y trabajos con IA", href: "/catalogo" },
++        ],
++      },
+       {
+         titulo: "Formación",
+         items: [
+           { titulo: "Cursos online", texto: "Vídeo, lecciones y progreso del alumno", href: "/herramientas/publica-tu-contenido" },
+-          { titulo: "Membresías", texto: "Cuota mensual con cobro automático", href: "/herramientas/suscripciones" },
++          { titulo: "Membresías", texto: "Pago mensual con cobro automático", href: "/herramientas/suscripciones" },
+         ],
+       },
+       {
+@@ -27,13 +34,6 @@ const MENUS: Menu[] = [
+           { titulo: "Consultoría", texto: "Trabajos a medida con enlace privado", href: "/herramientas/publica-tu-contenido" },
+         ],
+       },
+-      {
+-        titulo: "Nuevos formatos",
+-        items: [
+-          { titulo: "Servicios de IA", texto: "Automatizaciones, agentes y trabajos con IA", href: "/catalogo" },
+-          { titulo: "Comprar un servicio", texto: "Explora el catálogo de profesionales", href: "/catalogo" },
+-        ],
+-      },
+     ],
+     promo: {
+       etiqueta: "PLAZAS LIMITADAS",
+@@ -50,7 +50,7 @@ const MENUS: Menu[] = [
+       {
+         titulo: "Cobros",
+         items: [
+-          { titulo: "Tarjeta y SEPA", texto: "Pago único, a plazos o suscripción", href: "/herramientas/pasarela-de-pagos" },
++          { titulo: "Tarjeta y SEPA", texto: "Pago único o suscripción", href: "/herramientas/pasarela-de-pagos" },
+           { titulo: "Enlaces privados de pago", texto: "Cobra sin publicar nada", href: "/herramientas/publica-tu-contenido" },
+         ],
+       },
+@@ -236,6 +236,12 @@ export default function SiteHeader({ nombreUsuario }: { nombreUsuario: string |
+               Entrar
+             </a>
+           )}
++          <a
++            href="/catalogo"
++            className="rounded-full border-[1.5px] border-white/40 px-5 py-2.5 text-sm font-semibold text-white hover:border-cx-celeste hover:text-cx-celeste transition whitespace-nowrap"
++          >
++            Comprar
++          </a>
+           {botonPrincipal}
+         </div>
+ 
+@@ -383,14 +389,22 @@ export default function SiteHeader({ nombreUsuario }: { nombreUsuario: string |
+             </a>
+             <div className="mt-6 grid gap-3">
+               {nombreUsuario ? (
+-                <a href="/dashboard" className="rounded-full bg-cx-celeste px-6 py-3.5 text-center font-semibold text-cx-noche">
+-                  Hola, {nombreUsuario} · Mi panel
+-                </a>
++                <>
++                  <a href="/dashboard" className="rounded-full bg-cx-celeste px-6 py-3.5 text-center font-semibold text-cx-noche">
++                    Hola, {nombreUsuario} · Mi panel
++                  </a>
++                  <a href="/catalogo" onClick={() => setMovil(false)} className="rounded-full border border-white/25 px-6 py-3.5 text-center font-semibold text-white">
++                    Comprar
++                  </a>
++                </>
+               ) : (
+                 <>
+                   <a href="/registro?role=provider" className="rounded-full bg-cx-celeste px-6 py-3.5 text-center font-semibold text-cx-noche">
+                     Empieza a vender
+                   </a>
++                  <a href="/catalogo" onClick={() => setMovil(false)} className="rounded-full border border-white/25 px-6 py-3.5 text-center font-semibold text-white">
++                    Comprar
++                  </a>
+                   <a href="/login" className="rounded-full border border-white/25 px-6 py-3.5 text-center font-semibold text-white">
+                     Entrar
+                   </a>
+diff --git a/components/home/VistasTabs.tsx b/components/home/VistasTabs.tsx
+index 57ac0a7..6898012 100644
+--- a/components/home/VistasTabs.tsx
++++ b/components/home/VistasTabs.tsx
+@@ -60,7 +60,6 @@ function Pago() {
+           </div>
+         </div>
+         <div className="mt-5 font-display font-bold text-4xl text-cx-prof">290 €</div>
+-        <div className="text-sm text-cx-texto-2">o 3 plazos de 96,67 €</div>
+         <div className="mt-5 space-y-3">
+           <div className={campo}>Nombre</div>
+           <div className={campo}>Email</div>

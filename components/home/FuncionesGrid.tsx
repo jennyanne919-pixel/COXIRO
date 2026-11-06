@@ -10,12 +10,12 @@ const I = {
 };
 
 const ITEMS = [
-  { icon: I.tarjeta, t: "Cobros con tarjeta y SEPA", d: "Pago único, a plazos o suscripción. Los cobros por SEPA se hacen solos." },
+  { icon: I.tarjeta, t: "Cobros con tarjeta y SEPA", d: "Pago único o suscripción. Cobros recurrentes por SEPA automatizados." },
   { icon: I.factura, t: "Facturas automáticas", d: "La factura de tu cliente y tu autofactura, en cada cobro y con VeriFactu." },
-  { icon: I.candado, t: "Área privada de contenido", d: "Tus alumnos entran a lo que han comprado, sin crear cuenta." },
+  { icon: I.candado, t: "Área privada de contenido", d: "Tus alumnos o clientes tienen su contenido alojado y ordenado, con el progreso de sus avances." },
   { icon: I.enlace, t: "Enlaces privados de pago", d: "Cobra sin publicar nada: un enlace por cliente o por servicio." },
   { icon: I.grafico, t: "Tu negocio de un vistazo", d: "Cuánto vendes, quién te compra y qué funciona." },
-  { icon: I.correo, t: "Emails automáticos", d: "Confirmaciones de compra y avisos a tu cliente, sin que hagas nada." },
+  { icon: I.correo, t: "Emails automáticos", d: "Confirmaciones de compra y avisos a tu cliente, sin preocuparte de nada." },
 ];
 
 export default function FuncionesGrid() {

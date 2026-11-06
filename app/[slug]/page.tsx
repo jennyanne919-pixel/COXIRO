@@ -14,7 +14,7 @@ function detalle(s: {
   if (s.type === "membership") {
     const anual = s.billing_interval === "year";
     return s.total_installments
-      ? `${s.total_installments} plazos ${anual ? "anuales" : "mensuales"}`
+      ? `${s.total_installments} pagos ${anual ? "anuales" : "mensuales"}`
       : `Suscripción ${anual ? "anual" : "mensual"}`;
   }
   return "Pago único";
