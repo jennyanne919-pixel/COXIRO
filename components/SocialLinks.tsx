@@ -1,9 +1,12 @@
 // Redes sociales de Coxiro. Rellena aquí las direcciones de las cuentas:
 // los iconos con la dirección vacía no se muestran.
 const REDES = {
-  instagram: "",
-  facebook: "",
+  instagram: "https://www.instagram.com/coxiro_hq",
+  facebook: "https://www.facebook.com/share/1EuuACtxey/",
+  tiktok: "https://www.tiktok.com/@coxiro_hq",
   youtube: "",
+  linkedin: "",
+  telegram: "",
 };
 
 const ICONOS: Record<keyof typeof REDES, { nombre: string; ruta: React.ReactNode }> = {
@@ -21,6 +24,10 @@ const ICONOS: Record<keyof typeof REDES, { nombre: string; ruta: React.ReactNode
     nombre: "Facebook",
     ruta: <path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8.5A.5.5 0 0 1 14 8Z" />,
   },
+  tiktok: {
+    nombre: "TikTok",
+    ruta: <path d="M10 12.5a3.5 3.5 0 1 0 3.5 3.5V3.5c.4 2.6 2 4.2 5 4.5" />,
+  },
   youtube: {
     nombre: "YouTube",
     ruta: (
@@ -29,6 +36,19 @@ const ICONOS: Record<keyof typeof REDES, { nombre: string; ruta: React.ReactNode
         <path d="M10 9.5v5l4.5-2.5z" fill="currentColor" stroke="none" />
       </>
     ),
+  },
+  linkedin: {
+    nombre: "LinkedIn",
+    ruta: (
+      <>
+        <rect x="3" y="3" width="18" height="18" rx="3" />
+        <path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5a2.5 2.5 0 0 1 5 0V17" />
+      </>
+    ),
+  },
+  telegram: {
+    nombre: "Telegram",
+    ruta: <path d="M21.5 3 2.5 10.3l6.3 2.4L11 20l3.2-4 4.8 3.6L21.5 3ZM8.8 12.7l9-6" />,
   },
 };
 
