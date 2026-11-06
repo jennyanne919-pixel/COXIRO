@@ -56,7 +56,7 @@ export default function WaitlistForm({ fuente = "landing" }: { fuente?: string }
         required
         placeholder="Tu nombre"
         style={inputFixStyle}
-        className="rounded-lg border border-stone/25 px-4 py-3 text-sm min-w-[160px]"
+        className="rounded-lg border border-cx-borde px-4 py-3 text-sm min-w-[160px]"
       />
       <input
         type="email"
@@ -64,14 +64,14 @@ export default function WaitlistForm({ fuente = "landing" }: { fuente?: string }
         required
         placeholder="tu@email.com"
         style={inputFixStyle}
-        className="rounded-lg border border-stone/25 px-4 py-3 text-sm min-w-[200px]"
+        className="rounded-lg border border-cx-borde px-4 py-3 text-sm min-w-[200px]"
       />
       <select
         name="tipo_servicio"
         required
         defaultValue=""
         style={inputFixStyle}
-        className="rounded-lg border border-stone/25 px-4 py-3 text-sm"
+        className="rounded-lg border border-cx-borde px-4 py-3 text-sm"
       >
         <option value="" disabled>
           ¿Qué vendes?
@@ -84,7 +84,7 @@ export default function WaitlistForm({ fuente = "landing" }: { fuente?: string }
       </select>
       <button
         disabled={enviando}
-        className="rounded-lg bg-copper px-6 py-3 text-sm font-semibold text-paper hover:bg-copper-dark transition disabled:opacity-50"
+        className="rounded-full bg-cx-celeste px-6 py-3 text-sm font-semibold text-cx-noche hover:brightness-105 transition disabled:opacity-50"
       >
         {enviando ? "Enviando..." : "Quiero acceso"}
       </button>

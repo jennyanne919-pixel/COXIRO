@@ -62,16 +62,16 @@ export default async function AdminWaitlistPage({
   };
 
   return (
-    <main className="min-h-screen bg-paper p-8">
+    <main className="min-h-screen bg-cx-hielo p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-display font-semibold mb-1">Lista de espera</h1>
-        <p className="text-sm text-stone mb-8">{totalGeneral ?? 0} personas apuntadas en total</p>
+        <p className="text-sm text-cx-texto-2 mb-8">{totalGeneral ?? 0} personas apuntadas en total</p>
 
         <div className="flex gap-2 mb-6 flex-wrap">
           <a
             href={`/admin/waitlist${qs({ tipo: "" })}`}
             className={`rounded-full px-3 py-1.5 text-xs font-medium border ${
-              !sp.tipo ? "bg-ink text-paper border-ink" : "border-stone/25 text-stone"
+              !sp.tipo ? "bg-cx-noche text-white border-cx-noche" : "border-cx-borde text-cx-texto-2"
             }`}
           >
             Todos los tipos
@@ -81,7 +81,7 @@ export default async function AdminWaitlistPage({
               key={t.value}
               href={`/admin/waitlist${qs({ tipo: t.value })}`}
               className={`rounded-full px-3 py-1.5 text-xs font-medium border ${
-                sp.tipo === t.value ? "bg-ink text-paper border-ink" : "border-stone/25 text-stone"
+                sp.tipo === t.value ? "bg-cx-noche text-white border-cx-noche" : "border-cx-borde text-cx-texto-2"
               }`}
             >
               {t.label}
@@ -94,7 +94,7 @@ export default async function AdminWaitlistPage({
             <a
               href={`/admin/waitlist${qs({ fuente: "" })}`}
               className={`rounded-full px-3 py-1.5 text-xs font-medium border ${
-                !sp.fuente ? "bg-copper text-paper border-copper" : "border-stone/25 text-stone"
+                !sp.fuente ? "bg-cx-celeste text-cx-noche border-cx-celeste" : "border-cx-borde text-cx-texto-2"
               }`}
             >
               Todas las fuentes
@@ -104,7 +104,7 @@ export default async function AdminWaitlistPage({
                 key={f}
                 href={`/admin/waitlist${qs({ fuente: f as string })}`}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium border ${
-                  sp.fuente === f ? "bg-copper text-paper border-copper" : "border-stone/25 text-stone"
+                  sp.fuente === f ? "bg-cx-celeste text-cx-noche border-cx-celeste" : "border-cx-borde text-cx-texto-2"
                 }`}
               >
                 {f}
@@ -113,26 +113,26 @@ export default async function AdminWaitlistPage({
           </div>
         )}
 
-        <div className="rounded-lg bg-white border border-stone/20 overflow-hidden">
-          <div className="grid grid-cols-5 px-4 py-2.5 text-xs text-stone border-b border-stone/20">
+        <div className="rounded-lg bg-white border border-cx-borde overflow-hidden">
+          <div className="grid grid-cols-5 px-4 py-2.5 text-xs text-cx-texto-2 border-b border-cx-borde">
             <span className="col-span-2">Nombre / Email</span>
             <span>Vende</span>
             <span>Fuente</span>
             <span>Fecha</span>
           </div>
           {registros?.map((r) => (
-            <div key={r.id} className="grid grid-cols-5 px-4 py-3 text-sm border-b border-stone/10 last:border-0">
+            <div key={r.id} className="grid grid-cols-5 px-4 py-3 text-sm border-b border-cx-borde last:border-0">
               <div className="col-span-2">
                 <p className="font-medium">{r.nombre}</p>
-                <p className="text-xs text-stone">{r.email}</p>
+                <p className="text-xs text-cx-texto-2">{r.email}</p>
               </div>
-              <span className="text-stone">{TIPOS.find((t) => t.value === r.tipo_servicio)?.label ?? r.tipo_servicio}</span>
-              <span className="text-stone">{r.fuente ?? "—"}</span>
-              <span className="text-stone">{new Date(r.created_at).toLocaleDateString("es-ES")}</span>
+              <span className="text-cx-texto-2">{TIPOS.find((t) => t.value === r.tipo_servicio)?.label ?? r.tipo_servicio}</span>
+              <span className="text-cx-texto-2">{r.fuente ?? "—"}</span>
+              <span className="text-cx-texto-2">{new Date(r.created_at).toLocaleDateString("es-ES")}</span>
             </div>
           ))}
           {!registros?.length && (
-            <p className="text-sm text-stone p-4">Nadie con este filtro todavía.</p>
+            <p className="text-sm text-cx-texto-2 p-4">Nadie con este filtro todavía.</p>
           )}
         </div>
       </div>

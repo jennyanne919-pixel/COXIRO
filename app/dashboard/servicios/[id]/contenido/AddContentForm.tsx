@@ -87,27 +87,27 @@ export default function AddContentForm({ serviceId }: { serviceId: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-lg bg-paper p-5 mb-8 grid gap-3 max-w-lg"
+      className="rounded-lg bg-cx-hielo p-5 mb-8 grid gap-3 max-w-lg"
     >
       <input type="hidden" name="service_id" value={serviceId} />
 
       <div>
-        <label className="text-xs text-stone block mb-1">Título</label>
+        <label className="text-xs text-cx-texto-2 block mb-1">Título</label>
         <input
           name="title"
           required
           placeholder="Ej. Sesión grabada 1"
-          className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
         />
       </div>
 
       <div>
-        <label className="text-xs text-stone block mb-1">Tipo</label>
+        <label className="text-xs text-cx-texto-2 block mb-1">Tipo</label>
         <select
           name="content_type"
           value={contentType}
           onChange={(e) => setContentType(e.target.value)}
-          className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
         >
           {TYPE_OPTIONS.map((t) => (
             <option key={t.value} value={t.value}>
@@ -119,17 +119,17 @@ export default function AddContentForm({ serviceId }: { serviceId: string }) {
 
       {esArchivo ? (
         <div>
-          <label className="text-xs text-stone block mb-1">Archivo</label>
+          <label className="text-xs text-cx-texto-2 block mb-1">Archivo</label>
           <input
             type="file"
             required
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-ink file:text-paper file:px-3 file:py-1.5 file:text-xs"
+            className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-cx-noche file:text-white file:px-3 file:py-1.5 file:text-xs"
           />
         </div>
       ) : (
         <div>
-          <label className="text-xs text-stone block mb-1">
+          <label className="text-xs text-cx-texto-2 block mb-1">
             Enlace (Zoom, Drive, Vimeo...)
           </label>
           <input
@@ -137,7 +137,7 @@ export default function AddContentForm({ serviceId }: { serviceId: string }) {
             type="url"
             required
             placeholder="https://..."
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+            className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
           />
         </div>
       )}
@@ -150,7 +150,7 @@ export default function AddContentForm({ serviceId }: { serviceId: string }) {
       {subiendo && (
         <div className="w-full bg-white rounded-full h-2 overflow-hidden">
           <div
-            className="bg-copper h-full transition-all"
+            className="bg-cx-celeste h-full transition-all text-cx-noche"
             style={{ width: `${progreso}%` }}
           />
         </div>
@@ -159,7 +159,7 @@ export default function AddContentForm({ serviceId }: { serviceId: string }) {
 
       <button
         disabled={subiendo}
-        className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition disabled:opacity-50"
+        className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition disabled:opacity-50"
       >
         {subiendo ? `Subiendo... ${progreso}%` : "Añadir contenido"}
       </button>

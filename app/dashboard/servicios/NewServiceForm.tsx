@@ -18,36 +18,36 @@ export default function NewServiceForm({
   return (
     <form
       action={createService}
-      className="rounded-lg bg-paper p-5 mb-8 grid gap-3 max-w-lg"
+      className="rounded-lg bg-cx-hielo p-5 mb-8 grid gap-3 max-w-lg"
     >
       <div>
-        <label className="text-xs text-stone block mb-1">Título</label>
+        <label className="text-xs text-cx-texto-2 block mb-1">Título</label>
         <input
           name="title"
           required
           placeholder="Ej. Consulta laboral inicial"
-          className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
         />
       </div>
       <div>
-        <label className="text-xs text-stone block mb-1">Descripción</label>
+        <label className="text-xs text-cx-texto-2 block mb-1">Descripción</label>
         <textarea
           name="description"
           rows={2}
           placeholder="Qué incluye este servicio"
-          className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
         />
       </div>
 
       <div>
-        <label className="text-xs text-stone block mb-1">
+        <label className="text-xs text-cx-texto-2 block mb-1">
           Imagen o logo (opcional, máximo 4 MB)
         </label>
         <input
           name="image"
           type="file"
           accept="image/*"
-          className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-ink file:text-paper file:px-3 file:py-1.5 file:text-xs"
+          className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-cx-noche file:text-white file:px-3 file:py-1.5 file:text-xs"
         />
       </div>
 
@@ -56,12 +56,12 @@ export default function NewServiceForm({
           <PrecioInput required={!esAMedida} opcional={esAMedida} comision={comision} />
         </div>
         <div>
-          <label className="text-xs text-stone block mb-1">Tipo</label>
+          <label className="text-xs text-cx-texto-2 block mb-1">Tipo</label>
           <select
             name="type"
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+            className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
           >
             {SERVICE_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
@@ -73,13 +73,13 @@ export default function NewServiceForm({
       </div>
 
       <div>
-        <label className="text-xs text-stone block mb-1">
+        <label className="text-xs text-cx-texto-2 block mb-1">
           Temática (para que te encuentren en el buscador)
         </label>
         <select
           name="topic"
           required
-          className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+          className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
         >
           <option value="">Selecciona una temática</option>
           {TOPICS.map((t) => (
@@ -98,20 +98,20 @@ export default function NewServiceForm({
       {esMembresia && (
         <>
           <div>
-            <label className="text-xs text-stone block mb-1">
+            <label className="text-xs text-cx-texto-2 block mb-1">
               Frecuencia de cobro
             </label>
             <select
               name="billing_interval"
               required
-              className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+              className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
             >
               <option value="month">Mensual</option>
               <option value="year">Anual</option>
             </select>
           </div>
           <div>
-            <label className="text-xs text-stone block mb-1">
+            <label className="text-xs text-cx-texto-2 block mb-1">
               Número de pagos (opcional)
             </label>
             <input
@@ -119,9 +119,9 @@ export default function NewServiceForm({
               type="number"
               min="1"
               placeholder="Déjalo en blanco para suscripción sin fin"
-              className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+              className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
             />
-            <p className="text-xs text-stone mt-1">
+            <p className="text-xs text-cx-texto-2 mt-1">
               Ej. "6" para una mentoría de 6 meses con 6 pagos, que se
               detiene sola al final. Déjalo vacío si el cliente debe
               seguir pagando indefinidamente hasta que cancele.
@@ -134,20 +134,20 @@ export default function NewServiceForm({
         <>
           <input type="hidden" name="requires_inquiry" value="on" />
           <div>
-            <label className="text-xs text-stone block mb-1">
+            <label className="text-xs text-cx-texto-2 block mb-1">
               Enlace externo de contacto (opcional)
             </label>
             <input
               name="inquiry_url"
               type="url"
               placeholder="https://..."
-              className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+              className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
             />
           </div>
         </>
       )}
 
-      <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
+      <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
         Publicar servicio
       </button>
     </form>

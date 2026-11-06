@@ -72,15 +72,15 @@ export default async function CatalogoPage({
   };
 
   return (
-    <main className="min-h-screen bg-paper">
-      <header className="sticky top-0 z-50 bg-paper/90 backdrop-blur border-b border-stone/20">
+    <main className="min-h-screen bg-cx-hielo">
+      <header className="sticky top-0 z-50 bg-cx-hielo/90 backdrop-blur border-b border-cx-borde">
         <div className="max-w-5xl mx-auto flex items-center justify-between px-8 py-4">
           <a href="/">
             <Logo variant="light" />
           </a>
           <a
             href="/registro?role=client"
-            className="rounded-lg bg-copper px-5 py-2.5 text-sm font-semibold text-paper hover:bg-copper-dark transition"
+            className="rounded-full bg-cx-celeste px-5 py-2.5 text-sm font-semibold text-cx-noche hover:brightness-105 transition"
           >
             Regístrate
           </a>
@@ -88,7 +88,7 @@ export default async function CatalogoPage({
       </header>
 
       <div className="max-w-5xl mx-auto px-8 py-10">
-        <p className="text-xs text-stone uppercase tracking-wide font-semibold mb-2">
+        <p className="text-xs text-cx-texto-2 uppercase tracking-wide font-semibold mb-2">
           Productos digitales
         </p>
         <h1 className="text-3xl font-display font-semibold mb-6">
@@ -103,20 +103,20 @@ export default async function CatalogoPage({
             name="q"
             defaultValue={busqueda}
             placeholder="Buscar por tema (ej. inglés, trading, cocina...)"
-            className="flex-1 rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+            className="flex-1 rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
           />
-          <button className="rounded-lg bg-ink text-paper px-5 py-2.5 text-sm font-semibold hover:bg-ink/90 transition">
+          <button className="rounded-full bg-cx-noche text-white px-5 py-2.5 text-sm font-semibold hover:bg-cx-noche/90 transition">
             Buscar
           </button>
         </form>
 
-        <div className="flex gap-2 mb-4 border-b border-stone/20 flex-wrap">
+        <div className="flex gap-2 mb-4 border-b border-cx-borde flex-wrap">
           <a
             href={`/catalogo${qs({ categoria: "curso" })}`}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "curso"
-                ? "border-copper text-ink"
-                : "border-transparent text-stone hover:text-ink"
+                ? "border-cx-celeste text-cx-texto"
+                : "border-transparent text-cx-texto-2 hover:text-cx-texto"
             }`}
           >
             Cursos / Formación ({cursos.length})
@@ -125,8 +125,8 @@ export default async function CatalogoPage({
             href={`/catalogo${qs({ categoria: "mentoria" })}`}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "mentoria"
-                ? "border-copper text-ink"
-                : "border-transparent text-stone hover:text-ink"
+                ? "border-cx-celeste text-cx-texto"
+                : "border-transparent text-cx-texto-2 hover:text-cx-texto"
             }`}
           >
             Mentoría ({mentorias.length})
@@ -135,8 +135,8 @@ export default async function CatalogoPage({
             href={`/catalogo${qs({ categoria: "membresia" })}`}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "membresia"
-                ? "border-copper text-ink"
-                : "border-transparent text-stone hover:text-ink"
+                ? "border-cx-celeste text-cx-texto"
+                : "border-transparent text-cx-texto-2 hover:text-cx-texto"
             }`}
           >
             Membresías y suscripciones ({membresias.length})
@@ -145,8 +145,8 @@ export default async function CatalogoPage({
             href={`/catalogo${qs({ categoria: "medida" })}`}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "medida"
-                ? "border-copper text-ink"
-                : "border-transparent text-stone hover:text-ink"
+                ? "border-cx-celeste text-cx-texto"
+                : "border-transparent text-cx-texto-2 hover:text-cx-texto"
             }`}
           >
             Servicios IA ({aMedida.length})
@@ -155,8 +155,8 @@ export default async function CatalogoPage({
             href={`/catalogo${qs({ categoria: "otros" })}`}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
               categoriaActiva === "otros"
-                ? "border-copper text-ink"
-                : "border-transparent text-stone hover:text-ink"
+                ? "border-cx-celeste text-cx-texto"
+                : "border-transparent text-cx-texto-2 hover:text-cx-texto"
             }`}
           >
             Otros servicios ({otrosServicios.length})
@@ -169,8 +169,8 @@ export default async function CatalogoPage({
             href={`/catalogo${qs({ tema: "" })}`}
             className={`rounded-full px-3 py-1.5 text-xs font-medium border transition ${
               !temaActivo
-                ? "bg-ink text-paper border-ink"
-                : "border-stone/25 text-stone hover:border-ink"
+                ? "bg-cx-noche text-white border-cx-noche"
+                : "border-cx-borde text-cx-texto-2 hover:border-cx-noche"
             }`}
           >
             Todas las temáticas
@@ -181,8 +181,8 @@ export default async function CatalogoPage({
               href={`/catalogo${qs({ tema: t })}`}
               className={`rounded-full px-3 py-1.5 text-xs font-medium border transition ${
                 temaActivo === t
-                  ? "bg-ink text-paper border-ink"
-                  : "border-stone/25 text-stone hover:border-ink"
+                  ? "bg-cx-noche text-white border-cx-noche"
+                  : "border-cx-borde text-cx-texto-2 hover:border-cx-noche"
               }`}
             >
               {t}
@@ -197,7 +197,7 @@ export default async function CatalogoPage({
               <a
                 key={s.id}
                 href={`/servicio/${s.id}`}
-                className="flex items-center gap-4 rounded-lg bg-white border border-stone/20 px-5 py-4 hover:border-copper transition"
+                className="flex items-center gap-4 rounded-lg bg-white border border-cx-borde px-5 py-4 hover:border-cx-celeste transition"
               >
                 {s.image_url ? (
                   <img
@@ -206,16 +206,16 @@ export default async function CatalogoPage({
                     className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-14 h-14 rounded-lg bg-paper flex-shrink-0" />
+                  <div className="w-14 h-14 rounded-lg bg-cx-hielo flex-shrink-0" />
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-medium">{s.title}</p>
                   {s.description && (
-                    <p className="text-sm text-stone mt-0.5 line-clamp-1">
+                    <p className="text-sm text-cx-texto-2 mt-0.5 line-clamp-1">
                       {s.description}
                     </p>
                   )}
-                  <p className="text-xs text-stone mt-1">
+                  <p className="text-xs text-cx-texto-2 mt-1">
                     {provider?.business_name ?? "Profesional en Coxiro"}
                     {s.topic && ` · ${s.topic}`}
                   </p>
@@ -227,7 +227,7 @@ export default async function CatalogoPage({
             );
           })}
           {!listaActiva?.length && (
-            <div className="text-sm text-stone">
+            <div className="text-sm text-cx-texto-2">
               {(() => {
                 if (!busqueda && !temaActivo) {
                   return <p>Todavía no hay servicios publicados en esta categoría.</p>;
@@ -248,7 +248,7 @@ export default async function CatalogoPage({
                     {otraCategoria[1]?.length} en{" "}
                     <a
                       href={`/catalogo${qs({ categoria: otraCategoria[0] })}`}
-                      className="text-copper underline font-medium"
+                      className="text-cx-prof underline font-medium"
                     >
                       {NOMBRES[otraCategoria[0]]}
                     </a>

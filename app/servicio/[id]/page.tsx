@@ -108,7 +108,7 @@ export default async function ServicioPage({
   }
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen bg-cx-hielo">
       <header className="px-8 py-5">
         <a href="/">
           <Logo variant="light" />
@@ -137,7 +137,7 @@ export default async function ServicioPage({
             />
           )}
 
-          <p className="text-xs text-stone uppercase tracking-wide font-semibold mb-2">
+          <p className="text-xs text-cx-texto-2 uppercase tracking-wide font-semibold mb-2">
             {provider?.business_name ?? "Profesional en Coxiro"}
           </p>
           <h1 className="text-3xl font-display font-semibold mb-4">
@@ -146,7 +146,7 @@ export default async function ServicioPage({
 
           <div className="mb-8">
             <h2 className="text-lg font-medium mb-2">Descripción</h2>
-            <p className="text-stone text-sm leading-relaxed whitespace-pre-line">
+            <p className="text-cx-texto-2 text-sm leading-relaxed whitespace-pre-line">
               {service.description}
             </p>
           </div>
@@ -164,10 +164,10 @@ export default async function ServicioPage({
                         ? `/contenido/${c.id}`
                         : `/api/access/${c.id}`
                     }
-                    className="flex items-center justify-between rounded-lg bg-white border border-stone/20 px-4 py-3 hover:border-copper transition"
+                    className="flex items-center justify-between rounded-lg bg-white border border-cx-borde px-4 py-3 hover:border-cx-celeste transition"
                   >
                     <span className="text-sm">{c.title}</span>
-                    <span className="text-xs text-copper font-medium">
+                    <span className="text-xs text-cx-prof font-medium">
                       {TYPE_LABELS[c.content_type] ?? c.content_type} →
                     </span>
                   </a>
@@ -180,17 +180,17 @@ export default async function ServicioPage({
           {contentItems && contentItems.length > 0 && (
             <div className="mb-10">
               <h2 className="text-lg font-medium mb-3">Contenido de este servicio</h2>
-              <div className="rounded-lg bg-white border border-stone/20 overflow-hidden">
+              <div className="rounded-lg bg-white border border-cx-borde overflow-hidden">
                 {contentItems.map((c, i) => (
                   <div
                     key={c.id}
-                    className="flex items-center justify-between px-4 py-3 text-sm border-b border-stone/10 last:border-0"
+                    className="flex items-center justify-between px-4 py-3 text-sm border-b border-cx-borde last:border-0"
                   >
                     <span className="flex items-center gap-3">
-                      <span className="text-stone text-xs w-5">{i + 1}.</span>
+                      <span className="text-cx-texto-2 text-xs w-5">{i + 1}.</span>
                       {c.title}
                     </span>
-                    <span className="text-xs text-stone flex items-center gap-1">
+                    <span className="text-xs text-cx-texto-2 flex items-center gap-1">
                       {TYPE_LABELS[c.content_type] ?? c.content_type}
                       {!c.is_free && (
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -206,13 +206,13 @@ export default async function ServicioPage({
           )}
 
           {/* Garantía */}
-          <div className="mb-10 rounded-lg bg-white border border-stone/20 p-5 flex items-start gap-3">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E2703A" strokeWidth="2" className="flex-shrink-0">
+          <div className="mb-10 rounded-lg bg-white border border-cx-borde p-5 flex items-start gap-3">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0874BD" strokeWidth="2" className="flex-shrink-0">
               <path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z" />
             </svg>
             <div>
               <p className="text-sm font-medium">Pago seguro</p>
-              <p className="text-xs text-stone mt-0.5">
+              <p className="text-xs text-cx-texto-2 mt-0.5">
                 Procesado con Stripe, con factura automática. Acceso inmediato tras la confirmación del pago.
               </p>
             </div>
@@ -221,17 +221,17 @@ export default async function ServicioPage({
           {/* Sobre el creador */}
           <div className="mb-10">
             <h2 className="text-lg font-medium mb-3">Sobre el creador</h2>
-            <div className="rounded-lg bg-white border border-stone/20 p-5">
+            <div className="rounded-lg bg-white border border-cx-borde p-5">
               <p className="font-medium mb-1">{provider?.business_name ?? "Profesional en Coxiro"}</p>
               {provider?.bio ? (
-                <p className="text-sm text-stone whitespace-pre-line">{provider.bio}</p>
+                <p className="text-sm text-cx-texto-2 whitespace-pre-line">{provider.bio}</p>
               ) : (
-                <p className="text-sm text-stone">Profesional verificado en Coxiro.</p>
+                <p className="text-sm text-cx-texto-2">Profesional verificado en Coxiro.</p>
               )}
               {provider?.slug && (
                 <a
                   href={`/${provider.slug}`}
-                  className="inline-block text-sm text-copper hover:underline mt-3"
+                  className="inline-block text-sm text-cx-prof hover:underline mt-3"
                 >
                   Ver perfil completo →
                 </a>
@@ -250,16 +250,16 @@ export default async function ServicioPage({
                   <a
                     key={s.id}
                     href={`/servicio/${s.id}`}
-                    className="rounded-lg bg-white border border-stone/20 overflow-hidden hover:border-copper transition"
+                    className="rounded-lg bg-white border border-cx-borde overflow-hidden hover:border-cx-celeste transition"
                   >
                     {s.image_url ? (
                       <img src={s.image_url} alt="" className="w-full h-24 object-cover" />
                     ) : (
-                      <div className="w-full h-24 bg-paper" />
+                      <div className="w-full h-24 bg-cx-hielo" />
                     )}
                     <div className="p-3">
                       <p className="text-sm font-medium line-clamp-1">{s.title}</p>
-                      <p className="text-xs text-stone mt-1">
+                      <p className="text-xs text-cx-texto-2 mt-1">
                         {s.requires_inquiry ? "A medida" : `${totalCliente(Number(s.price)).toFixed(2)} €`}
                       </p>
                     </div>
@@ -274,9 +274,9 @@ export default async function ServicioPage({
             <h2 className="text-lg font-medium mb-3">Preguntas frecuentes</h2>
             <div className="grid gap-2">
               {FAQS.map((f) => (
-                <details key={f.q} className="rounded-lg bg-white border border-stone/20 p-4">
+                <details key={f.q} className="rounded-lg bg-white border border-cx-borde p-4">
                   <summary className="text-sm font-medium cursor-pointer">{f.q}</summary>
-                  <p className="text-sm text-stone mt-2">{f.a}</p>
+                  <p className="text-sm text-cx-texto-2 mt-2">{f.a}</p>
                 </details>
               ))}
             </div>
@@ -285,21 +285,21 @@ export default async function ServicioPage({
 
         {/* Columna lateral: tarjeta de compra, fija al hacer scroll en escritorio */}
         <div className="md:sticky md:top-6 h-fit">
-          <div className="rounded-lg bg-white border border-stone/20 p-6">
+          <div className="rounded-lg bg-white border border-cx-borde p-6">
             {!service.requires_inquiry && (
               <div className="mb-4">
                 <p className="text-3xl font-display font-semibold">
                   {totalCliente(Number(service.price)).toFixed(2)} €
                   {service.type === "membership" && (
-                    <span className="text-base font-normal text-stone">
+                    <span className="text-base font-normal text-cx-texto-2">
                       {" "}
                       / {service.billing_interval === "year" ? "año" : "mes"}
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-stone mt-1">Impuestos incluidos</p>
+                <p className="text-xs text-cx-texto-2 mt-1">Impuestos incluidos</p>
                 {service.type === "membership" && (
-                  <p className="text-xs text-stone mt-1">
+                  <p className="text-xs text-cx-texto-2 mt-1">
                     {service.total_installments
                       ? `Domiciliación ${service.billing_interval === "year" ? "anual" : "mensual"} — se cobrará ${service.total_installments} ${service.total_installments === 1 ? "vez" : "veces"} en total, y se detiene sola.`
                       : `Domiciliación ${service.billing_interval === "year" ? "anual" : "mensual"} — se renueva automáticamente hasta que canceles.`}
@@ -315,19 +315,19 @@ export default async function ServicioPage({
                 </p>
                 <a
                   href="/dashboard/contenido"
-                  className="block text-center rounded-lg bg-copper text-paper font-semibold text-sm py-3 hover:bg-copper-dark transition"
+                  className="block text-center rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition"
                 >
                   Ver mi contenido
                 </a>
                 <a
                   href="/catalogo"
-                  className="block text-center rounded-lg border border-stone/25 text-ink font-semibold text-sm py-3 hover:border-ink transition"
+                  className="block text-center rounded-lg border border-cx-borde text-cx-texto font-semibold text-sm py-3 hover:border-cx-noche transition"
                 >
                   Descubrir más servicios
                 </a>
               </div>
             ) : provider?.kyc_status !== "verified" && !service.requires_inquiry ? (
-              <p className="text-sm text-stone">
+              <p className="text-sm text-cx-texto-2">
                 Este profesional todavía no puede recibir cobros. Vuelve más
                 adelante.
               </p>
@@ -345,22 +345,22 @@ export default async function ServicioPage({
                     name="name"
                     required
                     placeholder="Tu nombre"
-                    className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
                   />
                   <input
                     type="email"
                     name="email"
                     required
                     placeholder="tu@email.com"
-                    className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
                   />
                   <textarea
                     name="message"
                     rows={3}
                     placeholder="Cuéntanos qué necesitas"
-                    className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
                   />
-                  <button className="rounded-lg bg-copper text-paper font-semibold text-sm py-3 hover:bg-copper-dark transition">
+                  <button className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition">
                     {service.inquiry_url ? "Cuéntanos tu proyecto" : "Solicitar información"}
                   </button>
                 </form>
@@ -368,7 +368,7 @@ export default async function ServicioPage({
             ) : (
               <a
                 href={`/api/checkout?service=${service.id}`}
-                className="block text-center rounded-lg bg-copper text-paper font-semibold text-sm py-3 hover:bg-copper-dark transition"
+                className="block text-center rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition"
               >
                 Pagar y contratar
               </a>

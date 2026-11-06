@@ -57,14 +57,14 @@ export default async function PerfilPage({
     <div>
       <div className="mb-6">
         <h1 className="text-lg font-medium">Mi perfil</h1>
-        <p className="text-sm text-stone mt-0.5">
+        <p className="text-sm text-cx-texto-2 mt-0.5">
           Esto es lo que verán tus clientes antes de comprarte
         </p>
         {provider?.slug && (
           <a
             href={`/${provider.slug}`}
             target="_blank"
-            className="inline-block text-sm text-copper hover:underline mt-2"
+            className="inline-block text-sm text-cx-prof hover:underline mt-2"
           >
             Ver mi perfil público →
           </a>
@@ -84,7 +84,7 @@ export default async function PerfilPage({
       )}
 
       {sp.emailPending && (
-        <p className="text-sm text-stone bg-paper border border-stone/25 rounded-lg px-3 py-2 mb-4 max-w-lg">
+        <p className="text-sm text-cx-texto-2 bg-cx-hielo border border-cx-borde rounded-lg px-3 py-2 mb-4 max-w-lg">
           Te hemos enviado un enlace de confirmación a tu email actual y otro
           al nuevo. El cambio se aplica cuando confirmes los dos.
         </p>
@@ -96,9 +96,9 @@ export default async function PerfilPage({
         </p>
       )}
 
-      <form action={updateBio} className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
+      <form action={updateBio} className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
         <div>
-          <label className="text-xs text-stone block mb-2">
+          <label className="text-xs text-cx-texto-2 block mb-2">
             Tu foto (aparece junto a tu descripción)
           </label>
           <div className="flex items-center gap-4">
@@ -106,10 +106,10 @@ export default async function PerfilPage({
               <img
                 src={provider.avatar_url}
                 alt="Tu foto de perfil"
-                className="w-20 h-20 rounded-full object-cover border border-stone/25"
+                className="w-20 h-20 rounded-full object-cover border border-cx-borde"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-white border border-stone/25 flex items-center justify-center text-xs text-stone text-center px-2">
+              <div className="w-20 h-20 rounded-full bg-white border border-cx-borde flex items-center justify-center text-xs text-cx-texto-2 text-center px-2">
                 Sin foto
               </div>
             )}
@@ -118,9 +118,9 @@ export default async function PerfilPage({
                 name="avatar"
                 type="file"
                 accept="image/*"
-                className="w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-ink file:text-paper file:px-3 file:py-1.5 file:text-xs"
+                className="w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-cx-noche file:text-white file:px-3 file:py-1.5 file:text-xs"
               />
-              <p className="text-xs text-stone mt-1">
+              <p className="text-xs text-cx-texto-2 mt-1">
                 {provider?.avatar_url
                   ? "Si subes una nueva, sustituye a la actual."
                   : "JPG, PNG o WebP, máximo 4 MB."}
@@ -129,7 +129,7 @@ export default async function PerfilPage({
           </div>
         </div>
         <div>
-          <label className="text-xs text-stone block mb-1">
+          <label className="text-xs text-cx-texto-2 block mb-1">
             Sobre ti (aparece en cada servicio que publiques)
           </label>
           <textarea
@@ -137,66 +137,66 @@ export default async function PerfilPage({
             rows={5}
             defaultValue={provider?.bio ?? ""}
             placeholder="Cuenta quién eres, tu experiencia, y por qué alguien debería confiar en ti..."
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+            className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
           />
         </div>
-        <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
+        <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
           Guardar
         </button>
       </form>
 
       <div className="mt-8 mb-4 max-w-lg">
         <h2 className="text-base font-medium">Datos de contacto</h2>
-        <p className="text-sm text-stone mt-0.5">
+        <p className="text-sm text-cx-texto-2 mt-0.5">
           Son privados: no se muestran en tu perfil público.
         </p>
       </div>
 
-      <form action={updateContacto} className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
+      <form action={updateContacto} className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
         <div>
-          <label className="text-xs text-stone block mb-1">Email</label>
+          <label className="text-xs text-cx-texto-2 block mb-1">Email</label>
           <input
             type="email"
             name="email"
             required
             defaultValue={user?.email ?? ""}
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+            className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
           />
-          <p className="text-xs text-stone mt-1">
+          <p className="text-xs text-cx-texto-2 mt-1">
             Para cambiarlo, escribe el email nuevo y pulsa Guardar. Te
             enviaremos un enlace de confirmación a tu email actual y otro al
             nuevo; el cambio se aplica cuando confirmes los dos.
           </p>
           {user?.new_email && (
-            <p className="text-xs text-copper mt-1">
+            <p className="text-xs text-cx-prof mt-1">
               Cambio pendiente de confirmar: {user.new_email}
             </p>
           )}
         </div>
         <div>
-          <label className="text-xs text-stone block mb-1">Teléfono</label>
+          <label className="text-xs text-cx-texto-2 block mb-1">Teléfono</label>
           <input
             type="tel"
             name="phone"
             defaultValue={appUser?.phone ?? ""}
             placeholder="+34 600 000 000"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
+            className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
           />
         </div>
-        <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
+        <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
           Guardar datos de contacto
         </button>
       </form>
 
       <div className="mt-8 mb-4 max-w-lg">
         <h2 className="text-base font-medium">Cambiar contraseña</h2>
-        <p className="text-sm text-stone mt-0.5">
+        <p className="text-sm text-cx-texto-2 mt-0.5">
           Escribe tu contraseña actual y la nueva dos veces. Pulsa el ojo para
           ver lo que escribes.
         </p>
       </div>
 
-      <form action={cambiarPassword} className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
+      <form action={cambiarPassword} className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
         <PasswordField
           name="current_password"
           label="Contraseña actual"
@@ -214,26 +214,26 @@ export default async function PerfilPage({
           autoComplete="new-password"
           minLength={8}
         />
-        <button className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 mt-1 hover:bg-copper-dark transition">
+        <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
           Cambiar contraseña
         </button>
       </form>
 
       <div className="mt-8 mb-4 max-w-lg">
         <h2 className="text-base font-medium">Cobros con Stripe</h2>
-        <p className="text-sm text-stone mt-0.5">
+        <p className="text-sm text-cx-texto-2 mt-0.5">
           Tus cobros llegan a tu cuenta de Stripe. Desde su panel ves tus
           pagos, tu saldo y tu cuenta bancaria.
         </p>
       </div>
 
-      <div className="rounded-lg bg-paper p-5 grid gap-3 max-w-lg">
+      <div className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
         {provider?.stripe_account_id ? (
           <>
             {provider.kyc_status === "verified" ? (
               <p className="text-xs text-emerald-700">Cuenta verificada</p>
             ) : (
-              <p className="text-xs text-stone">
+              <p className="text-xs text-cx-texto-2">
                 Verificación pendiente: termina el alta en Stripe para poder
                 cobrar.
               </p>
@@ -242,7 +242,7 @@ export default async function PerfilPage({
               href="/api/stripe/dashboard"
               target="_blank"
               rel="noopener"
-              className="rounded-lg bg-ink text-paper text-sm font-semibold py-2.5 text-center hover:opacity-90 transition"
+              className="rounded-lg bg-cx-noche text-white text-sm font-semibold py-2.5 text-center hover:opacity-90 transition"
             >
               Abrir mi cuenta de Stripe →
             </a>
@@ -250,7 +250,7 @@ export default async function PerfilPage({
         ) : (
           <a
             href="/api/stripe/connect"
-            className="rounded-lg bg-copper text-paper text-sm font-semibold py-2.5 text-center hover:bg-copper-dark transition"
+            className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 text-center hover:brightness-105 transition"
           >
             Conectar mi cuenta de Stripe
           </a>

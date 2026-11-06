@@ -18,7 +18,7 @@ export default function PasswordField({
 
   return (
     <div>
-      <label className="text-xs text-stone block mb-1">{label}</label>
+      <label className="text-xs text-cx-texto-2 block mb-1">{label}</label>
       <div className="relative">
         <input
           type={visible ? "text" : "password"}
@@ -26,13 +26,13 @@ export default function PasswordField({
           required
           minLength={minLength}
           autoComplete={autoComplete}
-          className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 pr-11 text-sm"
+          className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 pr-11 text-sm"
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
-          className="absolute inset-y-0 right-0 px-3 text-stone hover:text-ink"
+          className="absolute inset-y-0 right-0 px-3 text-cx-texto-2 hover:text-cx-texto"
         >
           {visible ? (
             <svg

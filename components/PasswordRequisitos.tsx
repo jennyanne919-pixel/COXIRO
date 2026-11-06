@@ -8,7 +8,7 @@ export default function PasswordRequisitos({ password }: { password: string }) {
   return (
     <ul className="grid gap-0.5 text-xs" aria-live="polite">
       {reqs.map((r) => (
-        <li key={r.id} className={r.cumple ? "text-green-700" : "text-stone"}>
+        <li key={r.id} className={r.cumple ? "text-green-700" : "text-cx-texto-2"}>
           <span aria-hidden="true">{r.cumple ? "✓" : "○"}</span> {r.texto}
         </li>
       ))}

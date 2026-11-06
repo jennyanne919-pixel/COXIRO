@@ -41,10 +41,10 @@ export default function ActualizarContrasenaPage() {
   }
 
   const inputClass =
-    "w-full rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm pr-11";
+    "w-full rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm pr-11";
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-paper px-6">
+    <main className="min-h-screen flex items-center justify-center bg-cx-hielo px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <a href="/">
@@ -52,7 +52,7 @@ export default function ActualizarContrasenaPage() {
           </a>
         </div>
         <h1 className="text-xl font-medium mb-1">Crea tu contraseña nueva</h1>
-        <p className="text-sm text-stone mb-6">
+        <p className="text-sm text-cx-texto-2 mb-6">
           Esta será la contraseña que uses a partir de ahora. Escríbela dos
           veces para asegurarte de que es correcta.
         </p>
@@ -82,7 +82,7 @@ export default function ActualizarContrasenaPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-cx-texto-2 hover:text-cx-texto"
                 aria-label={showPassword ? "Ocultar contraseñas" : "Mostrar contraseñas"}
               >
                 {showPassword ? (
@@ -112,7 +112,7 @@ export default function ActualizarContrasenaPage() {
             {confirm.length > 0 && password !== confirm && (
               <p className="text-xs text-red-700">Las contraseñas no coinciden todavía.</p>
             )}
-            <button className="rounded-lg bg-copper text-paper font-semibold text-sm py-2.5 mt-1 hover:bg-copper-dark transition">
+            <button className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition">
               Guardar contraseña
             </button>
           </form>

@@ -53,7 +53,7 @@ export default async function MiContenidoPage() {
     <div>
       <div className="mb-6">
         <h1 className="text-lg font-medium">Mi contenido</h1>
-        <p className="text-sm text-stone mt-0.5">
+        <p className="text-sm text-cx-texto-2 mt-0.5">
           Todo lo que has comprado, en un solo lugar
         </p>
       </div>
@@ -62,9 +62,9 @@ export default async function MiContenidoPage() {
         {[...serviciosUnicos.entries()].map(([serviceId, service]) => {
           const items = allItems?.filter((i) => i.service_id === serviceId) ?? [];
           return (
-            <div key={serviceId} className="rounded-lg bg-paper p-5">
+            <div key={serviceId} className="rounded-lg bg-cx-hielo p-5">
               <p className="font-medium mb-0.5">{service?.title}</p>
-              <p className="text-xs text-stone mb-4">
+              <p className="text-xs text-cx-texto-2 mb-4">
                 {service?.providers?.business_name ?? "Profesional en Coxiro"}
               </p>
 
@@ -80,10 +80,10 @@ export default async function MiContenidoPage() {
                         key={item.id}
                         href={href}
                         target={esReproducible ? "_self" : "_blank"}
-                        className="flex items-center justify-between rounded-lg bg-white border border-stone/20 px-4 py-3 hover:border-copper transition"
+                        className="flex items-center justify-between rounded-lg bg-white border border-cx-borde px-4 py-3 hover:border-cx-celeste transition"
                       >
                         <span className="text-sm">{item.title}</span>
-                        <span className="text-xs text-copper font-medium">
+                        <span className="text-xs text-cx-prof font-medium">
                           {TYPE_LABELS[item.content_type] ?? item.content_type} →
                         </span>
                       </a>
@@ -91,7 +91,7 @@ export default async function MiContenidoPage() {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-stone">
+                <p className="text-sm text-cx-texto-2">
                   El profesional todavía no ha subido contenido para esto.
                 </p>
               )}
@@ -99,7 +99,7 @@ export default async function MiContenidoPage() {
           );
         })}
         {!serviciosUnicos.size && (
-          <p className="text-sm text-stone bg-paper rounded-lg p-4">
+          <p className="text-sm text-cx-texto-2 bg-cx-hielo rounded-lg p-4">
             Todavía no has comprado ningún servicio con contenido.
           </p>
         )}

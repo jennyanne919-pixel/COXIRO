@@ -56,20 +56,20 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
     <div>
       <div className="mb-6">
         <h1 className="text-lg font-medium">Cobros y facturas</h1>
-        <p className="text-sm text-stone mt-0.5">Resumen de tu actividad</p>
+        <p className="text-sm text-cx-texto-2 mt-0.5">Resumen de tu actividad</p>
       </div>
 
       {provider?.kyc_status !== "verified" && (
-        <div className="rounded-lg bg-copper/10 border border-copper/30 p-4 mb-6 flex items-center justify-between flex-wrap gap-3">
+        <div className="rounded-lg bg-cx-celeste/10 border border-cx-celeste/30 p-4 mb-6 flex items-center justify-between flex-wrap gap-3">
           <div>
             <p className="text-sm font-medium">Falta conectar tu cuenta de cobro</p>
-            <p className="text-sm text-stone mt-0.5">
+            <p className="text-sm text-cx-texto-2 mt-0.5">
               Sin esto, no podrás recibir los pagos de tus clientes.
             </p>
           </div>
           <a
             href="/api/stripe/connect"
-            className="rounded-lg bg-copper text-paper text-sm font-semibold px-4 py-2 hover:bg-copper-dark transition whitespace-nowrap"
+            className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-4 py-2 hover:brightness-105 transition whitespace-nowrap"
           >
             Conectar con Stripe
           </a>
@@ -77,23 +77,23 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-        <div className="rounded-lg bg-paper p-4">
-          <p className="text-sm text-stone mb-1">Cobrado este mes</p>
+        <div className="rounded-lg bg-cx-hielo p-4">
+          <p className="text-sm text-cx-texto-2 mb-1">Cobrado este mes</p>
           <p className="text-2xl font-medium">{paidThisMonth.toFixed(2)} €</p>
         </div>
-        <div className="rounded-lg bg-paper p-4">
-          <p className="text-sm text-stone mb-1">Pendiente de cobro</p>
+        <div className="rounded-lg bg-cx-hielo p-4">
+          <p className="text-sm text-cx-texto-2 mb-1">Pendiente de cobro</p>
           <p className="text-2xl font-medium">{pending.toFixed(2)} €</p>
         </div>
-        <div className="rounded-lg bg-paper p-4">
-          <p className="text-sm text-stone mb-1">Transacciones</p>
+        <div className="rounded-lg bg-cx-hielo p-4">
+          <p className="text-sm text-cx-texto-2 mb-1">Transacciones</p>
           <p className="text-2xl font-medium">{transactions?.length ?? 0}</p>
         </div>
       </div>
 
       {/* Cabecera de tabla: solo en escritorio */}
-      <div className="rounded-lg bg-paper overflow-hidden hidden md:block">
-        <div className="grid grid-cols-6 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
+      <div className="rounded-lg bg-cx-hielo overflow-hidden hidden md:block">
+        <div className="grid grid-cols-6 px-3.5 py-2.5 text-xs text-cx-texto-2 border-b border-cx-borde">
           <span>Cliente</span>
           <span>Contacto</span>
           <span>Servicio</span>
@@ -104,11 +104,11 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
         {transactions?.map((t: any) => (
           <div
             key={t.id}
-            className="grid grid-cols-6 px-3.5 py-3 text-sm items-center border-b border-stone/20 last:border-0"
+            className="grid grid-cols-6 px-3.5 py-3 text-sm items-center border-b border-cx-borde last:border-0"
           >
             <span>{t.clients?.billing_name ?? "—"}</span>
-            <span className="text-stone truncate">{emailById.get(t.client_id) ?? "—"}</span>
-            <span className="text-stone">{t.services?.title ?? "—"}</span>
+            <span className="text-cx-texto-2 truncate">{emailById.get(t.client_id) ?? "—"}</span>
+            <span className="text-cx-texto-2">{t.services?.title ?? "—"}</span>
             <span>{Number(t.amount_total).toFixed(2)} €</span>
             <span className={t.status === "paid" ? "text-emerald-700" : "text-amber-700"}>
               {t.status === "paid" ? "Pagado" : "Pendiente"}
@@ -117,17 +117,17 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
               <a
                 href={`/api/invoices/${invoiceIdByTx.get(t.id)}/pdf`}
                 target="_blank"
-                className="text-xs text-copper hover:underline"
+                className="text-xs text-cx-prof hover:underline"
               >
                 Descargar
               </a>
             ) : (
-              <span className="text-xs text-stone">—</span>
+              <span className="text-xs text-cx-texto-2">—</span>
             )}
           </div>
         ))}
         {!transactions?.length && (
-          <p className="text-sm text-stone p-4">
+          <p className="text-sm text-cx-texto-2 p-4">
             Todavía no tienes cobros registrados.
           </p>
         )}
@@ -136,11 +136,11 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
       {/* Tarjetas apiladas: solo en móvil */}
       <div className="grid gap-3 md:hidden">
         {transactions?.map((t: any) => (
-          <div key={t.id} className="rounded-lg bg-paper p-4 text-sm">
+          <div key={t.id} className="rounded-lg bg-cx-hielo p-4 text-sm">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <p className="font-medium">{t.clients?.billing_name ?? "—"}</p>
-                <p className="text-stone text-xs break-all">{emailById.get(t.client_id) ?? "—"}</p>
+                <p className="text-cx-texto-2 text-xs break-all">{emailById.get(t.client_id) ?? "—"}</p>
               </div>
               <span
                 className={`text-xs font-medium rounded-full px-2 py-1 whitespace-nowrap ${
@@ -152,25 +152,25 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
                 {t.status === "paid" ? "Pagado" : "Pendiente"}
               </span>
             </div>
-            <p className="text-stone text-xs mb-1">{t.services?.title ?? "—"}</p>
+            <p className="text-cx-texto-2 text-xs mb-1">{t.services?.title ?? "—"}</p>
             <div className="flex items-center justify-between mt-2">
               <p className="font-display font-semibold">{Number(t.amount_total).toFixed(2)} €</p>
               {invoiceIdByTx.get(t.id) ? (
                 <a
                   href={`/api/invoices/${invoiceIdByTx.get(t.id)}/pdf`}
                   target="_blank"
-                  className="text-xs text-copper font-medium"
+                  className="text-xs text-cx-prof font-medium"
                 >
                   Descargar factura →
                 </a>
               ) : (
-                <span className="text-xs text-stone">—</span>
+                <span className="text-xs text-cx-texto-2">—</span>
               )}
             </div>
           </div>
         ))}
         {!transactions?.length && (
-          <p className="text-sm text-stone bg-paper rounded-lg p-4">
+          <p className="text-sm text-cx-texto-2 bg-cx-hielo rounded-lg p-4">
             Todavía no tienes cobros registrados.
           </p>
         )}

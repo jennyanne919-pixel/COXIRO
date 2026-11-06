@@ -3,11 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --font-display: "Space Grotesk", sans-serif;
-  --font-sans: "Inter", sans-serif;
+  --cx-noche: #07142B;
+  --cx-celeste: #38C6FF;
+  --cx-celeste-prof: #0874BD;
+  --cx-hielo: #EAF7FF;
+  --cx-blanco: #FFFFFF;
+  --cx-texto: #0B1220;
+  --cx-texto-2: #5A6478;
+  --cx-texto-osc-2: #A9B8D0;
+  --cx-borde: #E3EAF3;
 }
 
 body {
-  background-color: theme("colors.paper");
-  color: theme("colors.ink");
+  background-color: var(--cx-blanco);
+  color: var(--cx-texto);
+}
+
+/* Titulares: Bricolage Grotesque con el tracking del rediseño. */
+.font-display {
+  letter-spacing: -0.035em;
 }

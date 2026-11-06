@@ -46,7 +46,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
-      <aside className="w-full md:w-52 bg-ink flex-shrink-0 py-3 md:py-6 px-3 flex flex-row md:flex-col items-center md:items-stretch gap-3 md:gap-0">
+      <aside className="w-full md:w-52 bg-cx-noche flex-shrink-0 py-3 md:py-6 px-3 flex flex-row md:flex-col items-center md:items-stretch gap-3 md:gap-0">
         <a href="/" className="px-1 md:px-2 md:pb-6 flex-shrink-0">
           <Logo variant="dark" size={20} />
         </a>
@@ -59,8 +59,8 @@ export default async function DashboardLayout({
               aria-disabled={item.soon}
               className={`text-sm rounded-lg px-2.5 py-2 whitespace-nowrap ${
                 item.soon
-                  ? "text-stone/50 cursor-default"
-                  : "text-paper/80 hover:bg-white/5"
+                  ? "text-cx-texto-osc-2/70 cursor-default"
+                  : "text-white/80 hover:bg-white/5"
               }`}
             >
               {item.label}
@@ -69,7 +69,7 @@ export default async function DashboardLayout({
         </nav>
 
         <form action={signOut} className="flex-shrink-0 md:w-full">
-          <button className="text-sm text-paper/60 hover:text-paper px-2.5 py-2 whitespace-nowrap md:w-full md:text-left">
+          <button className="text-sm text-white/60 hover:text-white px-2.5 py-2 whitespace-nowrap md:w-full md:text-left">
             Cerrar sesión
           </button>
         </form>

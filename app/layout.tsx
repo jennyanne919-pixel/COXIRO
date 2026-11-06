@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import "./globals.css";
 import SiteFooter from "@/components/SiteFooter";
 
-const display = Space_Grotesk({
+const display = Bricolage_Grotesque({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["700", "800"],
   variable: "--font-display",
 });
 

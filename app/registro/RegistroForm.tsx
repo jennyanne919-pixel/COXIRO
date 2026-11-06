@@ -18,7 +18,7 @@ export default function RegistroForm({
   const [password, setPassword] = useState("");
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-paper px-6 py-12">
+    <main className="min-h-screen flex items-center justify-center bg-cx-hielo px-6 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <a href="/">
@@ -26,7 +26,7 @@ export default function RegistroForm({
           </a>
         </div>
         <h1 className="text-xl font-medium mb-1">Crea tu cuenta</h1>
-        <p className="text-sm text-stone mb-6">Empieza a vender tu talento online</p>
+        <p className="text-sm text-cx-texto-2 mb-6">Empieza a vender tu talento online</p>
 
         {searchParams.error && (
           <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
@@ -39,12 +39,12 @@ export default function RegistroForm({
           </p>
         )}
 
-        <div className="flex rounded-lg border border-stone/25 p-1 mb-4 bg-white">
+        <div className="flex rounded-lg border border-cx-borde p-1 mb-4 bg-white">
           <button
             type="button"
             onClick={() => setRole("provider")}
             className={`flex-1 rounded-md text-sm font-medium py-2 transition ${
-              role === "provider" ? "bg-ink text-paper" : "text-stone"
+              role === "provider" ? "bg-cx-noche text-white" : "text-cx-texto-2"
             }`}
           >
             Quiero vender
@@ -53,7 +53,7 @@ export default function RegistroForm({
             type="button"
             onClick={() => setRole("client")}
             className={`flex-1 rounded-md text-sm font-medium py-2 transition ${
-              role === "client" ? "bg-ink text-paper" : "text-stone"
+              role === "client" ? "bg-cx-noche text-white" : "text-cx-texto-2"
             }`}
           >
             Quiero comprar
@@ -69,7 +69,7 @@ export default function RegistroForm({
             name="full_name"
             required
             placeholder="Nombre completo"
-            className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+            className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
           />
 
           <input
@@ -78,7 +78,7 @@ export default function RegistroForm({
             required
             autoComplete="off"
             placeholder="NIF / NIE"
-            className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+            className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
           />
 
           {role === "provider" && (
@@ -87,16 +87,16 @@ export default function RegistroForm({
                 type="text"
                 name="business_name"
                 placeholder="Nombre de tu negocio (opcional)"
-                className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+                className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
               />
               <div>
-                <label className="text-xs text-stone block mb-1">
+                <label className="text-xs text-cx-texto-2 block mb-1">
                   ¿Qué ofreces?
                 </label>
                 <select
                   name="category"
                   required
-                  className="w-full rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+                  className="w-full rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
                 >
                   <option value="">Selecciona una opción</option>
                   <option value="Mentor / Coach">Mentor / Coach</option>
@@ -113,11 +113,11 @@ export default function RegistroForm({
 
           {role === "client" && (
             <div>
-              <label className="text-xs text-stone block mb-1">
+              <label className="text-xs text-cx-texto-2 block mb-1">
                 Tipo de cliente
               </label>
-              <div className="flex rounded-lg border border-stone/25 p-1 bg-white">
-                <label className="flex-1 text-center rounded-md text-sm font-medium py-2 bg-ink text-paper cursor-pointer">
+              <div className="flex rounded-lg border border-cx-borde p-1 bg-white">
+                <label className="flex-1 text-center rounded-md text-sm font-medium py-2 bg-cx-noche text-white cursor-pointer">
                   <input
                     type="radio"
                     name="client_type"
@@ -127,12 +127,12 @@ export default function RegistroForm({
                   />
                   Particular
                 </label>
-                <label className="flex-1 text-center rounded-md text-sm font-medium py-2 text-stone/40 cursor-not-allowed">
+                <label className="flex-1 text-center rounded-md text-sm font-medium py-2 text-cx-texto-2/70 cursor-not-allowed">
                   <input type="radio" disabled className="hidden" />
                   Empresa
                 </label>
               </div>
-              <p className="text-xs text-stone mt-1">
+              <p className="text-xs text-cx-texto-2 mt-1">
                 Compra como empresa: próximamente.
               </p>
             </div>
@@ -143,7 +143,7 @@ export default function RegistroForm({
             name="email"
             required
             placeholder="tu@email.com"
-            className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+            className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
           />
           <div className="relative">
             <input
@@ -155,12 +155,12 @@ export default function RegistroForm({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Contraseña"
-              className="w-full rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm pr-11"
+              className="w-full rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm pr-11"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-cx-texto-2 hover:text-cx-texto"
               aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
               {showPassword ? (
@@ -179,15 +179,15 @@ export default function RegistroForm({
 
           <PasswordRequisitos password={password} />
 
-          <label className="flex items-start gap-2 text-xs text-stone">
+          <label className="flex items-start gap-2 text-xs text-cx-texto-2">
             <input type="checkbox" required className="mt-0.5" />
             <span>
               He leído y acepto los{" "}
-              <a href="/terminos" target="_blank" className="text-ink underline">
+              <a href="/terminos" target="_blank" className="text-cx-texto underline">
                 Términos y Condiciones
               </a>{" "}
               y la{" "}
-              <a href="/aviso-legal" target="_blank" className="text-ink underline">
+              <a href="/aviso-legal" target="_blank" className="text-cx-texto underline">
                 Política de Privacidad
               </a>
               {role === "provider" && (
@@ -202,15 +202,15 @@ export default function RegistroForm({
 
           <button
             disabled={!passwordValida(password)}
-            className="rounded-lg bg-copper text-paper font-semibold text-sm py-2.5 mt-1 hover:bg-copper-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Crear cuenta
           </button>
         </form>
 
-        <p className="text-sm text-stone mt-5">
+        <p className="text-sm text-cx-texto-2 mt-5">
           ¿Ya tienes cuenta?{" "}
-          <a href="/login" className="text-ink font-medium underline">
+          <a href="/login" className="text-cx-texto font-medium underline">
             Inicia sesión
           </a>
         </p>

@@ -27,13 +27,13 @@ export default function RecuperarContrasenaPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-paper px-6">
+    <main className="min-h-screen flex items-center justify-center bg-cx-hielo px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <a href="/"><Logo /></a>
         </div>
         <h1 className="text-xl font-medium mb-1">Recupera tu contraseña</h1>
-        <p className="text-sm text-stone mb-6">
+        <p className="text-sm text-cx-texto-2 mb-6">
           Te enviaremos un enlace para crear una nueva
         </p>
 
@@ -55,16 +55,16 @@ export default function RecuperarContrasenaPage() {
               placeholder="tu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+              className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
             />
-            <button className="rounded-lg bg-copper text-paper font-semibold text-sm py-2.5 mt-1 hover:bg-copper-dark transition">
+            <button className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition">
               Enviar enlace
             </button>
           </form>
         )}
 
-        <p className="text-sm text-stone mt-5">
-          <a href="/login" className="text-ink font-medium underline">
+        <p className="text-sm text-cx-texto-2 mt-5">
+          <a href="/login" className="text-cx-texto font-medium underline">
             Volver a iniciar sesión
           </a>
         </p>

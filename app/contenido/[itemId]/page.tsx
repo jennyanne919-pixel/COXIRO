@@ -45,8 +45,8 @@ export default async function ReproductorPage({
 
     if (!access) {
       return (
-        <main className="min-h-screen bg-paper flex items-center justify-center px-6">
-          <p className="text-sm text-stone">No tienes acceso a este contenido.</p>
+        <main className="min-h-screen bg-cx-hielo flex items-center justify-center px-6">
+          <p className="text-sm text-cx-texto-2">No tienes acceso a este contenido.</p>
         </main>
       );
     }
@@ -70,7 +70,7 @@ export default async function ReproductorPage({
     .maybeSingle();
 
   return (
-    <main className="min-h-screen bg-ink">
+    <main className="min-h-screen bg-cx-noche">
       <header className="px-6 py-4">
         <a href="/dashboard/contenido">
           <Logo variant="dark" />
@@ -79,11 +79,11 @@ export default async function ReproductorPage({
       <div className="max-w-4xl mx-auto px-6 pb-16">
         <a
           href={`/servicio/${item.service_id}`}
-          className="text-xs text-stone hover:text-paper block mb-1"
+          className="text-xs text-cx-texto-osc-2 hover:text-white block mb-1"
         >
           ← {(item.services as any)?.title ?? "Volver al servicio"}
         </a>
-        <h1 className="text-paper text-lg font-medium mb-4">{item.title}</h1>
+        <h1 className="text-white text-lg font-medium mb-4">{item.title}</h1>
         <VideoPlayer
           src={src}
           title={item.title}

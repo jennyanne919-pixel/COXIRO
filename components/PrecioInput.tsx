@@ -32,14 +32,14 @@ export default function PrecioInput({
 
   const baseNum = Number(base) > 0 ? Number(base) : 0;
   const p = baseNum > 0 ? calcularPrecios(baseNum, comision) : null;
-  const clase = className ?? "w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm";
+  const clase = className ?? "w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm";
 
   return (
     <div>
       <input type="hidden" name="price" value={baseNum > 0 ? String(baseNum) : ""} />
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="text-xs text-stone block mb-1">
+          <label className="text-xs text-cx-texto-2 block mb-1">
             Precio de tu producto, sin impuestos (€){opcional && " — opcional"}
           </label>
           <input
@@ -58,7 +58,7 @@ export default function PrecioInput({
           />
         </div>
         <div>
-          <label className="text-xs text-stone block mb-1">
+          <label className="text-xs text-cx-texto-2 block mb-1">
             O el precio final al cliente, impuestos incluidos (€)
           </label>
           <input
@@ -76,24 +76,24 @@ export default function PrecioInput({
           />
         </div>
       </div>
-      <p className="text-xs text-stone mt-1">Escribe uno de los dos; el otro se calcula solo.</p>
+      <p className="text-xs text-cx-texto-2 mt-1">Escribe uno de los dos; el otro se calcula solo.</p>
 
       {p && (
-        <div className="mt-3 rounded-lg border border-stone/20 bg-white px-3.5 py-3 text-xs text-stone grid gap-1">
+        <div className="mt-3 rounded-lg border border-cx-borde bg-white px-3.5 py-3 text-xs text-cx-texto-2 grid gap-1">
           <div className="flex justify-between gap-3">
             <span>Tu cliente pagará (impuestos incluidos)</span>
-            <span className="font-medium text-ink">{eur(p.totalCents / 100)}</span>
+            <span className="font-medium text-cx-texto">{eur(p.totalCents / 100)}</span>
           </div>
           <div className="flex justify-between gap-3">
             <span>Tú recibirás con Coxiro</span>
-            <span className="font-semibold text-copper">{eur(p.netoProveedorCents / 100)}</span>
+            <span className="font-semibold text-cx-prof">{eur(p.netoProveedorCents / 100)}</span>
           </div>
           <div className="flex justify-between gap-3">
             <span>Sin Coxiro recibirías</span>
-            <span className="font-medium text-ink">{eur(p.baseCents / 100)}</span>
+            <span className="font-medium text-cx-texto">{eur(p.baseCents / 100)}</span>
           </div>
           {p.netoProveedorCents > p.baseCents && (
-            <p className="text-copper font-medium pt-1">
+            <p className="text-cx-prof font-medium pt-1">
               Con Coxiro te quedas {eur((p.netoProveedorCents - p.baseCents) / 100)} más en cada venta.
             </p>
           )}

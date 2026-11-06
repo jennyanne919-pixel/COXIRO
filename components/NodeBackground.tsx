@@ -3,11 +3,11 @@
 import { useEffect, useRef } from "react";
 
 // Colores de marca -- reflejan los mismos valores de
-// tailwind.config.ts (colors.ink / colors.copper). Se dejan como
+// tailwind.config.ts (colors.cx.noche / colors.cx.celeste). Se dejan como
 // constantes porque el lienzo (canvas) no puede leer clases de
 // Tailwind directamente, solo valores de color en JS.
-const COPPER = "226,112,58"; // #E2703A en formato "r,g,b"
-const PAPER = "247,243,236"; // #F7F3EC en formato "r,g,b"
+const COPPER = "56,198,255"; // celeste #38C6FF en formato "r,g,b"
+const PAPER = "255,255,255"; // blanco en formato "r,g,b"
 
 type Particle = {
   x: number;

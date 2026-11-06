@@ -32,20 +32,20 @@ export default async function PerfilProfesionalPage({
     .order("created_at", { ascending: false });
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen bg-cx-hielo">
       <header className="px-8 py-5">
         <Logo />
       </header>
 
       <div className="max-w-2xl mx-auto px-6 py-10">
-        <p className="text-xs text-stone uppercase tracking-wide font-semibold mb-2">
+        <p className="text-xs text-cx-texto-2 uppercase tracking-wide font-semibold mb-2">
           {provider.category ?? "Profesional en Coxiro"}
         </p>
         <h1 className="text-3xl font-display font-semibold mb-8">
           {provider.business_name}
         </h1>
 
-        <p className="text-xs text-stone uppercase tracking-wide font-semibold mb-3">
+        <p className="text-xs text-cx-texto-2 uppercase tracking-wide font-semibold mb-3">
           Servicios disponibles
         </p>
 
@@ -54,12 +54,12 @@ export default async function PerfilProfesionalPage({
             <a
               key={s.id}
               href={`/servicio/${s.id}`}
-              className="flex items-center justify-between rounded-lg bg-white border border-stone/20 px-5 py-4 hover:border-copper transition"
+              className="flex items-center justify-between rounded-lg bg-white border border-cx-borde px-5 py-4 hover:border-cx-celeste transition"
             >
               <div>
                 <p className="font-medium">{s.title}</p>
                 {s.description && (
-                  <p className="text-sm text-stone mt-0.5 line-clamp-1">
+                  <p className="text-sm text-cx-texto-2 mt-0.5 line-clamp-1">
                     {s.description}
                   </p>
                 )}
@@ -70,7 +70,7 @@ export default async function PerfilProfesionalPage({
             </a>
           ))}
           {!services?.length && (
-            <p className="text-sm text-stone">
+            <p className="text-sm text-cx-texto-2">
               Este profesional todavía no tiene servicios publicados.
             </p>
           )}

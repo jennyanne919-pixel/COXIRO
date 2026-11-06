@@ -44,7 +44,7 @@ export default function EntraMenu() {
         onClick={() => setOpen(true)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="rounded-lg border border-copper px-4 py-2.5 text-sm font-semibold text-copper hover:bg-copper/5 transition whitespace-nowrap flex items-center gap-1"
+        className="rounded-lg border border-cx-celeste px-4 py-2.5 text-sm font-semibold text-cx-prof hover:bg-cx-celeste/5 transition whitespace-nowrap flex items-center gap-1"
       >
         Entra
         <svg
@@ -61,11 +61,11 @@ export default function EntraMenu() {
 
       {open && (
         <div className="absolute right-0 top-full pt-2 z-50 min-w-[220px]">
-          <div className="bg-white border border-stone/20 rounded-lg shadow-lg py-2">
-            <a href="/login" className="block px-4 py-3 text-sm hover:bg-paper">
+          <div className="bg-white border border-cx-borde rounded-lg shadow-lg py-2">
+            <a href="/login" className="block px-4 py-3 text-sm hover:bg-cx-hielo">
               <p className="font-medium">Acceder a mis compras</p>
             </a>
-            <a href="/login" className="block px-4 py-3 text-sm hover:bg-paper">
+            <a href="/login" className="block px-4 py-3 text-sm hover:bg-cx-hielo">
               <p className="font-medium">Gestionar mi negocio</p>
             </a>
           </div>

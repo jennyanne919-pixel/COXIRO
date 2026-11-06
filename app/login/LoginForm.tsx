@@ -12,7 +12,7 @@ export default function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-paper px-6">
+    <main className="min-h-screen flex items-center justify-center bg-cx-hielo px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8">
           <a href="/">
@@ -20,7 +20,7 @@ export default function LoginForm({
           </a>
         </div>
         <h1 className="text-xl font-medium mb-1">Inicia sesión</h1>
-        <p className="text-sm text-stone mb-6">Accede a tu panel de Coxiro</p>
+        <p className="text-sm text-cx-texto-2 mb-6">Accede a tu panel de Coxiro</p>
 
         {searchParams.error && (
           <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
@@ -29,7 +29,7 @@ export default function LoginForm({
         )}
 
         <form action={signInWithGoogle} className="mb-4">
-          <button className="w-full flex items-center justify-center gap-2.5 rounded-lg border border-stone/25 bg-white py-2.5 text-sm font-medium hover:bg-paper transition">
+          <button className="w-full flex items-center justify-center gap-2.5 rounded-lg border border-cx-borde bg-white py-2.5 text-sm font-medium hover:bg-cx-hielo transition">
             <svg width="18" height="18" viewBox="0 0 48 48">
               <path fill="#FFC107" d="M43.6 20.5h-1.9V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5Z" />
               <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3c-7.4 0-13.8 4.1-17.2 10.2Z" />
@@ -41,9 +41,9 @@ export default function LoginForm({
         </form>
 
         <div className="flex items-center gap-3 mb-4">
-          <div className="h-px bg-stone/20 flex-1" />
-          <span className="text-xs text-stone">o con tu email</span>
-          <div className="h-px bg-stone/20 flex-1" />
+          <div className="h-px bg-cx-borde flex-1" />
+          <span className="text-xs text-cx-texto-2">o con tu email</span>
+          <div className="h-px bg-cx-borde flex-1" />
         </div>
 
         <form action={signIn} className="flex flex-col gap-3">
@@ -53,7 +53,7 @@ export default function LoginForm({
             name="email"
             required
             placeholder="tu@email.com"
-            className="rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm"
+            className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
           />
           <div className="relative">
             <input
@@ -61,12 +61,12 @@ export default function LoginForm({
               name="password"
               required
               placeholder="Contraseña"
-              className="w-full rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm pr-11"
+              className="w-full rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm pr-11"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-cx-texto-2 hover:text-cx-texto"
               aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
               {showPassword ? (
@@ -82,20 +82,20 @@ export default function LoginForm({
               )}
             </button>
           </div>
-          <button className="rounded-lg bg-copper text-paper font-semibold text-sm py-2.5 mt-1 hover:bg-copper-dark transition">
+          <button className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition">
             Entrar
           </button>
         </form>
 
-        <p className="text-sm text-stone mt-3">
-          <a href="/recuperar-contrasena" className="text-ink underline">
+        <p className="text-sm text-cx-texto-2 mt-3">
+          <a href="/recuperar-contrasena" className="text-cx-texto underline">
             ¿Olvidaste tu contraseña?
           </a>
         </p>
 
-        <p className="text-sm text-stone mt-5">
+        <p className="text-sm text-cx-texto-2 mt-5">
           ¿Todavía no tienes cuenta?{" "}
-          <a href="/registro" className="text-ink font-medium underline">
+          <a href="/registro" className="text-cx-texto font-medium underline">
             Regístrate
           </a>
         </p>

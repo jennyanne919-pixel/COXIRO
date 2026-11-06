@@ -12,8 +12,8 @@ const HTML = "<p><strong>COXIRO</strong></p>\n<p><strong>Política de Cookies</s
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-paper">
-      <header className="border-b border-stone/20 bg-paper">
+    <main className="min-h-screen bg-cx-hielo">
+      <header className="border-b border-cx-borde bg-cx-hielo">
         <div className="max-w-3xl mx-auto px-6 py-4">
           <a href="/" aria-label="Volver al inicio">
             <Logo variant="light" />

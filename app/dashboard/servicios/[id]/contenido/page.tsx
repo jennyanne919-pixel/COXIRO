@@ -41,19 +41,19 @@ export default async function ContenidoServicioPage({
   return (
     <div>
       <div className="mb-6">
-        <a href="/dashboard/servicios" className="text-xs text-stone hover:text-ink">
+        <a href="/dashboard/servicios" className="text-xs text-cx-texto-2 hover:text-cx-texto">
           ← Volver a mis servicios
         </a>
         <h1 className="text-lg font-medium mt-2">Contenido de "{service.title}"</h1>
-        <p className="text-sm text-stone mt-0.5">
+        <p className="text-sm text-cx-texto-2 mt-0.5">
           Lo que verá el cliente después de pagar
         </p>
       </div>
 
       <AddContentForm serviceId={service.id} />
 
-      <div className="rounded-lg bg-paper overflow-hidden">
-        <div className="grid grid-cols-4 px-3.5 py-2.5 text-xs text-stone border-b border-stone/20">
+      <div className="rounded-lg bg-cx-hielo overflow-hidden">
+        <div className="grid grid-cols-4 px-3.5 py-2.5 text-xs text-cx-texto-2 border-b border-cx-borde">
           <span className="col-span-2">Título</span>
           <span>Tipo</span>
           <span></span>
@@ -61,7 +61,7 @@ export default async function ContenidoServicioPage({
         {items?.map((item) => (
           <div
             key={item.id}
-            className="grid grid-cols-4 px-3.5 py-3 text-sm items-center border-b border-stone/20 last:border-0 gap-2"
+            className="grid grid-cols-4 px-3.5 py-3 text-sm items-center border-b border-cx-borde last:border-0 gap-2"
           >
             <span className="col-span-2">
               {item.title}
@@ -71,7 +71,7 @@ export default async function ContenidoServicioPage({
                 </span>
               )}
             </span>
-            <span className="text-stone">{TYPE_LABELS[item.content_type] ?? item.content_type}</span>
+            <span className="text-cx-texto-2">{TYPE_LABELS[item.content_type] ?? item.content_type}</span>
             <form action={deleteContentItem}>
               <input type="hidden" name="item_id" value={item.id} />
               <input type="hidden" name="service_id" value={service.id} />
@@ -82,7 +82,7 @@ export default async function ContenidoServicioPage({
           </div>
         ))}
         {!items?.length && (
-          <p className="text-sm text-stone p-4">
+          <p className="text-sm text-cx-texto-2 p-4">
             Todavía no has añadido contenido a este servicio.
           </p>
         )}
