@@ -77,9 +77,9 @@ export async function generateInvoicePdf(
 
   const qrImage = await pdfDoc.embedPng(qrPng);
 
-  const ink = rgb(0.086, 0.094, 0.114); // #16181D
-  const stone = rgb(0.541, 0.541, 0.51); // #8A8A82
-  const boxBg = rgb(0.949, 0.949, 0.945);
+  const ink = rgb(0.027, 0.078, 0.169); // #07142B (noche)
+  const stone = rgb(0.353, 0.392, 0.471); // #5A6478
+  const boxBg = rgb(0.918, 0.969, 1) /* #EAF7FF */;
   const white = rgb(1, 1, 1);
 
   const isClientInvoice = invoice.type === "client_invoice";
@@ -90,9 +90,9 @@ export async function generateInvoicePdf(
 
   // ---- Cabecera ----
   if (logoImage) {
-    const logoW = 130;
+    const logoW = 92;
     const logoH = logoW * (logoImage.height / logoImage.width);
-    page.drawImage(logoImage, { x: 50, y: y - logoH + 16, width: logoW, height: logoH });
+    page.drawImage(logoImage, { x: 50, y: y - logoH + 22, width: logoW, height: logoH });
   } else {
     page.drawText("coxiro", { x: 50, y, size: 20, font: fontBold, color: ink });
   }

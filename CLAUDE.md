@@ -19,15 +19,18 @@ Coxiro compra el servicio al proveedor y añade valor (gestión de pagos + factu
 - Su mujer: autónoma, cara visible legal del negocio ante clientes/prensa/redes.
 - Futuro: escalada a S.L.
 
-## Identidad de marca
-- **Colores:** Ink `#16181D` (fondo oscuro, dominante), Copper `#E2703A` (acento/CTA), Paper `#F7F3EC` (fondo claro cálido), Stone `#8A8A82` (texto secundario).
-- **Tipografía:** Titulares Space Grotesk (500-600), cuerpo Inter (400-500).
-- **Logo:** anillo/órbita abierto con punto en el extremo superior.
+## Identidad de marca ("Celeste eléctrico", desde 11/2026)
+- **Colores (tokens `cx-*` en `tailwind.config.ts` y `globals.css`):** Noche `#07142B` (fondos oscuros, texto de botón sobre celeste), Celeste `#38C6FF` (color de marca: botones principales, detalles sobre fondo oscuro), Celeste profundo `#0874BD` (texto de acento y enlaces sobre blanco), Hielo `#EAF7FF` (secciones claras alternas), Texto `#0B1220`, Texto 2 `#5A6478`, Borde `#E3EAF3`.
+- **Regla:** el celeste `#38C6FF` NUNCA como texto sobre fondo blanco o hielo (no se lee); ahí se usa `#0874BD`.
+- **Tipografía:** titulares Bricolage Grotesque (700/800, letter-spacing -0.035em, clase `font-display`); cuerpo Inter (400-600). Vía `next/font/google`.
+- **Botones:** forma píldora (radius 999px). Principal: celeste con texto noche. Sobre fondo claro: noche con texto blanco.
+- **Logo:** palabra COXIRO con arco superior terminado en punto y arco inferior; arcos y punto en celeste; palabra en noche (fondo claro) o blanca (fondo oscuro). Componente `components/Logo.tsx` (variant "light" | "dark").
+- **Movimiento:** respetar siempre `prefers-reduced-motion`; el contenido debe verse sin JS (`components/Reveal.tsx`).
 - **Tono:** directo, cálido, profesional, sin jerga técnica. Habla de beneficio (libertad, tiempo, crecimiento), no de features como titular.
-- Evitar: azul/morado típico SaaS, y el cliché "crema + terracota".
+- Paleta antigua (Ink/Copper/Paper/Stone, Space Grotesk) retirada; no reintroducir.
 
 ## Stack técnico
-Next.js 14 + Tailwind CSS + Supabase (Postgres, Auth, RLS) + Stripe Connect (cuentas Express) + pdf-lib + qrcode.
+Next.js 16 (App Router) + Tailwind CSS 3 + Supabase (Postgres, Auth, RLS) + Stripe Connect (cuentas Express) + pdf-lib + qrcode.
 
 ## Estado actual — YA FUNCIONA (no es maqueta)
 - Landing pública + registro/login por rol (profesional/cliente) vía Supabase Auth.
@@ -60,6 +63,6 @@ Obligación de facturación verificable: 1 enero 2027 (sociedades), 1 julio 2027
 4. **Fase 4 (escalada):** afiliados avanzados, IA en ventas/atención, ecosistema de productos, posible paso a S.L.
 
 ## Reglas para cualquier trabajo en este repo
-- Respetar siempre colores, tipografía, tono de voz y mensaje de marca de este documento.
+- Respetar siempre colores, tipografía, tono de voz y mensaje de marca de este documento (sección "Identidad de marca").
 - Cualquier texto/cara pública debe seguir la restricción societaria (punto de estructura societaria).
 - No añadir contenido de tipo enlace directo de marketplace externo como acceso — debe ser enlace de acceso tokenizado.

@@ -23,15 +23,15 @@ export default function WaitlistWarmupEmail({
     <Html>
       <Head />
       <Preview>[Pendiente de redactar]</Preview>
-      <Body style={{ backgroundColor: "#F7F3EC", fontFamily: "Helvetica, Arial, sans-serif" }}>
+      <Body style={{ backgroundColor: "#EAF7FF", fontFamily: "Helvetica, Arial, sans-serif" }}>
         <Container style={{ padding: "40px 24px", maxWidth: "480px" }}>
-          <Text style={{ fontSize: "20px", fontWeight: 700, color: "#16181D", marginBottom: "24px" }}>
+          <Text style={{ fontSize: "20px", fontWeight: 700, color: "#07142B", marginBottom: "24px" }}>
             coxiro
           </Text>
-          <Heading style={{ fontSize: "22px", color: "#16181D" }}>
+          <Heading style={{ fontSize: "22px", color: "#07142B" }}>
             Hola {nombre},
           </Heading>
-          <Text style={{ fontSize: "15px", color: "#16181D", lineHeight: "1.6" }}>
+          <Text style={{ fontSize: "15px", color: "#07142B", lineHeight: "1.6" }}>
             [Contenido pendiente — email {numeroEnSecuencia} de la secuencia
             de calentamiento]
           </Text>

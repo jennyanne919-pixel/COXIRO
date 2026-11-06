@@ -27,7 +27,7 @@ export function Partners() {
                 Ver programa
               </Link>
             </div>
-            <div className="font-display font-bold text-[96px] md:text-[160px] leading-none text-cx-celeste" aria-hidden="true">
+            <div className="font-display font-bold text-[96px] md:text-[160px] leading-none text-cx-prof" aria-hidden="true">
               1%
             </div>
           </div>

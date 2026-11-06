@@ -12,7 +12,7 @@ function Fila({ items, anim }: { items: string[]; anim: string }) {
           className="cinta-texto font-display font-bold text-5xl md:text-[76px] leading-[1.15] px-6 md:px-10 whitespace-nowrap select-none"
         >
           {t}
-          <span className="text-cx-celeste mx-6 md:mx-10" style={{ WebkitTextStroke: 0 }}>•</span>
+          <span className="text-cx-prof mx-6 md:mx-10" style={{ WebkitTextStroke: 0 }} aria-hidden="true">•</span>
         </span>
       ))}
     </div>
