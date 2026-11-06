@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { passwordValida } from "@/lib/password";
 
 // Guarda el teléfono y, si ha cambiado, pide el cambio de email.
 // El nombre NO se puede cambiar desde aquí: es el que figura en las
@@ -76,7 +77,7 @@ export async function cambiarPassword(formData: FormData) {
   const nueva = String(formData.get("new_password") ?? "");
   const repetida = String(formData.get("confirm_password") ?? "");
 
-  if (nueva.length < 8) {
+  if (!passwordValida(nueva)) {
     redirect("/dashboard/mi-cuenta?error=password_corta");
   }
   if (nueva !== repetida) {

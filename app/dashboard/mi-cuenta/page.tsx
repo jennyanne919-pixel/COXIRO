@@ -11,7 +11,8 @@ const ERRORES: Record<string, string> = {
     "El teléfono no es válido. Usa solo números, con o sin prefijo (por ejemplo +34 600 000 000).",
   password_actual: "La contraseña actual no es correcta.",
   password_coinciden: "La contraseña nueva y su repetición no coinciden.",
-  password_corta: "La contraseña nueva debe tener al menos 8 caracteres.",
+  password_corta:
+    "La contraseña nueva debe tener al menos 8 caracteres, con una mayúscula, una minúscula, un número y un símbolo.",
   password: "No se ha podido cambiar la contraseña. Inténtalo de nuevo.",
 };
 
@@ -160,10 +161,13 @@ export default async function MiCuentaPage({
         />
         <PasswordField
           name="new_password"
-          label="Contraseña nueva (mínimo 8 caracteres)"
+          label="Contraseña nueva"
           autoComplete="new-password"
           minLength={8}
         />
+        <p className="text-xs text-stone -mt-1">
+          Mínimo 8 caracteres, con una mayúscula, una minúscula, un número y un símbolo.
+        </p>
         <PasswordField
           name="confirm_password"
           label="Repite la contraseña nueva"

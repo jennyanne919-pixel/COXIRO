@@ -4,6 +4,8 @@ import { useState } from "react";
 import Logo from "@/components/Logo";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import PasswordRequisitos from "@/components/PasswordRequisitos";
+import { passwordValida, MENSAJE_PASSWORD } from "@/lib/password";
 
 export default function ActualizarContrasenaPage() {
   const [password, setPassword] = useState("");
@@ -17,8 +19,8 @@ export default function ActualizarContrasenaPage() {
     e.preventDefault();
     setError("");
 
-    if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
+    if (!passwordValida(password)) {
+      setError(MENSAJE_PASSWORD);
       return;
     }
     if (password !== confirm) {
@@ -72,7 +74,7 @@ export default function ActualizarContrasenaPage() {
                 required
                 minLength={8}
                 autoComplete="new-password"
-                placeholder="Nueva contraseña (mínimo 8 caracteres)"
+                placeholder="Nueva contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={inputClass}
@@ -96,6 +98,7 @@ export default function ActualizarContrasenaPage() {
                 )}
               </button>
             </div>
+            <PasswordRequisitos password={password} />
             <input
               type={showPassword ? "text" : "password"}
               required

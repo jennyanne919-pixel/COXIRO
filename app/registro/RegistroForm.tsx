@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Logo from "@/components/Logo";
 import { signUp } from "@/app/auth/actions";
+import PasswordRequisitos from "@/components/PasswordRequisitos";
+import { passwordValida, PASSWORD_MIN } from "@/lib/password";
 
 export default function RegistroForm({
   searchParams,
@@ -13,6 +15,7 @@ export default function RegistroForm({
     searchParams.role === "client" ? "client" : "provider"
   );
   const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState("");
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-paper px-6 py-12">
@@ -147,8 +150,11 @@ export default function RegistroForm({
               type={showPassword ? "text" : "password"}
               name="password"
               required
-              minLength={6}
-              placeholder="Contraseña (mínimo 6 caracteres)"
+              minLength={PASSWORD_MIN}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Contraseña"
               className="w-full rounded-lg border border-stone/25 bg-white px-4 py-2.5 text-sm pr-11"
             />
             <button
@@ -171,6 +177,8 @@ export default function RegistroForm({
             </button>
           </div>
 
+          <PasswordRequisitos password={password} />
+
           <label className="flex items-start gap-2 text-xs text-stone">
             <input type="checkbox" required className="mt-0.5" />
             <span>
@@ -192,7 +200,10 @@ export default function RegistroForm({
             </span>
           </label>
 
-          <button className="rounded-lg bg-copper text-paper font-semibold text-sm py-2.5 mt-1 hover:bg-copper-dark transition">
+          <button
+            disabled={!passwordValida(password)}
+            className="rounded-lg bg-copper text-paper font-semibold text-sm py-2.5 mt-1 hover:bg-copper-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Crear cuenta
           </button>
         </form>

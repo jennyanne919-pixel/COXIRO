@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { sendWelcomeEmail, sendInternalRegistration } from "@/lib/email/send";
+import { passwordValida, MENSAJE_PASSWORD } from "@/lib/password";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -32,6 +33,10 @@ export async function signUp(formData: FormData) {
   const category = formData.get("category") as string;
   const clientType = (formData.get("client_type") as string) || "particular";
   const refCode = formData.get("ref") as string;
+
+  if (!passwordValida(password ?? "")) {
+    redirect(`/registro?error=${encodeURIComponent(MENSAJE_PASSWORD)}`);
+  }
 
   const { data, error } = await supabase.auth.signUp({ email, password });
 

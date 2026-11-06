@@ -25,6 +25,13 @@ export default async function EditarServicioPage({
     notFound();
   }
 
+  const { data: proveedor } = await supabase
+    .from("providers")
+    .select("commission_rate")
+    .eq("user_id", user?.id ?? "")
+    .single();
+  const comision = Number(proveedor?.commission_rate ?? 10);
+
   return (
     <div className="max-w-lg">
       <div className="mb-6">
@@ -83,12 +90,7 @@ export default async function EditarServicioPage({
         </div>
 
         <div>
-          <label className="text-xs font-medium text-stone block mb-1">Precio (€)</label>
-          <PrecioInput
-            defaultValue={service.price}
-            required
-            className="w-full rounded-lg border border-stone/25 bg-white px-3 py-2 text-sm"
-          />
+          <PrecioInput defaultValue={service.price} required comision={comision} />
         </div>
 
         <div>

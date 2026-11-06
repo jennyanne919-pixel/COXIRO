@@ -6,8 +6,10 @@ import PrecioInput from "@/components/PrecioInput";
 
 export default function NewServiceForm({
   createService,
+  comision = 10,
 }: {
   createService: (formData: FormData) => void;
+  comision?: number;
 }) {
   const [type, setType] = useState("consult");
   const esAMedida = type === "custom";
@@ -51,14 +53,7 @@ export default function NewServiceForm({
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs text-stone block mb-1">
-            Precio (€) {esAMedida && "— opcional"}
-          </label>
-          <PrecioInput
-            required={!esAMedida}
-            placeholder="90.00"
-            className="w-full rounded-lg border border-stone/25 bg-white px-3.5 py-2 text-sm"
-          />
+          <PrecioInput required={!esAMedida} opcional={esAMedida} comision={comision} />
         </div>
         <div>
           <label className="text-xs text-stone block mb-1">Tipo</label>

@@ -22,10 +22,13 @@ export type Precios = {
 };
 
 export function calcularPrecios(precioBase: number, comisionPorcentaje: number): Precios {
-  const baseCents = Math.round(precioBase * 100);
-  const totalCents = Math.round((baseCents * (100 + IVA_PORCENTAJE)) / 100);
-  const comisionCents = Math.round((baseCents * comisionPorcentaje) / 100);
-  const ipsiCents = Math.round((baseCents * IPSI_PORCENTAJE) / 100);
+  // El precio base puede llevar hasta 4 decimales (así un precio final
+  // como 2.500,00 € se cobra exacto); los importes se redondean al céntimo.
+  const baseExacta = precioBase * 100;
+  const baseCents = Math.round(baseExacta);
+  const totalCents = Math.round((baseExacta * (100 + IVA_PORCENTAJE)) / 100);
+  const comisionCents = Math.round((baseExacta * comisionPorcentaje) / 100);
+  const ipsiCents = Math.round((baseExacta * IPSI_PORCENTAJE) / 100);
   const feeCents = comisionCents + ipsiCents;
   return {
     baseCents,
@@ -48,4 +51,11 @@ export function totalCliente(precioBase: number): number {
 export function feeDesdeTotal(totalEuros: number, comisionPorcentaje: number): number {
   const baseEuros = totalEuros / (1 + IVA_PORCENTAJE / 100);
   return calcularPrecios(baseEuros, comisionPorcentaje).feeCents / 100;
+}
+
+// Precio base (sin impuestos) que hay que fijar para que el cliente pague
+// exactamente "totalEuros". Se guarda con 4 decimales para que el total
+// salga exacto al céntimo.
+export function baseDesdeTotal(totalEuros: number): number {
+  return Math.round((totalEuros / (1 + IVA_PORCENTAJE / 100)) * 10000) / 10000;
 }
