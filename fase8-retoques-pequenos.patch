@@ -1,0 +1,52 @@
+diff --git a/components/home/Calculadora.tsx b/components/home/Calculadora.tsx
+index a99db1d..902fb15 100644
+--- a/components/home/Calculadora.tsx
++++ b/components/home/Calculadora.tsx
+@@ -56,9 +56,9 @@ export default function Calculadora() {
+             <div className="font-display font-bold text-cx-celeste text-7xl md:text-[96px] leading-none mt-3 tabular-nums break-words">
+               {eur(mes)} €
+             </div>
+-            <p className="text-lg mt-2 text-white">al mes</p>
++            <p className="text-lg mt-2 text-white">extras al mes</p>
+             <p className="text-[#C9D6EA] mt-5">
+-              que son <strong className="text-white">{eur(anio)} €</strong> al año en tu bolsillo.
++              que son <strong className="text-white">{eur(anio)} €</strong> extras al año en tu bolsillo.
+             </p>
+             <Link
+               href="/registro?role=provider"
+diff --git a/components/home/CintaProfesiones.tsx b/components/home/CintaProfesiones.tsx
+index 28adb77..0086bc8 100644
+--- a/components/home/CintaProfesiones.tsx
++++ b/components/home/CintaProfesiones.tsx
+@@ -23,14 +23,16 @@ export default function CintaProfesiones() {
+   return (
+     <section id="para-quien" className="cinta bg-white py-14 md:py-20 overflow-hidden" aria-label="Para quién es Coxiro">
+       <style>{`
++        @keyframes cintaIzq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
++        @keyframes cintaDer{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+         .cinta-texto{color:transparent;-webkit-text-stroke:1.5px #0874BD;transition:color .25s}
+         .cinta-texto:hover{color:#38C6FF}
+         .cinta:hover .cinta-fila{animation-play-state:paused !important}
+         @media (prefers-reduced-motion: reduce){.cinta-fila{animation:none !important}}
+       `}</style>
+       <div className="space-y-2">
+-        <Fila items={FILA_1} anim="marquee 38s linear infinite" />
+-        <Fila items={FILA_2} anim="marqueeReverse 46s linear infinite" />
++        <Fila items={FILA_1} anim="cintaIzq 38s linear infinite" />
++        <Fila items={FILA_2} anim="cintaDer 46s linear infinite" />
+       </div>
+     </section>
+   );
+diff --git a/components/home/Hero.tsx b/components/home/Hero.tsx
+index 36e4479..23e492a 100644
+--- a/components/home/Hero.tsx
++++ b/components/home/Hero.tsx
+@@ -145,7 +145,7 @@ export default function Hero() {
+           </form>
+ 
+           <p className="text-sm text-cx-texto-osc-2 mt-3 max-w-[540px]">
+-            Ponlo en tu bio de Instagram o en WhatsApp: tus clientes ven lo que vendes y pagan ahí mismo, sin crear cuenta.
++            Ponlo en tu bio de Instagram o compártelo por WhatsApp. Tus clientes ven lo que vendes y compran ahí mismo, sin crear cuenta.
+           </p>
+           <p className="text-sm text-cx-texto-osc-2 mt-4">
+             ¿Buscas comprar?{" "}

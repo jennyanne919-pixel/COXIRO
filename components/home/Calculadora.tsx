@@ -56,9 +56,9 @@ export default function Calculadora() {
             <div className="font-display font-bold text-cx-celeste text-7xl md:text-[96px] leading-none mt-3 tabular-nums break-words">
               {eur(mes)} €
             </div>
-            <p className="text-lg mt-2 text-white">al mes</p>
+            <p className="text-lg mt-2 text-white">extras al mes</p>
             <p className="text-[#C9D6EA] mt-5">
-              que son <strong className="text-white">{eur(anio)} €</strong> al año en tu bolsillo.
+              que son <strong className="text-white">{eur(anio)} €</strong> extras al año en tu bolsillo.
             </p>
             <Link
               href="/registro?role=provider"

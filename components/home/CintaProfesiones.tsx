@@ -23,14 +23,16 @@ export default function CintaProfesiones() {
   return (
     <section id="para-quien" className="cinta bg-white py-14 md:py-20 overflow-hidden" aria-label="Para quién es Coxiro">
       <style>{`
+        @keyframes cintaIzq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        @keyframes cintaDer{from{transform:translateX(-50%)}to{transform:translateX(0)}}
         .cinta-texto{color:transparent;-webkit-text-stroke:1.5px #0874BD;transition:color .25s}
         .cinta-texto:hover{color:#38C6FF}
         .cinta:hover .cinta-fila{animation-play-state:paused !important}
         @media (prefers-reduced-motion: reduce){.cinta-fila{animation:none !important}}
       `}</style>
       <div className="space-y-2">
-        <Fila items={FILA_1} anim="marquee 38s linear infinite" />
-        <Fila items={FILA_2} anim="marqueeReverse 46s linear infinite" />
+        <Fila items={FILA_1} anim="cintaIzq 38s linear infinite" />
+        <Fila items={FILA_2} anim="cintaDer 46s linear infinite" />
       </div>
     </section>
   );

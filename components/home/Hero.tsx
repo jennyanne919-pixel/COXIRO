@@ -145,7 +145,7 @@ export default function Hero() {
           </form>
 
           <p className="text-sm text-cx-texto-osc-2 mt-3 max-w-[540px]">
-            Ponlo en tu bio de Instagram o en WhatsApp: tus clientes ven lo que vendes y pagan ahí mismo, sin crear cuenta.
+            Ponlo en tu bio de Instagram o compártelo por WhatsApp. Tus clientes ven lo que vendes y compran ahí mismo, sin crear cuenta.
           </p>
           <p className="text-sm text-cx-texto-osc-2 mt-4">
             ¿Buscas comprar?{" "}
