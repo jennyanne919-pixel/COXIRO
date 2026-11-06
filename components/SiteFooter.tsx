@@ -1,4 +1,5 @@
 import Logo from "@/components/Logo";
+import SocialLinks from "@/components/SocialLinks";
 
 // Pie de página común a todas las páginas (se monta en app/layout.tsx).
 export default function SiteFooter() {
@@ -14,6 +15,7 @@ export default function SiteFooter() {
           <a href="/aviso-legal" className="hover:text-cx-texto">Aviso legal y privacidad</a>
           <a href="/cookies" className="hover:text-cx-texto">Política de cookies</a>
         </nav>
+        <SocialLinks />
         <p className="text-xs text-cx-texto-2 w-full md:w-auto">
           © 2026 Coxiro. Todos los derechos reservados.
         </p>

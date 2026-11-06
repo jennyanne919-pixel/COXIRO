@@ -9,7 +9,7 @@ import { passwordValida, PASSWORD_MIN } from "@/lib/password";
 export default function RegistroForm({
   searchParams,
 }: {
-  searchParams: { error?: string; ["check-email"]?: string; ref?: string; role?: string };
+  searchParams: { error?: string; ["check-email"]?: string; ref?: string; role?: string; slug?: string };
 }) {
   const [role, setRole] = useState<"provider" | "client">(
     searchParams.role === "client" ? "client" : "provider"
@@ -86,6 +86,7 @@ export default function RegistroForm({
               <input
                 type="text"
                 name="business_name"
+                defaultValue={searchParams.slug ?? ""}
                 placeholder="Nombre de tu negocio (opcional)"
                 className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
               />

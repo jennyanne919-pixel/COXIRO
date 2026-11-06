@@ -1,7 +1,7 @@
-import Logo from "@/components/Logo";
-import HeroSection from "@/components/HeroSection";
 import WaitlistForm from "@/components/WaitlistForm";
-import EntraMenu from "@/components/EntraMenu";
+import Banner from "@/components/home/Banner";
+import SiteHeader from "@/components/home/SiteHeader";
+import Hero from "@/components/home/Hero";
 import { createClient } from "@/lib/supabase/server";
 
 const AUDIENCE = [
@@ -36,185 +36,20 @@ export default async function LandingPage() {
   } = await supabase.auth.getUser();
 
   let nombreUsuario: string | null = null;
-  let esVendedor = false;
   if (user) {
     const { data: profile } = await supabase
       .from("users")
-      .select("full_name, role")
+      .select("full_name")
       .eq("id", user.id)
       .single();
     nombreUsuario = profile?.full_name?.split(" ")[0] ?? "Mi panel";
-    esVendedor = profile?.role === "provider";
   }
 
   return (
     <main>
-      {/* Banner deslizante de anuncios */}
-      <div className="bg-cx-noche text-white overflow-hidden py-3 text-sm font-medium whitespace-nowrap">
-        <div className="inline-flex animate-marquee">
-          {[...Array(2)].map((_, i) => (
-            <span key={i} className="flex items-center gap-8 px-4">
-              <span>🚀 Coxiro es para todo profesional que pueda vender sus servicios o infoproductos online</span>
-              <span className="text-cx-prof">•</span>
-              <span>📈 Hasta un 10% más de margen en tus ventas a clientes particulares</span>
-              <span className="text-cx-prof">•</span>
-              <span>🧾 Olvídate de la factura — nosotros la emitimos por ti, automáticamente</span>
-              <span className="text-cx-prof">•</span>
-              <span>📦 Aloja tus cursos, mentorías y contenido, todo en un mismo sitio</span>
-              <span className="text-cx-prof">•</span>
-              <span>🔒 Cobros seguros con Stripe, domiciliación SEPA disponible</span>
-              <span className="text-cx-prof">•</span>
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <header className="sticky top-0 z-50 bg-cx-hielo/90 backdrop-blur border-b border-cx-borde">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-8 py-3 gap-6">
-          <a href="/" className="flex-shrink-0">
-            <Logo variant="light" />
-          </a>
-
-          <nav className="hidden lg:flex items-center gap-4 xl:gap-6 text-sm font-medium text-cx-texto-2 flex-1 justify-center min-w-0">
-            <a href="/catalogo" className="hover:text-cx-texto whitespace-nowrap">Productos digitales</a>
-            {!nombreUsuario && (
-            <div className="relative group">
-              <button className="hover:text-cx-texto whitespace-nowrap">Herramientas</button>
-              <div className="absolute left-0 top-full hidden group-hover:block bg-white border border-cx-borde rounded-lg shadow-lg py-2 min-w-[220px] z-50">
-                <a href="/herramientas/publica-tu-contenido" className="block px-4 py-2 text-sm hover:bg-cx-hielo">Publica tu contenido / servicio</a>
-                {!nombreUsuario && (
-                  <>
-                    <a href="/herramientas/dashboard" className="block px-4 py-2 text-sm hover:bg-cx-hielo">Dashboard</a>
-                    <a href="/herramientas/pasarela-de-pagos" className="block px-4 py-2 text-sm hover:bg-cx-hielo">Pasarela de pagos</a>
-                    <a href="/herramientas/suscripciones" className="block px-4 py-2 text-sm hover:bg-cx-hielo">Suscripciones y pagos recurrentes</a>
-                  </>
-                )}
-              </div>
-            </div>
-            )}
-            <a href="#para-quien" className="hover:text-cx-texto whitespace-nowrap">Para quién</a>
-            {(!nombreUsuario || esVendedor) && (
-              <a href="#como-funciona" className="hover:text-cx-texto whitespace-nowrap">Cómo funciona</a>
-            )}
-            <a href="/registro?role=provider" className="hover:text-cx-texto whitespace-nowrap">Vender producto</a>
-            <a href="/herramientas/partners" className="hover:text-cx-texto whitespace-nowrap">Partners</a>
-            <a href="/ayuda" className="hover:text-cx-texto whitespace-nowrap">Ayuda</a>
-          </nav>
-
-          <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
-            {nombreUsuario ? (
-              <a
-                href="/dashboard"
-                className="rounded-full bg-cx-celeste px-5 py-2.5 text-sm font-semibold text-cx-noche hover:brightness-105 transition whitespace-nowrap"
-              >
-                Hola, {nombreUsuario} · Mi panel
-              </a>
-            ) : (
-              <>
-                <EntraMenu />
-                <a
-                  href="/registro"
-                  className="rounded-full bg-cx-celeste px-5 py-2.5 text-sm font-semibold text-cx-noche hover:brightness-105 transition whitespace-nowrap"
-                >
-                  Regístrate
-                </a>
-              </>
-            )}
-          </div>
-
-          <details className="lg:hidden relative">
-            <summary className="list-none cursor-pointer w-9 h-9 flex items-center justify-center rounded-lg border border-cx-borde">
-              <span className="sr-only">Menú</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </summary>
-            <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-cx-borde rounded-lg shadow-lg py-2 flex flex-col">
-              {nombreUsuario ? (
-                <a href="/dashboard" className="px-4 py-2.5 text-sm font-semibold text-cx-prof">
-                  Hola, {nombreUsuario} · Mi panel
-                </a>
-              ) : (
-                <>
-                  <a href="/registro" className="px-4 py-2.5 text-sm font-semibold text-cx-prof">Regístrate</a>
-                  <a href="/login" className="px-4 py-2.5 text-sm font-semibold">Acceder a mis compras</a>
-                  <a href="/login" className="px-4 py-2.5 text-sm font-semibold">Gestionar mi negocio</a>
-                </>
-              )}
-              <div className="border-t border-cx-borde my-1" />
-              <a href="/catalogo" className="px-4 py-2.5 text-sm">Productos digitales</a>
-              {!nombreUsuario && (
-                <>
-                <a href="/herramientas/publica-tu-contenido" className="px-4 py-2.5 text-sm">Publica tu contenido / servicio</a>
-                {!nombreUsuario && (
-                  <>
-                    <a href="/herramientas/dashboard" className="px-4 py-2.5 text-sm">Dashboard</a>
-                    <a href="/herramientas/pasarela-de-pagos" className="px-4 py-2.5 text-sm">Pasarela de pagos</a>
-                    <a href="/herramientas/suscripciones" className="px-4 py-2.5 text-sm">Suscripciones y pagos recurrentes</a>
-                  </>
-                )}
-                <div className="border-t border-cx-borde my-1" />
-                <a href="#para-quien" className="px-4 py-2.5 text-sm">Para quién</a>
-                </>
-              )}
-              {(!nombreUsuario || esVendedor) && (
-                <a href="#como-funciona" className="px-4 py-2.5 text-sm">Cómo funciona</a>
-              )}
-              <a href="/catalogo" className="px-4 py-2.5 text-sm">Comprar producto</a>
-              <a href="/registro?role=provider" className="px-4 py-2.5 text-sm">Vender producto</a>
-              <a href="/herramientas/partners" className="px-4 py-2.5 text-sm">Partners</a>
-              <a href="/ayuda" className="px-4 py-2.5 text-sm">Ayuda</a>
-            </div>
-          </details>
-        </div>
-      </header>
-
-      <HeroSection className="relative overflow-hidden bg-cx-noche text-white py-28 md:py-36">
-        <div className="max-w-5xl mx-auto px-8 max-w-xl">
-          <span className="text-xs font-semibold uppercase tracking-wider text-cx-celeste">
-            La infraestructura para profesionales digitales
-          </span>
-          <h1 className="font-display font-semibold text-4xl md:text-5xl leading-tight mt-5 mb-5">
-            Vende tus servicios online en España a clientes particulares y
-            gana hasta un 10% más desde tu primera venta.
-          </h1>
-          <p className="text-base text-white/60 max-w-md mb-4">
-            Sin cuotas mensuales, sin letra pequeña: aplicado automáticamente
-            en cada venta a clientes particulares.
-          </p>
-          <p className="text-sm text-cx-texto-osc-2 max-w-md mb-9">
-            Infoproductos · Mentorías privadas · Cursos online · Servicios de
-            IA a medida · Consultoría · Cualquier formación o servicio que
-            pueda prestarse online
-          </p>
-          <div className="flex items-center gap-5 flex-wrap">
-            <a
-              href="/registro"
-              className="rounded-full bg-cx-celeste px-8 py-4 text-base font-semibold hover:brightness-105 transition text-cx-noche"
-            >
-              Quiero vender
-            </a>
-            <a
-              href="/catalogo"
-              className="text-sm text-white/60 underline decoration-white/30 hover:text-white hover:decoration-white transition"
-            >
-              ¿Buscas comprar? →
-            </a>
-          </div>
-        </div>
-
-        {/* Diagrama de 3 pasos, justo debajo del hero */}
-        <div className="max-w-5xl mx-auto px-8 mt-16 pt-10 border-t border-white/10">
-          <p className="text-sm text-white/60 flex flex-wrap items-center gap-2">
-            <span className="text-white font-medium">Sube tu contenido</span>
-            <span className="text-cx-celeste">→</span>
-            <span className="text-white font-medium">Fija tu precio</span>
-            <span className="text-cx-celeste">→</span>
-            <span className="text-white font-medium">Cobra sin gestión</span>
-            <span className="text-white/50">(factura automática)</span>
-          </p>
-        </div>
-      </HeroSection>
+      <Banner />
+      <SiteHeader nombreUsuario={nombreUsuario} />
+      <Hero />
 
       <section id="para-quien" className="py-24 max-w-5xl mx-auto px-8">
         <div className="max-w-lg mb-14">
