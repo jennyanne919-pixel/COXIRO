@@ -1,0 +1,86 @@
+diff --git a/app/api/checkout/route.ts b/app/api/checkout/route.ts
+index a02e2f0..222f344 100644
+--- a/app/api/checkout/route.ts
++++ b/app/api/checkout/route.ts
+@@ -76,7 +76,8 @@ export async function GET(request: Request) {
+ 
+   // Modelo económico (ver lib/pricing.ts): el precio del servicio es la
+   // base sin IVA; el cliente paga base + 21 % de IVA; Coxiro retiene
+-  // comisión + IPSI y el resto va al profesional.
++  // comisión + IPSI + ajuste del IPSI (11 % de la base con comisión 10 %)
++  // y el resto va al profesional.
+   const precios = calcularPrecios(Number(service.price), Number(provider.commission_rate));
+   const amountCents = precios.totalCents;
+   const feeCents = precios.feeCents;
+diff --git a/lib/payment-processing.ts b/lib/payment-processing.ts
+index 16f7ba7..e6a428b 100644
+--- a/lib/payment-processing.ts
++++ b/lib/payment-processing.ts
+@@ -72,8 +72,11 @@ export async function processPayment(params: {
+   ]);
+ 
+   // PENDIENTE DE CONFIRMAR con el asesor fiscal -- IPSI 0.5% solo en
+-  // la factura al cliente; autofactura al proveedor sin impuesto,
+-  // por el neto (art. 5 RD 1619/2012, confirmado con el asesor).
++  // la factura al cliente (sin mostrarlo en el PDF); autofactura al
++  // proveedor sin impuesto, por el neto (art. 5 RD 1619/2012, confirmado
++  // con el asesor). platformFee ya incluye comisión + IPSI + el punto con
++  // el que Coxiro asume el IPSI (ver lib/pricing.ts), así que el neto del
++  // proveedor sale como precio base + 10 % cuando la comisión es del 10 %.
+   const TAX_RATE_CLIENTE = 0.5;
+   const TAX_RATE_PROVEEDOR = 0;
+   const netoProveedor = amountTotal - platformFee;
+diff --git a/lib/pricing.ts b/lib/pricing.ts
+index 89c9cc9..f6e3571 100644
+--- a/lib/pricing.ts
++++ b/lib/pricing.ts
+@@ -3,21 +3,28 @@
+ // El profesional fija el PRECIO BASE de su servicio (sin IVA). Ejemplo,
+ // servicio de 1.000 €:
+ //   - El cliente paga 1.000 + 21 % de IVA = 1.210 €
+-//   - Coxiro retiene su comisión (10 % del precio base = 100 €) más el
+-//     IPSI de la operación (0,5 % del precio base = 5 €) = 105 €
+-//   - El profesional recibe 1.210 - 105 = 1.105 €
++//   - Coxiro retiene 110 € (11 % del precio base): su comisión del 10 %
++//     (100 €), más el IPSI de la operación (0,5 % = 5 €) y otro 0,5 %
++//     (5 €) con el que Coxiro asume el coste del IPSI. Coxiro paga
++//     el IPSI y se queda con un 10,5 % neto (105 €).
++//   - El profesional recibe 1.210 - 110 = 1.100 € (exactamente un 10 %
++//     más que el precio base).
+ //
+ // Todo se calcula en céntimos enteros para no arrastrar decimales.
+ 
+ export const IVA_PORCENTAJE = 21;
+ export const IPSI_PORCENTAJE = 0.5;
++// Punto adicional que Coxiro retiene para asumir ella el IPSI, de modo que
++// la comisión de Coxiro (10 %) no se vea reducida por ese impuesto.
++export const IPSI_ASUMIDO_PORCENTAJE = 0.5;
+ 
+ export type Precios = {
+   baseCents: number; // precio fijado por el profesional (sin IVA)
+   totalCents: number; // lo que paga el cliente (IVA incluido)
+   comisionCents: number; // comisión de Coxiro
+-  ipsiCents: number; // IPSI de la operación
+-  feeCents: number; // lo que retiene Coxiro (comisión + IPSI)
++  ipsiCents: number; // IPSI de la operación (lo paga Coxiro)
++  ipsiAsumidoCents: number; // punto extra que retiene Coxiro por asumir el IPSI
++  feeCents: number; // lo que retiene Coxiro (comisión + IPSI + ajuste)
+   netoProveedorCents: number; // lo que recibe el profesional
+ };
+ 
+@@ -29,12 +36,14 @@ export function calcularPrecios(precioBase: number, comisionPorcentaje: number):
+   const totalCents = Math.round((baseExacta * (100 + IVA_PORCENTAJE)) / 100);
+   const comisionCents = Math.round((baseExacta * comisionPorcentaje) / 100);
+   const ipsiCents = Math.round((baseExacta * IPSI_PORCENTAJE) / 100);
+-  const feeCents = comisionCents + ipsiCents;
++  const ipsiAsumidoCents = Math.round((baseExacta * IPSI_ASUMIDO_PORCENTAJE) / 100);
++  const feeCents = comisionCents + ipsiCents + ipsiAsumidoCents;
+   return {
+     baseCents,
+     totalCents,
+     comisionCents,
+     ipsiCents,
++    ipsiAsumidoCents,
+     feeCents,
+     netoProveedorCents: totalCents - feeCents,
+   };

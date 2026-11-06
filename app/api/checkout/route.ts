@@ -76,7 +76,8 @@ export async function GET(request: Request) {
 
   // Modelo económico (ver lib/pricing.ts): el precio del servicio es la
   // base sin IVA; el cliente paga base + 21 % de IVA; Coxiro retiene
-  // comisión + IPSI y el resto va al profesional.
+  // comisión + IPSI + ajuste del IPSI (11 % de la base con comisión 10 %)
+  // y el resto va al profesional.
   const precios = calcularPrecios(Number(service.price), Number(provider.commission_rate));
   const amountCents = precios.totalCents;
   const feeCents = precios.feeCents;

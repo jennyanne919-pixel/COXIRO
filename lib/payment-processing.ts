@@ -72,8 +72,11 @@ export async function processPayment(params: {
   ]);
 
   // PENDIENTE DE CONFIRMAR con el asesor fiscal -- IPSI 0.5% solo en
-  // la factura al cliente; autofactura al proveedor sin impuesto,
-  // por el neto (art. 5 RD 1619/2012, confirmado con el asesor).
+  // la factura al cliente (sin mostrarlo en el PDF); autofactura al
+  // proveedor sin impuesto, por el neto (art. 5 RD 1619/2012, confirmado
+  // con el asesor). platformFee ya incluye comisión + IPSI + el punto con
+  // el que Coxiro asume el IPSI (ver lib/pricing.ts), así que el neto del
+  // proveedor sale como precio base + 10 % cuando la comisión es del 10 %.
   const TAX_RATE_CLIENTE = 0.5;
   const TAX_RATE_PROVEEDOR = 0;
   const netoProveedor = amountTotal - platformFee;

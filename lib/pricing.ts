@@ -3,21 +3,28 @@
 // El profesional fija el PRECIO BASE de su servicio (sin IVA). Ejemplo,
 // servicio de 1.000 €:
 //   - El cliente paga 1.000 + 21 % de IVA = 1.210 €
-//   - Coxiro retiene su comisión (10 % del precio base = 100 €) más el
-//     IPSI de la operación (0,5 % del precio base = 5 €) = 105 €
-//   - El profesional recibe 1.210 - 105 = 1.105 €
+//   - Coxiro retiene 110 € (11 % del precio base): su comisión del 10 %
+//     (100 €), más el IPSI de la operación (0,5 % = 5 €) y otro 0,5 %
+//     (5 €) con el que Coxiro asume el coste del IPSI. Coxiro paga
+//     el IPSI y se queda con un 10,5 % neto (105 €).
+//   - El profesional recibe 1.210 - 110 = 1.100 € (exactamente un 10 %
+//     más que el precio base).
 //
 // Todo se calcula en céntimos enteros para no arrastrar decimales.
 
 export const IVA_PORCENTAJE = 21;
 export const IPSI_PORCENTAJE = 0.5;
+// Punto adicional que Coxiro retiene para asumir ella el IPSI, de modo que
+// la comisión de Coxiro (10 %) no se vea reducida por ese impuesto.
+export const IPSI_ASUMIDO_PORCENTAJE = 0.5;
 
 export type Precios = {
   baseCents: number; // precio fijado por el profesional (sin IVA)
   totalCents: number; // lo que paga el cliente (IVA incluido)
   comisionCents: number; // comisión de Coxiro
-  ipsiCents: number; // IPSI de la operación
-  feeCents: number; // lo que retiene Coxiro (comisión + IPSI)
+  ipsiCents: number; // IPSI de la operación (lo paga Coxiro)
+  ipsiAsumidoCents: number; // punto extra que retiene Coxiro por asumir el IPSI
+  feeCents: number; // lo que retiene Coxiro (comisión + IPSI + ajuste)
   netoProveedorCents: number; // lo que recibe el profesional
 };
 
@@ -29,12 +36,14 @@ export function calcularPrecios(precioBase: number, comisionPorcentaje: number):
   const totalCents = Math.round((baseExacta * (100 + IVA_PORCENTAJE)) / 100);
   const comisionCents = Math.round((baseExacta * comisionPorcentaje) / 100);
   const ipsiCents = Math.round((baseExacta * IPSI_PORCENTAJE) / 100);
-  const feeCents = comisionCents + ipsiCents;
+  const ipsiAsumidoCents = Math.round((baseExacta * IPSI_ASUMIDO_PORCENTAJE) / 100);
+  const feeCents = comisionCents + ipsiCents + ipsiAsumidoCents;
   return {
     baseCents,
     totalCents,
     comisionCents,
     ipsiCents,
+    ipsiAsumidoCents,
     feeCents,
     netoProveedorCents: totalCents - feeCents,
   };
