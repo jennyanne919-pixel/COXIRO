@@ -17,6 +17,10 @@ export async function updateBio(formData: FormData) {
 
   const bio = formData.get("bio") as string;
   const cambios: { bio: string; avatar_url?: string } = { bio };
+  const promesa = String(formData.get("promesa") ?? "").trim().slice(0, 140);
+  const chips = [1, 2, 3]
+    .map((n) => String(formData.get(`chip${n}`) ?? "").trim().slice(0, 28))
+    .filter(Boolean);
   let errorFoto = false;
 
   const avatar = formData.get("avatar") as File | null;
@@ -45,7 +49,16 @@ export async function updateBio(formData: FormData) {
     }
   }
 
-  await supabase.from("providers").update(cambios).eq("user_id", user.id);
+  // promesa y chips llegan con supabase/add-provider-promesa-chips.sql;
+  // si esas columnas aún no existen, se guarda al menos lo de siempre.
+  const { error: errorExtra } = await supabase
+    .from("providers")
+    .update({ ...cambios, promesa: promesa || null, chips: chips.length ? chips : null })
+    .eq("user_id", user.id);
+  if (errorExtra) {
+    console.error("[updateBio] Guardando sin promesa/chips:", errorExtra.message);
+    await supabase.from("providers").update(cambios).eq("user_id", user.id);
+  }
 
   revalidatePath("/dashboard/perfil");
   redirect(

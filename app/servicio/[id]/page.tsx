@@ -285,11 +285,11 @@ export default async function ServicioPage({
 
         {/* Columna lateral: tarjeta de compra, fija al hacer scroll en escritorio */}
         <div className="md:sticky md:top-6 h-fit">
-          <div className="rounded-lg bg-white border border-cx-borde p-6">
+          <div className="rounded-[28px] bg-white border border-cx-borde p-6 md:p-7 shadow-[0_20px_50px_-28px_rgba(8,35,70,.3)]">
             {!service.requires_inquiry && (
               <div className="mb-4">
-                <p className="text-3xl font-display font-semibold">
-                  {totalCliente(Number(service.price)).toFixed(2)} €
+                <p className="text-4xl font-display font-bold text-cx-prof">
+                  {totalCliente(Number(service.price)).toFixed(2).replace(".", ",")} €
                   {service.type === "membership" && (
                     <span className="text-base font-normal text-cx-texto-2">
                       {" "}
@@ -297,7 +297,10 @@ export default async function ServicioPage({
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-cx-texto-2 mt-1">Impuestos incluidos</p>
+                <p className="text-xs text-cx-texto-2 mt-1">
+                  Impuestos incluidos
+                  {service.type === "membership" && service.total_installments ? ` · ${service.total_installments} plazos` : ""}
+                </p>
                 {service.type === "membership" && (
                   <p className="text-xs text-cx-texto-2 mt-1">
                     {service.total_installments
@@ -315,13 +318,13 @@ export default async function ServicioPage({
                 </p>
                 <a
                   href="/dashboard/contenido"
-                  className="block text-center rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition"
+                  className="block text-center rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition"
                 >
                   Ver mi contenido
                 </a>
                 <a
                   href="/catalogo"
-                  className="block text-center rounded-lg border border-cx-borde text-cx-texto font-semibold text-sm py-3 hover:border-cx-noche transition"
+                  className="block text-center rounded-full border-[1.5px] border-cx-noche text-cx-noche font-semibold py-3 hover:bg-cx-hielo transition"
                 >
                   Descubrir más servicios
                 </a>
@@ -345,33 +348,38 @@ export default async function ServicioPage({
                     name="name"
                     required
                     placeholder="Tu nombre"
-                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
+                    className="rounded-xl border border-cx-borde bg-white px-4 py-3 text-sm"
                   />
                   <input
                     type="email"
                     name="email"
                     required
                     placeholder="tu@email.com"
-                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
+                    className="rounded-xl border border-cx-borde bg-white px-4 py-3 text-sm"
                   />
                   <textarea
                     name="message"
                     rows={3}
                     placeholder="Cuéntanos qué necesitas"
-                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
+                    className="rounded-xl border border-cx-borde bg-white px-4 py-3 text-sm"
                   />
-                  <button className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition">
+                  <button className="rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition">
                     {service.inquiry_url ? "Cuéntanos tu proyecto" : "Solicitar información"}
                   </button>
                 </form>
               )
             ) : (
-              <a
-                href={`/api/checkout?service=${service.id}`}
-                className="block text-center rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition"
-              >
-                Pagar y contratar
-              </a>
+              <>
+                <a
+                  href={`/api/checkout?service=${service.id}`}
+                  className="block text-center rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition"
+                >
+                  Pagar {totalCliente(Number(service.price)).toFixed(2).replace(".", ",")} €
+                </a>
+                <p className="text-xs text-cx-texto-2 text-center mt-4">
+                  Sin crear cuenta · Pago seguro con Stripe · Factura en tu email
+                </p>
+              </>
             )}
           </div>
         </div>

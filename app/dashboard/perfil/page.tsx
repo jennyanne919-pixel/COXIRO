@@ -31,11 +31,23 @@ export default async function PerfilPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: provider } = await supabase
-    .from("providers")
-    .select("business_name, bio, slug, avatar_url, stripe_account_id, kyc_status")
-    .eq("user_id", user?.id ?? "")
-    .single();
+  let provider: any = null;
+  {
+    const r = await supabase
+      .from("providers")
+      .select("business_name, bio, slug, avatar_url, stripe_account_id, kyc_status, promesa, chips")
+      .eq("user_id", user?.id ?? "")
+      .single();
+    provider = r.data;
+    if (!provider) {
+      const r2 = await supabase
+        .from("providers")
+        .select("business_name, bio, slug, avatar_url, stripe_account_id, kyc_status")
+        .eq("user_id", user?.id ?? "")
+        .single();
+      provider = r2.data;
+    }
+  }
 
   // Si el usuario confirmó un cambio de email, el login (Supabase Auth)
   // ya tiene el email nuevo pero public.users todavía el viejo. Se
@@ -126,6 +138,35 @@ export default async function PerfilPage({
                   : "JPG, PNG o WebP, máximo 4 MB."}
               </p>
             </div>
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-cx-texto-2 block mb-1">
+            Tu promesa en una frase (máx. 140 caracteres)
+          </label>
+          <input
+            name="promesa"
+            maxLength={140}
+            defaultValue={provider?.promesa ?? ""}
+            placeholder="Ayudo a creadores a vender su primer curso en 30 días"
+            className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-cx-texto-2 block mb-1">
+            Hasta 3 datos que generen confianza (ej. «+800 alumnos», «Madrid»)
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {[0, 1, 2].map((i) => (
+              <input
+                key={i}
+                name={`chip${i + 1}`}
+                maxLength={28}
+                defaultValue={provider?.chips?.[i] ?? ""}
+                aria-label={`Dato ${i + 1}`}
+                className="w-full rounded-lg border border-cx-borde bg-white px-3 py-2 text-sm"
+              />
+            ))}
           </div>
         </div>
         <div>

@@ -1,0 +1,460 @@
+diff --git a/app/[slug]/page.tsx b/app/[slug]/page.tsx
+index 967d37f..dff83bc 100644
+--- a/app/[slug]/page.tsx
++++ b/app/[slug]/page.tsx
+@@ -1,8 +1,33 @@
+ import { createAdminClient } from "@/lib/supabase/admin";
+ import Logo from "@/components/Logo";
++import ShareButton from "@/components/ShareButton";
+ import { notFound } from "next/navigation";
+ import { totalCliente } from "@/lib/pricing";
+ 
++function detalle(s: {
++  type: string | null;
++  billing_interval: string | null;
++  total_installments: number | null;
++  requires_inquiry: boolean | null;
++}) {
++  if (s.requires_inquiry) return "A medida, bajo consulta";
++  if (s.type === "membership") {
++    const anual = s.billing_interval === "year";
++    return s.total_installments
++      ? `${s.total_installments} plazos ${anual ? "anuales" : "mensuales"}`
++      : `Suscripción ${anual ? "anual" : "mensual"}`;
++  }
++  return "Pago único";
++}
++
++const iniciales = (n: string) =>
++  n
++    .split(/\s+/)
++    .filter(Boolean)
++    .slice(0, 2)
++    .map((p) => p[0]?.toUpperCase())
++    .join("");
++
+ export default async function PerfilProfesionalPage({
+   params,
+ }: {
+@@ -14,11 +39,25 @@ export default async function PerfilProfesionalPage({
+   // seguras (nunca stripe_account_id ni tax_id).
+   const supabase = createAdminClient();
+ 
+-  const { data: provider } = await supabase
+-    .from("providers")
+-    .select("user_id, business_name, category, kyc_status")
+-    .eq("slug", slug)
+-    .single();
++  // Las columnas promesa/chips llegan con supabase/add-provider-promesa-chips.sql.
++  // Si todavía no existen, se cae al select anterior para no romper el perfil.
++  let provider: any = null;
++  {
++    const r = await supabase
++      .from("providers")
++      .select("user_id, business_name, category, kyc_status, bio, avatar_url, promesa, chips")
++      .eq("slug", slug)
++      .single();
++    provider = r.data;
++    if (r.error && !r.data) {
++      const r2 = await supabase
++        .from("providers")
++        .select("user_id, business_name, category, kyc_status, bio, avatar_url")
++        .eq("slug", slug)
++        .single();
++      provider = r2.data;
++    }
++  }
+ 
+   if (!provider) {
+     notFound();
+@@ -26,46 +65,85 @@ export default async function PerfilProfesionalPage({
+ 
+   const { data: services } = await supabase
+     .from("services")
+-    .select("id, title, description, price, currency, type")
++    .select("id, title, description, price, currency, type, image_url, billing_interval, total_installments, requires_inquiry")
+     .eq("provider_id", provider.user_id)
+     .eq("is_active", true)
+     .order("created_at", { ascending: false });
+ 
++  const principal = services?.[0];
++  const especialidad = provider.category
++    ? String(provider.category).charAt(0).toUpperCase() + String(provider.category).slice(1)
++    : null;
++  const chips: string[] = (provider.chips ?? []).filter(Boolean).slice(0, 3);
++
+   return (
+-    <main className="min-h-screen bg-cx-hielo">
+-      <header className="px-8 py-5">
+-        <Logo />
++    <main className="min-h-screen bg-white pb-28">
++      <header className="bg-cx-noche h-44 px-5 pt-4">
++        <div className="max-w-xl mx-auto flex items-center justify-between">
++          <a href="/" aria-label="Coxiro">
++            <Logo variant="dark" size={14} />
++          </a>
++          <ShareButton titulo={provider.business_name} />
++        </div>
+       </header>
+ 
+-      <div className="max-w-2xl mx-auto px-6 py-10">
+-        <p className="text-xs text-cx-texto-2 uppercase tracking-wide font-semibold mb-2">
+-          {provider.category ?? "Profesional en Coxiro"}
+-        </p>
+-        <h1 className="text-3xl font-display font-semibold mb-8">
+-          {provider.business_name}
+-        </h1>
++      <div className="max-w-xl mx-auto px-5">
++        <div className="-mt-14 flex flex-col items-center text-center">
++          {provider.avatar_url ? (
++            <img
++              src={provider.avatar_url}
++              alt={`Foto de ${provider.business_name}`}
++              className="w-28 h-28 rounded-full object-cover border-4 border-white bg-cx-hielo"
++            />
++          ) : (
++            <div
++              className="w-28 h-28 rounded-full border-4 border-white bg-cx-hielo text-cx-prof font-display font-bold text-3xl flex items-center justify-center"
++              aria-hidden="true"
++            >
++              {iniciales(provider.business_name)}
++            </div>
++          )}
++          <h1 className="font-display font-bold text-[28px] leading-tight text-cx-noche mt-4">
++            {provider.business_name}
++          </h1>
++          {especialidad && <p className="text-cx-prof font-semibold mt-1">{especialidad}</p>}
++          {provider.promesa && (
++            <p className="text-cx-texto mt-3 max-w-md">{provider.promesa}</p>
++          )}
++          {chips.length > 0 && (
++            <ul className="flex flex-wrap justify-center gap-2 mt-4">
++              {chips.map((c) => (
++                <li key={c} className="rounded-full bg-cx-hielo text-cx-prof text-sm font-semibold px-3.5 py-1.5">
++                  {c}
++                </li>
++              ))}
++            </ul>
++          )}
++        </div>
+ 
+-        <p className="text-xs text-cx-texto-2 uppercase tracking-wide font-semibold mb-3">
+-          Servicios disponibles
+-        </p>
++        {provider.bio && (
++          <p className="text-sm text-cx-texto-2 mt-6 whitespace-pre-line leading-relaxed">{provider.bio}</p>
++        )}
+ 
++        <h2 className="font-display font-bold text-xl text-cx-noche mt-9 mb-3">Lo que ofrezco</h2>
+         <div className="grid gap-3">
+           {services?.map((s) => (
+             <a
+               key={s.id}
+               href={`/servicio/${s.id}`}
+-              className="flex items-center justify-between rounded-lg bg-white border border-cx-borde px-5 py-4 hover:border-cx-celeste transition"
++              className="flex items-center gap-4 rounded-2xl border border-cx-borde bg-white p-3 hover:border-cx-celeste transition"
+             >
+-              <div>
+-                <p className="font-medium">{s.title}</p>
+-                {s.description && (
+-                  <p className="text-sm text-cx-texto-2 mt-0.5 line-clamp-1">
+-                    {s.description}
+-                  </p>
+-                )}
++              {s.image_url ? (
++                <img src={s.image_url} alt="" className="w-[72px] h-[72px] rounded-xl object-cover flex-shrink-0" />
++              ) : (
++                <div className="w-[72px] h-[72px] rounded-xl bg-cx-hielo flex-shrink-0" aria-hidden="true" />
++              )}
++              <div className="min-w-0 flex-1">
++                <p className="font-semibold text-cx-noche leading-snug line-clamp-2">{s.title}</p>
++                <p className="text-xs text-cx-texto-2 mt-0.5">{detalle(s)}</p>
+               </div>
+-              <p className="font-display font-semibold whitespace-nowrap ml-4">
+-                {totalCliente(Number(s.price)).toFixed(2)} €
++              <p className="font-display font-bold text-cx-prof whitespace-nowrap">
++                {s.requires_inquiry ? "Consultar" : `${totalCliente(Number(s.price)).toFixed(2).replace(".", ",")} €`}
+               </p>
+             </a>
+           ))}
+@@ -75,7 +153,22 @@ export default async function PerfilProfesionalPage({
+             </p>
+           )}
+         </div>
++
++        <p className="text-center text-xs text-cx-texto-2 mt-10">
++          Cobros y facturas con <a href="/" className="text-cx-prof hover:underline">Coxiro</a>
++        </p>
+       </div>
++
++      {principal && (
++        <div className="fixed bottom-0 inset-x-0 z-30 bg-white/95 border-t border-cx-borde px-5 py-3">
++          <a
++            href={`/servicio/${principal.id}`}
++            className="block max-w-xl mx-auto text-center truncate px-6 rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition"
++          >
++            {principal.requires_inquiry ? "Solicitar información" : `Contratar: ${principal.title}`}
++          </a>
++        </div>
++      )}
+     </main>
+   );
+ }
+diff --git a/app/dashboard/perfil/actions.ts b/app/dashboard/perfil/actions.ts
+index ce0e043..3537949 100644
+--- a/app/dashboard/perfil/actions.ts
++++ b/app/dashboard/perfil/actions.ts
+@@ -17,6 +17,10 @@ export async function updateBio(formData: FormData) {
+ 
+   const bio = formData.get("bio") as string;
+   const cambios: { bio: string; avatar_url?: string } = { bio };
++  const promesa = String(formData.get("promesa") ?? "").trim().slice(0, 140);
++  const chips = [1, 2, 3]
++    .map((n) => String(formData.get(`chip${n}`) ?? "").trim().slice(0, 28))
++    .filter(Boolean);
+   let errorFoto = false;
+ 
+   const avatar = formData.get("avatar") as File | null;
+@@ -45,7 +49,16 @@ export async function updateBio(formData: FormData) {
+     }
+   }
+ 
+-  await supabase.from("providers").update(cambios).eq("user_id", user.id);
++  // promesa y chips llegan con supabase/add-provider-promesa-chips.sql;
++  // si esas columnas aún no existen, se guarda al menos lo de siempre.
++  const { error: errorExtra } = await supabase
++    .from("providers")
++    .update({ ...cambios, promesa: promesa || null, chips: chips.length ? chips : null })
++    .eq("user_id", user.id);
++  if (errorExtra) {
++    console.error("[updateBio] Guardando sin promesa/chips:", errorExtra.message);
++    await supabase.from("providers").update(cambios).eq("user_id", user.id);
++  }
+ 
+   revalidatePath("/dashboard/perfil");
+   redirect(
+diff --git a/app/dashboard/perfil/page.tsx b/app/dashboard/perfil/page.tsx
+index 1d816ce..32b5b0b 100644
+--- a/app/dashboard/perfil/page.tsx
++++ b/app/dashboard/perfil/page.tsx
+@@ -31,11 +31,23 @@ export default async function PerfilPage({
+     data: { user },
+   } = await supabase.auth.getUser();
+ 
+-  const { data: provider } = await supabase
+-    .from("providers")
+-    .select("business_name, bio, slug, avatar_url, stripe_account_id, kyc_status")
+-    .eq("user_id", user?.id ?? "")
+-    .single();
++  let provider: any = null;
++  {
++    const r = await supabase
++      .from("providers")
++      .select("business_name, bio, slug, avatar_url, stripe_account_id, kyc_status, promesa, chips")
++      .eq("user_id", user?.id ?? "")
++      .single();
++    provider = r.data;
++    if (!provider) {
++      const r2 = await supabase
++        .from("providers")
++        .select("business_name, bio, slug, avatar_url, stripe_account_id, kyc_status")
++        .eq("user_id", user?.id ?? "")
++        .single();
++      provider = r2.data;
++    }
++  }
+ 
+   // Si el usuario confirmó un cambio de email, el login (Supabase Auth)
+   // ya tiene el email nuevo pero public.users todavía el viejo. Se
+@@ -128,6 +140,35 @@ export default async function PerfilPage({
+             </div>
+           </div>
+         </div>
++        <div>
++          <label className="text-xs text-cx-texto-2 block mb-1">
++            Tu promesa en una frase (máx. 140 caracteres)
++          </label>
++          <input
++            name="promesa"
++            maxLength={140}
++            defaultValue={provider?.promesa ?? ""}
++            placeholder="Ayudo a creadores a vender su primer curso en 30 días"
++            className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
++          />
++        </div>
++        <div>
++          <label className="text-xs text-cx-texto-2 block mb-1">
++            Hasta 3 datos que generen confianza (ej. «+800 alumnos», «Madrid»)
++          </label>
++          <div className="grid grid-cols-3 gap-2">
++            {[0, 1, 2].map((i) => (
++              <input
++                key={i}
++                name={`chip${i + 1}`}
++                maxLength={28}
++                defaultValue={provider?.chips?.[i] ?? ""}
++                aria-label={`Dato ${i + 1}`}
++                className="w-full rounded-lg border border-cx-borde bg-white px-3 py-2 text-sm"
++              />
++            ))}
++          </div>
++        </div>
+         <div>
+           <label className="text-xs text-cx-texto-2 block mb-1">
+             Sobre ti (aparece en cada servicio que publiques)
+diff --git a/app/servicio/[id]/page.tsx b/app/servicio/[id]/page.tsx
+index 18cb662..3cf44d7 100644
+--- a/app/servicio/[id]/page.tsx
++++ b/app/servicio/[id]/page.tsx
+@@ -285,11 +285,11 @@ export default async function ServicioPage({
+ 
+         {/* Columna lateral: tarjeta de compra, fija al hacer scroll en escritorio */}
+         <div className="md:sticky md:top-6 h-fit">
+-          <div className="rounded-lg bg-white border border-cx-borde p-6">
++          <div className="rounded-[28px] bg-white border border-cx-borde p-6 md:p-7 shadow-[0_20px_50px_-28px_rgba(8,35,70,.3)]">
+             {!service.requires_inquiry && (
+               <div className="mb-4">
+-                <p className="text-3xl font-display font-semibold">
+-                  {totalCliente(Number(service.price)).toFixed(2)} €
++                <p className="text-4xl font-display font-bold text-cx-prof">
++                  {totalCliente(Number(service.price)).toFixed(2).replace(".", ",")} €
+                   {service.type === "membership" && (
+                     <span className="text-base font-normal text-cx-texto-2">
+                       {" "}
+@@ -297,7 +297,10 @@ export default async function ServicioPage({
+                     </span>
+                   )}
+                 </p>
+-                <p className="text-xs text-cx-texto-2 mt-1">Impuestos incluidos</p>
++                <p className="text-xs text-cx-texto-2 mt-1">
++                  Impuestos incluidos
++                  {service.type === "membership" && service.total_installments ? ` · ${service.total_installments} plazos` : ""}
++                </p>
+                 {service.type === "membership" && (
+                   <p className="text-xs text-cx-texto-2 mt-1">
+                     {service.total_installments
+@@ -315,13 +318,13 @@ export default async function ServicioPage({
+                 </p>
+                 <a
+                   href="/dashboard/contenido"
+-                  className="block text-center rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition"
++                  className="block text-center rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition"
+                 >
+                   Ver mi contenido
+                 </a>
+                 <a
+                   href="/catalogo"
+-                  className="block text-center rounded-lg border border-cx-borde text-cx-texto font-semibold text-sm py-3 hover:border-cx-noche transition"
++                  className="block text-center rounded-full border-[1.5px] border-cx-noche text-cx-noche font-semibold py-3 hover:bg-cx-hielo transition"
+                 >
+                   Descubrir más servicios
+                 </a>
+@@ -345,33 +348,38 @@ export default async function ServicioPage({
+                     name="name"
+                     required
+                     placeholder="Tu nombre"
+-                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
++                    className="rounded-xl border border-cx-borde bg-white px-4 py-3 text-sm"
+                   />
+                   <input
+                     type="email"
+                     name="email"
+                     required
+                     placeholder="tu@email.com"
+-                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
++                    className="rounded-xl border border-cx-borde bg-white px-4 py-3 text-sm"
+                   />
+                   <textarea
+                     name="message"
+                     rows={3}
+                     placeholder="Cuéntanos qué necesitas"
+-                    className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
++                    className="rounded-xl border border-cx-borde bg-white px-4 py-3 text-sm"
+                   />
+-                  <button className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition">
++                  <button className="rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition">
+                     {service.inquiry_url ? "Cuéntanos tu proyecto" : "Solicitar información"}
+                   </button>
+                 </form>
+               )
+             ) : (
+-              <a
+-                href={`/api/checkout?service=${service.id}`}
+-                className="block text-center rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-3 hover:brightness-105 transition"
+-              >
+-                Pagar y contratar
+-              </a>
++              <>
++                <a
++                  href={`/api/checkout?service=${service.id}`}
++                  className="block text-center rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition"
++                >
++                  Pagar {totalCliente(Number(service.price)).toFixed(2).replace(".", ",")} €
++                </a>
++                <p className="text-xs text-cx-texto-2 text-center mt-4">
++                  Sin crear cuenta · Pago seguro con Stripe · Factura en tu email
++                </p>
++              </>
+             )}
+           </div>
+         </div>
+diff --git a/components/ShareButton.tsx b/components/ShareButton.tsx
+new file mode 100644
+index 0000000..f2fcf4c
+--- /dev/null
++++ b/components/ShareButton.tsx
+@@ -0,0 +1,36 @@
++"use client";
++
++import { useState } from "react";
++
++// Compartir con el menú del móvil (navigator.share) o, si no existe, copia el enlace.
++export default function ShareButton({ titulo }: { titulo: string }) {
++  const [copiado, setCopiado] = useState(false);
++
++  async function compartir() {
++    const url = window.location.href;
++    try {
++      if (navigator.share) {
++        await navigator.share({ title: titulo, url });
++        return;
++      }
++      await navigator.clipboard.writeText(url);
++      setCopiado(true);
++      setTimeout(() => setCopiado(false), 2000);
++    } catch {
++      /* el usuario cerró el menú de compartir */
++    }
++  }
++
++  return (
++    <button
++      type="button"
++      onClick={compartir}
++      className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/25 text-white text-sm font-semibold px-4 py-2 hover:bg-white/20 transition"
++    >
++      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
++        <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14" />
++      </svg>
++      <span aria-live="polite">{copiado ? "Enlace copiado" : "Compartir"}</span>
++    </button>
++  );
++}
+diff --git a/supabase/add-provider-promesa-chips.sql b/supabase/add-provider-promesa-chips.sql
+new file mode 100644
+index 0000000..1e9867c
+--- /dev/null
++++ b/supabase/add-provider-promesa-chips.sql
+@@ -0,0 +1,12 @@
++-- Fase 5 (perfil público): frase de promesa (máx. 140 caracteres) y hasta
++-- 3 chips de prueba social. Es aditivo: no toca datos existentes.
++alter table providers add column if not exists promesa text;
++alter table providers add column if not exists chips text[];
++
++alter table providers drop constraint if exists providers_promesa_len;
++alter table providers add constraint providers_promesa_len
++  check (promesa is null or char_length(promesa) <= 140);
++
++alter table providers drop constraint if exists providers_chips_max3;
++alter table providers add constraint providers_chips_max3
++  check (chips is null or coalesce(array_length(chips, 1), 0) <= 3);
