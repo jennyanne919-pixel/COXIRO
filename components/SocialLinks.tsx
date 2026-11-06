@@ -52,7 +52,7 @@ const ICONOS: Record<keyof typeof REDES, { nombre: string; ruta: React.ReactNode
   },
 };
 
-export default function SocialLinks({ className = "" }: { className?: string }) {
+export default function SocialLinks({ className = "", oscuro = false }: { className?: string; oscuro?: boolean }) {
   const activas = (Object.keys(REDES) as (keyof typeof REDES)[]).filter((k) => REDES[k]);
   if (activas.length === 0) return null;
   return (
@@ -64,7 +64,7 @@ export default function SocialLinks({ className = "" }: { className?: string }) 
             target="_blank"
             rel="noopener noreferrer"
             aria-label={ICONOS[k].nombre}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-cx-borde text-cx-texto-2 hover:border-cx-celeste hover:text-cx-prof transition"
+            className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${oscuro ? "border-white/25 text-cx-texto-osc-2 hover:border-cx-celeste hover:text-cx-celeste" : "border-cx-borde text-cx-texto-2 hover:border-cx-celeste hover:text-cx-prof"}`}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               {ICONOS[k].ruta}

@@ -1,0 +1,600 @@
+diff --git a/app/page.tsx b/app/page.tsx
+index f4a5db5..9b48661 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -1,4 +1,3 @@
+-import WaitlistForm from "@/components/WaitlistForm";
+ import Banner from "@/components/home/Banner";
+ import SiteHeader from "@/components/home/SiteHeader";
+ import Hero from "@/components/home/Hero";
+@@ -6,17 +5,13 @@ import CintaProfesiones from "@/components/home/CintaProfesiones";
+ import Calculadora from "@/components/home/Calculadora";
+ import ComoFunciona from "@/components/home/ComoFunciona";
+ import FranjaFoto from "@/components/home/FranjaFoto";
++import VistasTabs from "@/components/home/VistasTabs";
++import FuncionesGrid from "@/components/home/FuncionesGrid";
++import FraseGrande from "@/components/home/FraseGrande";
++import { Partners, Faq } from "@/components/home/PartnersFaq";
++import Cierre from "@/components/home/Cierre";
+ import { createClient } from "@/lib/supabase/server";
+ 
+-const FEATURES = [
+-  { title: "Pagos y cobros", body: "Pasarela de pago integrada para cobrar a tus clientes de forma segura.", soon: false },
+-  { title: "Facturación automática", body: "Factura al proveedor y al cliente final en cada cobro, sin intervención manual.", soon: false },
+-  { title: "Área privada de contenido y servicios", body: "Sube tus materiales y tus clientes acceden desde su propio espacio.", soon: false },
+-  { title: "Gestiona tu negocio", body: "Cuánto vendes, quién te compra, qué funciona.", soon: false },
+-  { title: "Automatizaciones", body: "Recordatorios, flujos y emails que hoy haces a mano.", soon: true },
+-  { title: "Inteligencia Artificial", body: "Haz crecer tu alcance y apóyate en la inteligencia artificial para crear y vender mejor.", soon: true },
+-];
+-
+ export default async function LandingPage() {
+   const supabase = await createClient();
+   const {
+@@ -44,53 +39,12 @@ export default async function LandingPage() {
+       <ComoFunciona />
+       <FranjaFoto />
+ 
+-      <section id="incluye" className="py-24 max-w-5xl mx-auto px-8">
+-        <div className="max-w-lg mb-14">
+-          <span className="text-xs font-semibold uppercase tracking-wider text-cx-prof">
+-            Qué incluye desde el día uno
+-          </span>
+-          <h2 className="font-display font-semibold text-3xl mt-3">
+-            Lo esencial para empezar a cobrar esta semana
+-          </h2>
+-        </div>
+-        <div className="grid md:grid-cols-3 gap-5">
+-          {FEATURES.map((f) => (
+-            <div key={f.title} className="rounded-2xl border border-cx-borde bg-white p-7">
+-              <div className="w-10 h-10 rounded-lg bg-cx-noche mb-5" />
+-              <h3 className="text-lg font-medium mb-2">{f.title}</h3>
+-              <p className="text-sm text-cx-texto-2">{f.body}</p>
+-              {f.soon && (
+-                <span className="inline-block mt-3.5 text-[11px] font-semibold uppercase tracking-wide text-cx-texto-2 border border-cx-borde rounded-full px-2.5 py-1">
+-                  Próximamente
+-                </span>
+-              )}
+-            </div>
+-          ))}
+-        </div>
+-      </section>
+-
+-      <section className="bg-cx-noche text-white py-24 text-center">
+-        <p className="font-display text-2xl md:text-3xl font-medium max-w-2xl mx-auto leading-snug px-8">
+-          No somos un curso más, ni una simple pasarela de pago. Somos{" "}
+-          <span className="text-cx-celeste">la infraestructura inteligente</span> que hay
+-          detrás de tu negocio.
+-        </p>
+-      </section>
+-
+-      <section id="acceso" className="py-24 max-w-5xl mx-auto px-8">
+-        <div className="rounded-2xl border border-cx-borde bg-white p-10 md:p-14 flex flex-wrap items-center justify-between gap-8">
+-          <div>
+-            <span className="text-xs font-semibold uppercase tracking-wider text-cx-prof">
+-              Acceso anticipado
+-            </span>
+-            <h2 className="font-display font-semibold text-2xl mt-3 max-w-sm">
+-              Empieza a ganar hasta un 10% más en tus ventas digitales
+-            </h2>
+-          </div>
+-          <WaitlistForm fuente="landing" />
+-        </div>
+-      </section>
+-
++      <VistasTabs />
++      <FuncionesGrid />
++      <FraseGrande />
++      <Partners />
++      <Faq />
++      <Cierre />
+     </main>
+   );
+ }
+diff --git a/components/SiteFooter.tsx b/components/SiteFooter.tsx
+index 0a836a2..07d7099 100644
+--- a/components/SiteFooter.tsx
++++ b/components/SiteFooter.tsx
+@@ -4,20 +4,21 @@ import SocialLinks from "@/components/SocialLinks";
+ // Pie de página común a todas las páginas (se monta en app/layout.tsx).
+ export default function SiteFooter() {
+   return (
+-    <footer className="border-t border-cx-borde bg-cx-hielo py-10">
++    <footer className="bg-cx-noche text-cx-texto-osc-2 py-10">
+       <div className="max-w-5xl mx-auto px-8 flex items-center justify-between flex-wrap gap-6">
+-        <Logo variant="light" size={20} />
++        <Logo variant="dark" size={20} />
+         <nav
+           aria-label="Información legal"
+-          className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-cx-texto-2"
++          className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-cx-texto-osc-2"
+         >
+-          <a href="/terminos" className="hover:text-cx-texto">Términos y condiciones</a>
+-          <a href="/aviso-legal" className="hover:text-cx-texto">Aviso legal y privacidad</a>
+-          <a href="/cookies" className="hover:text-cx-texto">Política de cookies</a>
++          <a href="/terminos" className="hover:text-white">Términos y condiciones</a>
++          <a href="/aviso-legal" className="hover:text-white">Aviso legal y privacidad</a>
++          <a href="/cookies" className="hover:text-white">Política de cookies</a>
+         </nav>
+-        <SocialLinks />
+-        <p className="text-xs text-cx-texto-2 w-full md:w-auto">
+-          © 2026 Coxiro. Todos los derechos reservados.
++        <SocialLinks oscuro />
++        <a href="mailto:coxiro.info@gmail.com" className="text-xs hover:text-white">coxiro.info@gmail.com</a>
++        <p className="text-xs text-cx-texto-osc-2 w-full md:w-auto">
++          © 2026 Coxiro
+         </p>
+       </div>
+     </footer>
+diff --git a/components/SocialLinks.tsx b/components/SocialLinks.tsx
+index 3525a8d..2e5b6f4 100644
+--- a/components/SocialLinks.tsx
++++ b/components/SocialLinks.tsx
+@@ -52,7 +52,7 @@ const ICONOS: Record<keyof typeof REDES, { nombre: string; ruta: React.ReactNode
+   },
+ };
+ 
+-export default function SocialLinks({ className = "" }: { className?: string }) {
++export default function SocialLinks({ className = "", oscuro = false }: { className?: string; oscuro?: boolean }) {
+   const activas = (Object.keys(REDES) as (keyof typeof REDES)[]).filter((k) => REDES[k]);
+   if (activas.length === 0) return null;
+   return (
+@@ -64,7 +64,7 @@ export default function SocialLinks({ className = "" }: { className?: string })
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label={ICONOS[k].nombre}
+-            className="flex h-9 w-9 items-center justify-center rounded-full border border-cx-borde text-cx-texto-2 hover:border-cx-celeste hover:text-cx-prof transition"
++            className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${oscuro ? "border-white/25 text-cx-texto-osc-2 hover:border-cx-celeste hover:text-cx-celeste" : "border-cx-borde text-cx-texto-2 hover:border-cx-celeste hover:text-cx-prof"}`}
+           >
+             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+               {ICONOS[k].ruta}
+diff --git a/components/WaitlistForm.tsx b/components/WaitlistForm.tsx
+index e16203e..995a15a 100644
+--- a/components/WaitlistForm.tsx
++++ b/components/WaitlistForm.tsx
+@@ -25,7 +25,7 @@ const inputFixStyle: React.CSSProperties = {
+   colorScheme: "light",
+ };
+ 
+-export default function WaitlistForm({ fuente = "landing" }: { fuente?: string }) {
++export default function WaitlistForm({ fuente = "landing", oscuro = false }: { fuente?: string; oscuro?: boolean }) {
+   const [enviando, setEnviando] = useState(false);
+   const [resultado, setResultado] = useState<{ success: boolean; error?: string; yaEstaba?: boolean } | null>(null);
+ 
+@@ -41,7 +41,7 @@ export default function WaitlistForm({ fuente = "landing" }: { fuente?: string }
+ 
+   if (resultado?.success) {
+     return (
+-      <p className="text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
++      <p className={oscuro ? "text-sm font-medium text-white bg-white/10 border border-white/25 rounded-lg px-4 py-3" : "text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3"}>
+         {resultado.yaEstaba
+           ? "Ya estabas en la lista — te avisaremos en cuanto abramos."
+           : "¡Apuntado! Te avisaremos en cuanto abramos."}
+@@ -49,6 +49,39 @@ export default function WaitlistForm({ fuente = "landing" }: { fuente?: string }
+     );
+   }
+ 
++  if (oscuro) {
++    const campo = "w-full rounded-xl border border-white/20 px-4 py-3 text-base";
++    const label = "block text-sm font-medium text-white mb-1.5";
++    return (
++      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
++        <div>
++          <label htmlFor="wl-nombre" className={label}>Nombre</label>
++          <input id="wl-nombre" name="nombre" required placeholder="Tu nombre" style={inputFixStyle} className={campo} />
++        </div>
++        <div>
++          <label htmlFor="wl-email" className={label}>Email</label>
++          <input id="wl-email" type="email" name="email" required placeholder="tu@email.com" style={inputFixStyle} className={campo} />
++        </div>
++        <div>
++          <label htmlFor="wl-tipo" className={label}>¿Qué vendes?</label>
++          <select id="wl-tipo" name="tipo_servicio" required defaultValue="" style={inputFixStyle} className={campo}>
++            <option value="" disabled>Elige una opción</option>
++            {TIPOS.map((t) => (
++              <option key={t.value} value={t.value}>{t.label}</option>
++            ))}
++          </select>
++        </div>
++        <button
++          disabled={enviando}
++          className="rounded-full bg-cx-celeste px-6 py-3.5 text-base font-semibold text-cx-noche hover:brightness-105 transition disabled:opacity-50 mt-1"
++        >
++          {enviando ? "Enviando..." : "Quiero acceso"}
++        </button>
++        {resultado?.error && <p className="text-sm text-red-300">{resultado.error}</p>}
++      </form>
++    );
++  }
++
+   return (
+     <form onSubmit={handleSubmit} className="flex gap-2.5 flex-wrap">
+       <input
+diff --git a/components/home/Cierre.tsx b/components/home/Cierre.tsx
+new file mode 100644
+index 0000000..d41e7aa
+--- /dev/null
++++ b/components/home/Cierre.tsx
+@@ -0,0 +1,39 @@
++import Image from "next/image";
++import Reveal from "@/components/Reveal";
++import WaitlistForm from "@/components/WaitlistForm";
++
++export default function Cierre() {
++  return (
++    <section id="acceso" className="bg-cx-celeste py-20 md:py-28">
++      <div className="max-w-6xl mx-auto px-6 md:px-8">
++        <Reveal variant="up">
++          <span className="text-sm font-semibold uppercase tracking-[0.14em] text-cx-noche">Profesionales fundadores</span>
++          <h2 className="font-display font-bold text-5xl md:text-[72px] leading-[1] text-cx-noche mt-4">
++            Empieza a vender con Coxiro
++          </h2>
++          <p className="text-lg md:text-xl text-cx-noche mt-5 max-w-2xl">
++            Estamos dando de alta a los primeros profesionales uno a uno. Te ayudamos a subir tu catálogo y a dejar listos tus cobros.
++          </p>
++        </Reveal>
++        <div className="mt-10 grid lg:grid-cols-2 gap-6 items-stretch">
++          <Reveal variant="left" className="h-[300px] lg:h-[420px]">
++            <div className="relative h-full overflow-hidden rounded-[28px]">
++              <Image
++                src="/images/cierre-hombre.jpg"
++                alt="Profesional trabajando con su portátil"
++                fill
++                sizes="(min-width:1024px) 560px, 100vw"
++                className="object-cover"
++              />
++            </div>
++          </Reveal>
++          <Reveal variant="right" className="lg:h-[420px]">
++            <div className="rounded-[28px] bg-cx-noche p-7 md:p-9 lg:h-full lg:overflow-auto">
++              <WaitlistForm fuente="landing" oscuro />
++            </div>
++          </Reveal>
++        </div>
++      </div>
++    </section>
++  );
++}
+diff --git a/components/home/FraseGrande.tsx b/components/home/FraseGrande.tsx
+new file mode 100644
+index 0000000..f47ad39
+--- /dev/null
++++ b/components/home/FraseGrande.tsx
+@@ -0,0 +1,50 @@
++"use client";
++
++import { useEffect, useRef, useState } from "react";
++
++const clamp = (n: number) => Math.min(1, Math.max(0, n));
++
++// Cada línea pasa de blanco al 14 % a blanco al 100 % según el scroll.
++// Sin JS o con movimiento reducido, todo queda al 100 %.
++export default function FraseGrande() {
++  const ref = useRef<HTMLElement>(null);
++  const [p, setP] = useState<number | null>(null);
++
++  useEffect(() => {
++    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
++    let raf = 0;
++    const calc = () => {
++      raf = 0;
++      const el = ref.current;
++      if (!el) return;
++      const r = el.getBoundingClientRect();
++      const vh = window.innerHeight;
++      setP(clamp((vh * 0.85 - r.top) / (vh * 0.65)));
++    };
++    const on = () => {
++      if (!raf) raf = requestAnimationFrame(calc);
++    };
++    calc();
++    window.addEventListener("scroll", on, { passive: true });
++    window.addEventListener("resize", on);
++    return () => {
++      window.removeEventListener("scroll", on);
++      window.removeEventListener("resize", on);
++      if (raf) cancelAnimationFrame(raf);
++    };
++  }, []);
++
++  const op = (i: number) => (p === null ? 1 : 0.14 + 0.86 * clamp((p - i * 0.25) / 0.4));
++
++  return (
++    <section ref={ref} className="bg-cx-noche py-24 md:py-36">
++      <p className="font-display font-bold text-[40px] sm:text-6xl md:text-7xl xl:text-[80px] leading-[1.02] max-w-[1360px] mx-auto px-6 md:px-8 text-white">
++        <span className="block" style={{ opacity: op(0) }}>Tú te dedicas a lo tuyo.</span>
++        <span className="block" style={{ opacity: op(1) }}>Del cobro, las facturas y los pagos</span>
++        <span className="block" style={{ opacity: op(2) }}>
++          se encarga <span className="text-cx-celeste">Coxiro</span>.
++        </span>
++      </p>
++    </section>
++  );
++}
+diff --git a/components/home/FuncionesGrid.tsx b/components/home/FuncionesGrid.tsx
+new file mode 100644
+index 0000000..b755aa9
+--- /dev/null
++++ b/components/home/FuncionesGrid.tsx
+@@ -0,0 +1,48 @@
++import Reveal from "@/components/Reveal";
++
++const I = {
++  tarjeta: (<><rect width="20" height="14" x="2" y="5" rx="2" /><path d="M2 10h20" /></>),
++  factura: (<><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8" /></>),
++  candado: (<><rect width="18" height="11" x="3" y="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>),
++  enlace: (<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></>),
++  grafico: (<><path d="M3 3v18h18" /><path d="M18 17V9M13 17V5M8 17v-3" /></>),
++  correo: (<><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></>),
++};
++
++const ITEMS = [
++  { icon: I.tarjeta, t: "Cobros con tarjeta y SEPA", d: "Pago único, a plazos o suscripción. Los cobros por SEPA se hacen solos." },
++  { icon: I.factura, t: "Facturas automáticas", d: "La factura de tu cliente y tu autofactura, en cada cobro y con VeriFactu." },
++  { icon: I.candado, t: "Área privada de contenido", d: "Tus alumnos entran a lo que han comprado, sin crear cuenta." },
++  { icon: I.enlace, t: "Enlaces privados de pago", d: "Cobra sin publicar nada: un enlace por cliente o por servicio." },
++  { icon: I.grafico, t: "Tu negocio de un vistazo", d: "Cuánto vendes, quién te compra y qué funciona." },
++  { icon: I.correo, t: "Emails automáticos", d: "Confirmaciones de compra y avisos a tu cliente, sin que hagas nada." },
++];
++
++export default function FuncionesGrid() {
++  return (
++    <section id="todo" className="bg-white py-20 md:py-28">
++      <div className="max-w-6xl mx-auto px-6 md:px-8">
++        <Reveal variant="up">
++          <h2 className="font-display font-bold text-4xl md:text-6xl leading-[1.02] text-cx-noche max-w-3xl">
++            Todo lo que necesitas para cobrar, desde el primer día
++          </h2>
++        </Reveal>
++        <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
++          {ITEMS.map((x, i) => (
++            <Reveal key={x.t} variant="up" delay={(i % 3) * 90} className="h-full">
++              <div className="h-full rounded-3xl border border-cx-borde bg-white p-7 transition duration-300 hover:-translate-y-2 hover:border-cx-celeste hover:shadow-[0_24px_50px_-24px_rgba(8,116,189,.35)]">
++                <span className="w-12 h-12 rounded-xl bg-cx-hielo text-cx-prof flex items-center justify-center">
++                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
++                    {x.icon}
++                  </svg>
++                </span>
++                <h3 className="font-display font-bold text-[26px] leading-tight text-cx-noche mt-5">{x.t}</h3>
++                <p className="text-base text-cx-texto-2 mt-2">{x.d}</p>
++              </div>
++            </Reveal>
++          ))}
++        </div>
++      </div>
++    </section>
++  );
++}
+diff --git a/components/home/PartnersFaq.tsx b/components/home/PartnersFaq.tsx
+new file mode 100644
+index 0000000..adddbcf
+--- /dev/null
++++ b/components/home/PartnersFaq.tsx
+@@ -0,0 +1,63 @@
++import Link from "next/link";
++import Reveal from "@/components/Reveal";
++
++const FAQ = [
++  { q: "¿Tengo que pagar una cuota mensual?", a: "No. Las funcionalidades no tienen cuota. Solo se cobraría el alojamiento si subes mucho contenido." },
++  { q: "¿Mis clientes tienen que registrarse?", a: "No. Pagan con nombre, email y tarjeta o cuenta bancaria, y reciben su factura por email." },
++  { q: "¿Quién emite las facturas?", a: "Coxiro, en cada cobro: la factura de tu cliente y tu autofactura, registradas con VeriFactu." },
++  { q: "¿Puedo cobrar a plazos o con suscripción?", a: "Sí. Eliges el número de plazos o una cuota periódica, y los cobros por SEPA se hacen solos." },
++];
++
++export function Partners() {
++  return (
++    <section id="partners" className="bg-white py-20 md:py-28">
++      <div className="max-w-6xl mx-auto px-6 md:px-8">
++        <Reveal variant="scale">
++          <div className="rounded-[32px] border border-cx-borde p-8 md:p-14 grid md:grid-cols-[1fr_auto] gap-8 items-center">
++            <div>
++              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-cx-prof">Programa de partners</span>
++              <h2 className="font-display font-bold text-3xl md:text-5xl leading-[1.05] text-cx-noche mt-4 max-w-xl">
++                Recomienda Coxiro y llévate el 1% de lo que facture cada profesional que traigas
++              </h2>
++              <p className="text-lg text-cx-texto-2 mt-4">Todos los meses, mientras siga activo, sin tope.</p>
++              <Link
++                href="/herramientas/partners"
++                className="inline-block mt-7 rounded-full bg-cx-noche text-white font-semibold px-7 py-3.5 hover:-translate-y-0.5 transition"
++              >
++                Ver programa
++              </Link>
++            </div>
++            <div className="font-display font-bold text-[96px] md:text-[160px] leading-none text-cx-celeste" aria-hidden="true">
++              1%
++            </div>
++          </div>
++        </Reveal>
++      </div>
++    </section>
++  );
++}
++
++export function Faq() {
++  return (
++    <section id="faq" className="bg-cx-hielo py-20 md:py-28">
++      <div className="max-w-3xl mx-auto px-6 md:px-8">
++        <Reveal variant="up">
++          <h2 className="font-display font-bold text-4xl md:text-6xl leading-[1.02] text-cx-noche">Preguntas frecuentes</h2>
++        </Reveal>
++        <div className="mt-10 space-y-3">
++          {FAQ.map((f, i) => (
++            <Reveal key={f.q} variant="up" delay={i * 70}>
++              <details className="group rounded-2xl bg-white border border-cx-borde px-6 py-5">
++                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-cx-noche [&::-webkit-details-marker]:hidden">
++                  {f.q}
++                  <span className="text-3xl font-light leading-none text-cx-prof transition-transform duration-300 group-open:rotate-45 motion-reduce:transition-none" aria-hidden="true">+</span>
++                </summary>
++                <p className="mt-3 text-cx-texto-2">{f.a}</p>
++              </details>
++            </Reveal>
++          ))}
++        </div>
++      </div>
++    </section>
++  );
++}
+diff --git a/components/home/VistasTabs.tsx b/components/home/VistasTabs.tsx
+new file mode 100644
+index 0000000..57ac0a7
+--- /dev/null
++++ b/components/home/VistasTabs.tsx
+@@ -0,0 +1,136 @@
++"use client";
++
++import { useState } from "react";
++import Reveal from "@/components/Reveal";
++
++const TABS = [
++  { id: "panel", label: "Tu panel" },
++  { id: "pago", label: "Pantalla de pago" },
++] as const;
++
++const VENTAS = [
++  { n: "Mentoría 1:1 · 3 sesiones", q: "Marta R.", v: "290 €" },
++  { n: "Curso de marca personal", q: "Daniel P.", v: "97 €" },
++  { n: "Consultoría exprés", q: "Lucía G.", v: "180 €" },
++];
++
++function Panel() {
++  return (
++    <div className="p-5 md:p-8">
++      <p className="font-display font-bold text-2xl text-cx-noche">Hola, Laura</p>
++      <div className="mt-5 grid sm:grid-cols-3 gap-3">
++        <div className="rounded-2xl bg-cx-noche text-white p-5">
++          <div className="text-xs text-cx-texto-osc-2">Ventas este mes</div>
++          <div className="font-display font-bold text-3xl mt-1 text-cx-celeste">4.350 €</div>
++        </div>
++        <div className="rounded-2xl border border-cx-borde p-5">
++          <div className="text-xs text-cx-texto-2">Clientes</div>
++          <div className="font-display font-bold text-3xl mt-1 text-cx-noche">23</div>
++        </div>
++        <div className="rounded-2xl border border-cx-borde p-5">
++          <div className="text-xs text-cx-texto-2">Próxima transferencia</div>
++          <div className="font-display font-bold text-3xl mt-1 text-cx-noche">1.280 €</div>
++        </div>
++      </div>
++      <div className="mt-5 rounded-2xl border border-cx-borde divide-y divide-cx-borde">
++        {VENTAS.map((x) => (
++          <div key={x.n} className="flex items-center justify-between gap-3 px-5 py-3.5">
++            <div className="min-w-0">
++              <div className="font-medium text-cx-noche truncate">{x.n}</div>
++              <div className="text-xs text-cx-texto-2">{x.q}</div>
++            </div>
++            <div className="font-semibold text-cx-prof">{x.v}</div>
++          </div>
++        ))}
++      </div>
++    </div>
++  );
++}
++
++function Pago() {
++  const campo = "rounded-xl border border-cx-borde px-4 py-3 text-cx-texto-2 text-sm bg-white";
++  return (
++    <div className="p-5 md:p-8 flex justify-center">
++      <div className="w-full max-w-md rounded-[28px] border border-cx-borde bg-white p-6 md:p-7 shadow-[0_20px_50px_-25px_rgba(8,35,70,.3)]">
++        <div className="flex items-center gap-3">
++          <span className="w-11 h-11 rounded-full bg-cx-hielo text-cx-prof font-display font-bold flex items-center justify-center" aria-hidden="true">LM</span>
++          <div>
++            <div className="font-semibold text-cx-noche leading-tight">Laura Martín</div>
++            <div className="text-xs text-cx-texto-2">Mentoría de marca personal</div>
++          </div>
++        </div>
++        <div className="mt-5 font-display font-bold text-4xl text-cx-prof">290 €</div>
++        <div className="text-sm text-cx-texto-2">o 3 plazos de 96,67 €</div>
++        <div className="mt-5 space-y-3">
++          <div className={campo}>Nombre</div>
++          <div className={campo}>Email</div>
++          <div className={campo}>Tarjeta o cuenta bancaria (SEPA)</div>
++        </div>
++        <div className="mt-5 rounded-full bg-cx-noche text-white font-semibold text-center py-3.5">Pagar 290 €</div>
++        <p className="text-xs text-cx-texto-2 text-center mt-4">
++          Sin crear cuenta · Pago seguro con Stripe · Factura en tu email
++        </p>
++      </div>
++    </div>
++  );
++}
++
++export default function VistasTabs() {
++  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("panel");
++
++  function teclas(e: React.KeyboardEvent) {
++    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
++      setTab((t) => (t === "panel" ? "pago" : "panel"));
++    }
++  }
++
++  return (
++    <section id="vistas" className="bg-cx-hielo py-20 md:py-28">
++      <div className="max-w-5xl mx-auto px-6 md:px-8">
++        <Reveal variant="up" className="text-center">
++          <h2 className="font-display font-bold text-4xl md:text-6xl leading-[1.02] text-cx-noche">
++            Así lo ves tú. Así lo ve tu cliente.
++          </h2>
++          <div
++            role="tablist"
++            aria-label="Vistas de Coxiro"
++            onKeyDown={teclas}
++            className="inline-flex mt-8 rounded-full bg-white p-1.5 shadow-sm border border-cx-borde"
++          >
++            {TABS.map((t) => (
++              <button
++                key={t.id}
++                role="tab"
++                id={`tab-${t.id}`}
++                aria-selected={tab === t.id}
++                aria-controls={`pnl-${t.id}`}
++                tabIndex={tab === t.id ? 0 : -1}
++                onClick={() => setTab(t.id)}
++                className={`rounded-full px-5 md:px-7 py-2.5 text-sm md:text-base font-semibold transition ${
++                  tab === t.id ? "bg-cx-noche text-white" : "text-cx-texto-2 hover:text-cx-noche"
++                }`}
++              >
++                {t.label}
++              </button>
++            ))}
++          </div>
++        </Reveal>
++
++        <Reveal variant="scale" delay={100}>
++          <div className="mt-10 rounded-[28px] bg-white border border-cx-borde shadow-[0_30px_70px_-30px_rgba(8,35,70,.35)] overflow-hidden relative">
++            <span className="absolute top-3 right-4 text-[11px] text-cx-texto-2">Datos de ejemplo</span>
++            <div
++              key={tab}
++              role="tabpanel"
++              id={`pnl-${tab}`}
++              aria-labelledby={`tab-${tab}`}
++              className="pt-4 animate-tabIn motion-reduce:animate-none"
++            >
++              {tab === "panel" ? <Panel /> : <Pago />}
++            </div>
++          </div>
++        </Reveal>
++      </div>
++    </section>
++  );
++}
+diff --git a/tailwind.config.ts b/tailwind.config.ts
+index f7666c7..668d6fc 100644
+--- a/tailwind.config.ts
++++ b/tailwind.config.ts
+@@ -49,6 +49,10 @@ const config: Config = {
+           "0%, 100%": { transform: "translateY(0)" },
+           "50%": { transform: "translateY(-12px)" },
+         },
++        tabIn: {
++          "0%": { opacity: "0", transform: "scale(.97)" },
++          "100%": { opacity: "1", transform: "scale(1)" },
++        },
+         panelIn: {
+           "0%": { opacity: "0", transform: "translateY(8px)" },
+           "100%": { opacity: "1", transform: "translateY(0)" },
+@@ -58,6 +62,7 @@ const config: Config = {
+         marquee: "marquee 40s linear infinite",
+         float: "float 6s ease-in-out infinite",
+         floatSlow: "float 7s ease-in-out -2.5s infinite",
++        tabIn: "tabIn .35s cubic-bezier(.2,.7,.2,1) both",
+         panelIn: "panelIn 0.22s ease-out both",
+       },
+     },

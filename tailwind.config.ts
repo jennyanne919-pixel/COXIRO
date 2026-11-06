@@ -49,6 +49,10 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-12px)" },
         },
+        tabIn: {
+          "0%": { opacity: "0", transform: "scale(.97)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
         panelIn: {
           "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
@@ -58,6 +62,7 @@ const config: Config = {
         marquee: "marquee 40s linear infinite",
         float: "float 6s ease-in-out infinite",
         floatSlow: "float 7s ease-in-out -2.5s infinite",
+        tabIn: "tabIn .35s cubic-bezier(.2,.7,.2,1) both",
         panelIn: "panelIn 0.22s ease-out both",
       },
     },
