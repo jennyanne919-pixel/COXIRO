@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import ConectarStripeBoton from "./ConectarStripeBoton";
 
 export default async function ProviderSummary({ userId }: { userId: string }) {
   const supabase = await createClient();
@@ -67,12 +68,9 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
               Sin esto, no podrás recibir los pagos de tus clientes.
             </p>
           </div>
-          <a
-            href="/api/stripe/connect"
-            className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-4 py-2 hover:brightness-105 transition whitespace-nowrap"
-          >
+          <ConectarStripeBoton className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-4 py-2 hover:brightness-105 transition whitespace-nowrap">
             Conectar con Stripe
-          </a>
+          </ConectarStripeBoton>
         </div>
       )}
 

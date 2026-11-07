@@ -1,0 +1,103 @@
+diff --git a/app/api/stripe/connect/route.ts b/app/api/stripe/connect/route.ts
+index e8bb543..7196f78 100644
+--- a/app/api/stripe/connect/route.ts
++++ b/app/api/stripe/connect/route.ts
+@@ -49,32 +49,63 @@ export async function GET() {
+         transfers: { requested: true },
+       };
+ 
+-      // Primero se intenta crear la cuenta con los datos que el profesional
+-      // dio al registrarse (tipo de negocio, razón social, CIF). Si Stripe
+-      // rechaza alguno, se crea igualmente sin rellenar nada: el profesional
+-      // los introduce en el formulario de Stripe y el alta no se bloquea.
++      // Clave de idempotencia por usuario: si el profesional pulsa el botón
++      // varias veces seguidas (o dos peticiones llegan a la vez), Stripe
++      // devuelve la MISMA cuenta en vez de crear una nueva cada vez.
++      const claveBase = `coxiro-connect-${user.id}`;
++
++      const crearCuenta = async () => {
++        // Primero se intenta con los datos que el profesional dio al
++        // registrarse (tipo de negocio, razón social). Si Stripe rechaza
++        // alguno, se crea igualmente sin rellenar nada: el profesional los
++        // introduce en el formulario de Stripe y el alta no se bloquea.
++        try {
++          return await stripe.accounts.create(
++            {
++              type: "express",
++              country: "ES",
++              email: user.email,
++              business_type: provider?.legal_type === "sociedad" ? "company" : "individual",
++              ...(provider?.legal_type === "sociedad" && provider.legal_name
++                ? { company: { name: provider.legal_name } }
++                : {}),
++              capabilities,
++            },
++            { idempotencyKey: `${claveBase}-a` }
++          );
++        } catch (prefillError: any) {
++          if (prefillError?.type === "StripeIdempotencyError") throw prefillError;
++          console.error(
++            "[connect] Stripe rechazó los datos precargados, se reintenta sin ellos:",
++            prefillError?.message
++          );
++          return await stripe.accounts.create(
++            { type: "express", email: user.email, capabilities },
++            { idempotencyKey: `${claveBase}-b` }
++          );
++        }
++      };
++
+       let account;
+-      try {
+-        account = await stripe.accounts.create({
+-          type: "express",
+-          country: "ES",
+-          email: user.email,
+-          business_type: provider?.legal_type === "sociedad" ? "company" : "individual",
+-          ...(provider?.legal_type === "sociedad" && provider.legal_name
+-            ? { company: { name: provider.legal_name } }
+-            : {}),
+-          capabilities,
+-        });
+-      } catch (prefillError: any) {
+-        console.error(
+-          "[connect] Stripe rechazó los datos precargados, se reintenta sin ellos:",
+-          prefillError?.message
+-        );
+-        account = await stripe.accounts.create({
+-          type: "express",
+-          email: user.email,
+-          capabilities,
+-        });
++      for (let intento = 0; ; intento++) {
++        try {
++          account = await crearCuenta();
++          break;
++        } catch (e: any) {
++          // Otra petición del mismo usuario está creando la cuenta ahora
++          // mismo: se espera un poco y se reutiliza lo que ella guarde.
++          if (e?.type !== "StripeIdempotencyError" || intento >= 3) throw e;
++          await new Promise((r) => setTimeout(r, 1500));
++          const { data: ya } = await createAdminClient()
++            .from("providers")
++            .select("stripe_account_id")
++            .eq("user_id", user.id)
++            .single();
++          if (ya?.stripe_account_id) {
++            account = { id: ya.stripe_account_id } as { id: string };
++            break;
++          }
++        }
+       }
+ 
+       accountId = account.id;
+@@ -85,7 +116,8 @@ export async function GET() {
+       const { error: updateError } = await createAdminClient()
+         .from("providers")
+         .update({ stripe_account_id: accountId })
+-        .eq("user_id", user.id);
++        .eq("user_id", user.id)
++        .is("stripe_account_id", null);
+ 
+       if (updateError) {
+         console.error("[connect] Error guardando el stripe_account_id:", updateError);

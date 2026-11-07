@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import ConectarStripeBoton from "@/components/dashboard/ConectarStripeBoton";
 import { createAdminClient } from "@/lib/supabase/admin";
 import PasswordField from "@/components/PasswordField";
 import { updateBio, updateContacto, cambiarPassword } from "./actions";
@@ -289,12 +290,9 @@ export default async function PerfilPage({
             </a>
           </>
         ) : (
-          <a
-            href="/api/stripe/connect"
-            className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 text-center hover:brightness-105 transition"
-          >
+          <ConectarStripeBoton className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 text-center hover:brightness-105 transition">
             Conectar mi cuenta de Stripe
-          </a>
+          </ConectarStripeBoton>
         )}
       </div>
     </div>
