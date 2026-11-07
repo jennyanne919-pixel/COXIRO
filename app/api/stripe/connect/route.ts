@@ -44,26 +44,38 @@ export async function GET() {
     if (!accountId) {
       console.log("[connect] No hay cuenta guardada, creando una nueva...");
 
-      const account = await stripe.accounts.create({
-        type: "express",
-        country: "ES",
-        email: user.email,
-        // Se rellena con lo que el profesional indicó al registrarse;
-        // él puede completarlo o corregirlo en el formulario de Stripe.
-        business_type: provider?.legal_type === "sociedad" ? "company" : "individual",
-        ...(provider?.legal_type === "sociedad"
-          ? {
-              company: {
-                ...(provider.legal_name ? { name: provider.legal_name } : {}),
-                ...(provider.tax_id ? { tax_id: provider.tax_id } : {}),
-              },
-            }
-          : {}),
-        capabilities: {
-          card_payments: { requested: true },
-          transfers: { requested: true },
-        },
-      });
+      const capabilities = {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      };
+
+      // Primero se intenta crear la cuenta con los datos que el profesional
+      // dio al registrarse (tipo de negocio, razón social, CIF). Si Stripe
+      // rechaza alguno, se crea igualmente sin rellenar nada: el profesional
+      // los introduce en el formulario de Stripe y el alta no se bloquea.
+      let account;
+      try {
+        account = await stripe.accounts.create({
+          type: "express",
+          country: "ES",
+          email: user.email,
+          business_type: provider?.legal_type === "sociedad" ? "company" : "individual",
+          ...(provider?.legal_type === "sociedad" && provider.legal_name
+            ? { company: { name: provider.legal_name } }
+            : {}),
+          capabilities,
+        });
+      } catch (prefillError: any) {
+        console.error(
+          "[connect] Stripe rechazó los datos precargados, se reintenta sin ellos:",
+          prefillError?.message
+        );
+        account = await stripe.accounts.create({
+          type: "express",
+          email: user.email,
+          capabilities,
+        });
+      }
 
       accountId = account.id;
       console.log("[connect] Cuenta nueva creada:", accountId);
