@@ -201,10 +201,21 @@ export async function POST(request: Request) {
 
     case "customer.subscription.deleted": {
       const sub = event.data.object as Stripe.Subscription;
-      await supabase
+      const { data: cancelada } = await supabase
         .from("subscriptions")
         .update({ status: "cancelled" })
-        .eq("stripe_subscription_id", sub.id);
+        .eq("stripe_subscription_id", sub.id)
+        .select("client_id, service_id")
+        .maybeSingle();
+
+      // Al terminar la membresía se retira el acceso al contenido.
+      if (cancelada?.client_id && cancelada?.service_id) {
+        await supabase
+          .from("content_access")
+          .delete()
+          .eq("client_id", cancelada.client_id)
+          .eq("service_id", cancelada.service_id);
+      }
       break;
     }
 

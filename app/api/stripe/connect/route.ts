@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
@@ -67,7 +68,9 @@ export async function GET() {
       accountId = account.id;
       console.log("[connect] Cuenta nueva creada:", accountId);
 
-      const { error: updateError } = await supabase
+      // Cliente admin: stripe_account_id es un campo protegido que un
+      // usuario no puede escribir por sí mismo (ver supabase/security-hardening-1.sql).
+      const { error: updateError } = await createAdminClient()
         .from("providers")
         .update({ stripe_account_id: accountId })
         .eq("user_id", user.id);

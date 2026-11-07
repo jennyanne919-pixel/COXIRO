@@ -19,6 +19,20 @@ export async function POST(request: Request) {
 
   const { serviceId, fileName, contentType } = await request.json();
 
+  // Solo formatos de contenido habituales; nada ejecutable ni HTML.
+  const TIPOS_PERMITIDOS = [
+    "video/mp4", "video/quicktime", "video/webm",
+    "audio/mpeg", "audio/mp4", "audio/wav",
+    "application/pdf", "application/zip",
+    "image/jpeg", "image/png", "image/webp",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  ];
+  if (typeof fileName !== "string" || typeof contentType !== "string" || !TIPOS_PERMITIDOS.includes(contentType)) {
+    return NextResponse.json({ error: "Tipo de archivo no permitido" }, { status: 400 });
+  }
+
   // Comprobación explícita: solo el dueño del servicio puede subir
   // contenido a él, aunque RLS ya proteja la tabla en sí.
   const { data: service } = await supabase
@@ -31,7 +45,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
-  const extension = fileName.split(".").pop();
+  const extension = (fileName.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "bin";
   const key = `${serviceId}/${randomBytes(8).toString("hex")}.${extension}`;
 
   const uploadUrl = await getUploadUrl(key, contentType);

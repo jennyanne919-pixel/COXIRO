@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { sendWelcomeEmail, sendInternalRegistration } from "@/lib/email/send";
 import { passwordValida, MENSAJE_PASSWORD } from "@/lib/password";
 import { esTaxIdValido, esNifOrNie, esCif, normalizarTaxId } from "@/lib/tax-id";
+import { rutaInternaSegura } from "@/lib/safe-redirect";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -18,8 +19,7 @@ export async function signIn(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent(error.message)}`);
   }
 
-  const next = formData.get("next") as string;
-  redirect(next || "/dashboard");
+  redirect(rutaInternaSegura(formData.get("next") as string));
 }
 
 export async function signUp(formData: FormData) {
