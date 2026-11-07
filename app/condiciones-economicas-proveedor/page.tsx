@@ -21,7 +21,7 @@ const HTML = `
 
 <h2>2. Precio de adquisición</h2>
 <p>2.1. El Proveedor fija el precio base de su servicio (sin impuestos). COXIRO le abona ese precio base incrementado en un 10 %.</p>
-<p>2.2. Ejemplo ilustrativo: servicio con precio base de 1.000 €. El Cliente paga el precio base más los impuestos que correspondan (1.210 €). El Proveedor recibe 1.100 €.</p>
+<p>2.2. Ejemplo ilustrativo: servicio con precio base de 500 €. El Cliente paga el precio base más los impuestos que correspondan (605 €). El Proveedor recibe 550 €.</p>
 <p>2.3. Este esquema se aplica a las ventas a Clientes particulares. Si COXIRO habilita otros tipos de venta, comunicará al Proveedor las condiciones que correspondan antes de aplicarlas.</p>
 <p>2.4. COXIRO asume los costes de procesamiento del pago y de la plataforma. El Proveedor no paga cuotas de alta ni mensualidades por usar COXIRO.</p>
 
