@@ -78,12 +78,20 @@ export default async function CatalogoPage({
           <a href="/">
             <Logo variant="light" />
           </a>
-          <a
-            href="/registro?role=client"
-            className="rounded-full bg-cx-celeste px-5 py-2.5 text-sm font-semibold text-cx-noche hover:brightness-105 transition"
-          >
-            Regístrate
-          </a>
+          <div className="flex items-center gap-3">
+            <a
+              href="/login"
+              className="rounded-full border border-cx-borde bg-white px-5 py-2.5 text-sm font-semibold text-cx-texto hover:border-cx-celeste transition"
+            >
+              Entrar
+            </a>
+            <a
+              href="/registro?role=client"
+              className="rounded-full bg-cx-celeste px-5 py-2.5 text-sm font-semibold text-cx-noche hover:brightness-105 transition"
+            >
+              Regístrate
+            </a>
+          </div>
         </div>
       </header>
 

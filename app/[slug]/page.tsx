@@ -68,6 +68,7 @@ export default async function PerfilProfesionalPage({
     .select("id, title, description, price, currency, type, image_url, billing_interval, total_installments, requires_inquiry")
     .eq("provider_id", provider.user_id)
     .eq("is_active", true)
+    .eq("is_public", true)
     .order("created_at", { ascending: false });
 
   const principal = services?.[0];
