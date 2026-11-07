@@ -3,6 +3,7 @@ import ConectarStripeBoton from "@/components/dashboard/ConectarStripeBoton";
 import { createAdminClient } from "@/lib/supabase/admin";
 import PasswordField from "@/components/PasswordField";
 import { updateBio, updateContacto, cambiarPassword } from "./actions";
+import { CONDICIONES_DOCUMENTO, CONDICIONES_RUTA } from "@/lib/condiciones";
 
 const ERRORES: Record<string, string> = {
   email:
@@ -49,6 +50,23 @@ export default async function PerfilPage({
       provider = r2.data;
     }
   }
+
+  // Datos de registro (solo lectura). Se leen con la sesión del propio
+  // profesional: RLS solo le devuelve sus filas, nadie más las ve.
+  const { data: registro } = await supabase
+    .from("providers")
+    .select("legal_type, legal_name, tax_id, representative_name")
+    .eq("user_id", user?.id ?? "")
+    .maybeSingle();
+  const { data: aceptaciones } = await supabase
+    .from("provider_acceptances")
+    .select("version, accepted_at")
+    .eq("user_id", user?.id ?? "")
+    .eq("document", CONDICIONES_DOCUMENTO)
+    .order("accepted_at", { ascending: false })
+    .limit(1);
+  const aceptacion = aceptaciones?.[0] ?? null;
+  const esSociedad = registro?.legal_type === "sociedad";
 
   // Si el usuario confirmó un cambio de email, el login (Supabase Auth)
   // ya tiene el email nuevo pero public.users todavía el viejo. Se
@@ -295,6 +313,50 @@ export default async function PerfilPage({
           </ConectarStripeBoton>
         )}
       </div>
+
+      {registro && (
+        <div className="mt-8 max-w-lg">
+          <h2 className="text-sm font-medium">Datos de registro</h2>
+          <p className="text-xs text-cx-texto-2 mt-0.5 mb-3">
+            Solo los ves tú. Son los datos con los que se emiten tus facturas.
+          </p>
+          <dl className="rounded-lg border border-cx-borde bg-white p-5 grid gap-3 text-sm">
+            <div>
+              <dt className="text-xs text-cx-texto-2">Tipo</dt>
+              <dd>{esSociedad ? "Sociedad" : "Autónomo / persona física"}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-cx-texto-2">{esSociedad ? "Razón social" : "Nombre fiscal"}</dt>
+              <dd>{registro.legal_name || provider?.business_name || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-cx-texto-2">{esSociedad ? "CIF" : "NIF / NIE"}</dt>
+              <dd>{registro.tax_id || "—"}</dd>
+            </div>
+            {esSociedad && (
+              <div>
+                <dt className="text-xs text-cx-texto-2">Representante</dt>
+                <dd>{registro.representative_name || "—"}</dd>
+              </div>
+            )}
+            <div>
+              <dt className="text-xs text-cx-texto-2">Condiciones del proveedor aceptadas</dt>
+              <dd>
+                {aceptacion
+                  ? `Versión ${aceptacion.version}, el ${new Date(aceptacion.accepted_at).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}`
+                  : "Pendiente de aceptar"}{" "}
+                <a href={CONDICIONES_RUTA} target="_blank" className="text-cx-prof underline">
+                  Ver condiciones
+                </a>
+              </dd>
+            </div>
+          </dl>
+          <p className="text-xs text-cx-texto-2 mt-2">
+            Estos datos están protegidos y no se pueden editar desde aquí. Si alguno es incorrecto, escribe a{" "}
+            <a href="mailto:coxiro.info@gmail.com" className="underline">coxiro.info@gmail.com</a>.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
