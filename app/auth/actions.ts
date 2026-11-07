@@ -6,6 +6,7 @@ import { sendWelcomeEmail, sendInternalRegistration } from "@/lib/email/send";
 import { passwordValida, MENSAJE_PASSWORD } from "@/lib/password";
 import { esTaxIdValido, esNifOrNie, esCif, normalizarTaxId } from "@/lib/tax-id";
 import { rutaInternaSegura } from "@/lib/safe-redirect";
+import { registrarAceptacion } from "@/lib/acceptances";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -110,10 +111,14 @@ export async function signUp(formData: FormData) {
       tax_id: taxId,
       legal_type: sociedad ? "sociedad" : "autonomo",
       legal_name: sociedad ? legalName : fullName,
+      representative_name: sociedad ? fullName : null,
       category,
       referral_code: slug, // reutilizamos el slug como código de partner
       referred_by: referredBy,
     });
+
+    // Prueba de que aceptó Términos, condiciones económicas y autofacturación.
+    await registrarAceptacion(user.id, "registro");
   } else {
     await supabase.from("clients").insert({
       user_id: user.id,

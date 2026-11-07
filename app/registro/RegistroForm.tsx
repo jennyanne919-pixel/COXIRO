@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CONDICIONES_RUTA } from "@/lib/condiciones";
 import Logo from "@/components/Logo";
 import { signUp } from "@/app/auth/actions";
 import PasswordRequisitos from "@/components/PasswordRequisitos";
@@ -219,13 +220,28 @@ export default function RegistroForm({
 
           <PasswordRequisitos password={password} />
 
+          {role === "provider" && (
+            <div className="rounded-lg border border-cx-borde bg-cx-hielo px-4 py-3 text-xs text-cx-texto-2">
+              <p className="font-semibold text-cx-texto mb-1">Condiciones económicas</p>
+              <ul className="list-disc pl-4 space-y-0.5">
+                <li>Recibes el precio base de tu servicio (sin impuestos) más un 10 %.</li>
+                <li>Cobras a los 7 días de cada venta.</li>
+                <li>Sin cuotas de alta ni mensualidad.</li>
+              </ul>
+              <a href={CONDICIONES_RUTA} target="_blank" className="text-cx-prof underline mt-1.5 inline-block">
+                Ver condiciones completas
+              </a>
+            </div>
+          )}
+
           <label className="flex items-start gap-2 text-xs text-cx-texto-2">
             <input type="checkbox" required className="mt-0.5" />
             <span>
               He leído y acepto los{" "}
               <a href="/terminos" target="_blank" className="text-cx-texto underline">
                 Términos y Condiciones
-              </a>{" "}
+              </a>
+              {role === "provider" && " (incluidas las condiciones económicas del proveedor)"}{" "}
               y la{" "}
               <a href="/aviso-legal" target="_blank" className="text-cx-texto underline">
                 Política de Privacidad

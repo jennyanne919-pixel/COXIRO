@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { tieneAceptacionVigente } from "@/lib/acceptances";
 
 export async function createService(formData: FormData) {
   const supabase = await createClient();
@@ -11,6 +12,7 @@ export async function createService(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) return;
+  if (!(await tieneAceptacionVigente(supabase, user.id))) redirect("/aceptar-condiciones");
 
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;

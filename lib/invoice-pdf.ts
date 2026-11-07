@@ -154,6 +154,19 @@ export async function generateInvoicePdf(
     page.drawText(recipientAddress, { x: 320, y: y - 42, size: 9, font, color: stone });
   }
 
+  // Mención obligatoria en las facturas expedidas por el destinatario
+  // (art. 5 del Real Decreto 1619/2012).
+  if (!isClientInvoice) {
+    page.drawText("Facturación por el destinatario", { x: 50, y: y - 56, size: 8, font: fontBold, color: stone });
+    page.drawText("Expedida por COXIRO en nombre y por cuenta del proveedor (art. 5 RD 1619/2012).", {
+      x: 50,
+      y: y - 66,
+      size: 8,
+      font,
+      color: stone,
+    });
+  }
+
   y -= 90;
 
   // ---- Tabla de concepto ----

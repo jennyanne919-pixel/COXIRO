@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
+import { tieneAceptacionVigente } from "@/lib/acceptances";
+import { CONDICIONES_RUTA } from "@/lib/condiciones";
 
 // Menú del proveedor: gestiona lo que vende y lo que cobra.
 const PROVIDER_NAV = [
@@ -11,6 +13,7 @@ const PROVIDER_NAV = [
   { label: "Mis partners", href: "/dashboard/referidos", soon: false },
   { label: "Mis clientes", href: "#", soon: true },
   { label: "Mi perfil", href: "/dashboard/perfil", soon: false },
+  { label: "Condiciones económicas", href: CONDICIONES_RUTA, soon: false },
 ];
 
 // Menú del cliente: lo que ha comprado, no lo que cobra.
@@ -42,6 +45,12 @@ export default async function DashboardLayout({
     .single();
 
   const isProvider = profile?.role === "provider";
+
+  // Si el profesional no ha aceptado la versión vigente de las condiciones,
+  // se le pide antes de dejarle usar el panel.
+  if (isProvider && !(await tieneAceptacionVigente(supabase, user.id))) {
+    redirect("/aceptar-condiciones");
+  }
   const NAV = isProvider ? PROVIDER_NAV : CLIENT_NAV;
 
   return (
