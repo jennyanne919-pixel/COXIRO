@@ -64,7 +64,7 @@ export async function processPayment(params: {
     supabase.from("clients").select("billing_name, tax_id").eq("user_id", clientId).single(),
     supabase
       .from("providers")
-      .select("business_name, tax_id, stripe_account_id")
+      .select("business_name, legal_name, tax_id, stripe_account_id")
       .eq("user_id", providerId)
       .single(),
     supabase.from("users").select("email").eq("id", clientId).single(),
@@ -197,7 +197,7 @@ export async function processPayment(params: {
           tax_rate: TAX_RATE_PROVEEDOR,
           tax_amount: Number(provTaxAmount.toFixed(2)),
           total: netoProveedor,
-          issuer_name: provider?.business_name ?? "Proveedor",
+          issuer_name: provider?.legal_name || provider?.business_name || "Proveedor",
           issuer_tax_id: provider?.tax_id ?? null,
           recipient_name: COXIRO_LEGAL_NAME,
           recipient_tax_id: COXIRO_TAX_ID,

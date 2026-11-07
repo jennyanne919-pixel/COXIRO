@@ -1,0 +1,279 @@
+diff --git a/app/api/stripe/connect/route.ts b/app/api/stripe/connect/route.ts
+index e60159f..a1727b6 100644
+--- a/app/api/stripe/connect/route.ts
++++ b/app/api/stripe/connect/route.ts
+@@ -25,7 +25,7 @@ export async function GET() {
+ 
+     const { data: provider, error: providerError } = await supabase
+       .from("providers")
+-      .select("stripe_account_id")
++      .select("stripe_account_id, legal_type, legal_name, tax_id")
+       .eq("user_id", user.id)
+       .single();
+ 
+@@ -45,7 +45,19 @@ export async function GET() {
+ 
+       const account = await stripe.accounts.create({
+         type: "express",
++        country: "ES",
+         email: user.email,
++        // Se rellena con lo que el profesional indicó al registrarse;
++        // él puede completarlo o corregirlo en el formulario de Stripe.
++        business_type: provider?.legal_type === "sociedad" ? "company" : "individual",
++        ...(provider?.legal_type === "sociedad"
++          ? {
++              company: {
++                ...(provider.legal_name ? { name: provider.legal_name } : {}),
++                ...(provider.tax_id ? { tax_id: provider.tax_id } : {}),
++              },
++            }
++          : {}),
+         capabilities: {
+           card_payments: { requested: true },
+           transfers: { requested: true },
+diff --git a/app/auth/actions.ts b/app/auth/actions.ts
+index 1216ec4..ea1ed42 100644
+--- a/app/auth/actions.ts
++++ b/app/auth/actions.ts
+@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
+ import { redirect } from "next/navigation";
+ import { sendWelcomeEmail, sendInternalRegistration } from "@/lib/email/send";
+ import { passwordValida, MENSAJE_PASSWORD } from "@/lib/password";
++import { esTaxIdValido, esNifOrNie, esCif, normalizarTaxId } from "@/lib/tax-id";
+ 
+ export async function signIn(formData: FormData) {
+   const supabase = await createClient();
+@@ -29,11 +30,25 @@ export async function signUp(formData: FormData) {
+   const fullName = formData.get("full_name") as string;
+   const role = formData.get("role") as string; // "provider" | "client"
+   const businessName = formData.get("business_name") as string;
+-  const taxId = formData.get("tax_id") as string;
++  const taxIdRaw = formData.get("tax_id") as string;
++  const sociedad = role === "provider" && formData.get("legal_type") === "sociedad";
++  const legalName = sociedad ? ((formData.get("legal_name") as string) ?? "").trim() : "";
+   const category = formData.get("category") as string;
+   const clientType = (formData.get("client_type") as string) || "particular";
+   const refCode = formData.get("ref") as string;
+ 
++  const taxId = normalizarTaxId(taxIdRaw ?? "");
++  const taxIdOk = role === "provider" ? esTaxIdValido(taxId, sociedad) : esNifOrNie(taxId) || esCif(taxId);
++  if (!taxIdOk) {
++    const msg = sociedad
++      ? "El CIF no es válido. Revisa que esté bien escrito (ej. B12345674)."
++      : "El NIF/NIE no es válido. Revisa que esté bien escrito (8 números y la letra).";
++    redirect(`/registro?error=${encodeURIComponent(msg)}&role=${role}`);
++  }
++  if (sociedad && legalName.length < 3) {
++    redirect(`/registro?error=${encodeURIComponent("Indica la razón social de la sociedad.")}&role=${role}`);
++  }
++
+   if (!passwordValida(password ?? "")) {
+     redirect(`/registro?error=${encodeURIComponent(MENSAJE_PASSWORD)}`);
+   }
+@@ -63,7 +78,7 @@ export async function signUp(formData: FormData) {
+ 
+   // Crea el perfil específico según el rol elegido
+   if (role === "provider") {
+-    const baseName = businessName || fullName;
++    const baseName = businessName || legalName || fullName;
+     // Slug legible para la URL pública: minúsculas, sin acentos ni
+     // símbolos, espacios -> guiones, + 4 caracteres del ID para
+     // evitar choques entre dos profesionales con el mismo nombre.
+@@ -93,6 +108,8 @@ export async function signUp(formData: FormData) {
+       business_name: baseName,
+       slug,
+       tax_id: taxId,
++      legal_type: sociedad ? "sociedad" : "autonomo",
++      legal_name: sociedad ? legalName : fullName,
+       category,
+       referral_code: slug, // reutilizamos el slug como código de partner
+       referred_by: referredBy,
+diff --git a/app/registro/RegistroForm.tsx b/app/registro/RegistroForm.tsx
+index eda208d..8733555 100644
+--- a/app/registro/RegistroForm.tsx
++++ b/app/registro/RegistroForm.tsx
+@@ -14,6 +14,8 @@ export default function RegistroForm({
+   const [role, setRole] = useState<"provider" | "client">(
+     searchParams.role === "client" ? "client" : "provider"
+   );
++  const [tipo, setTipo] = useState<"autonomo" | "sociedad">("autonomo");
++  const sociedad = role === "provider" && tipo === "sociedad";
+   const [showPassword, setShowPassword] = useState(false);
+   const [password, setPassword] = useState("");
+ 
+@@ -60,15 +62,52 @@ export default function RegistroForm({
+           </button>
+         </div>
+ 
++        {role === "provider" && (
++          <div className="mb-4">
++            <p className="text-xs text-cx-texto-2 mb-1">¿Cómo vas a facturar?</p>
++            <div className="flex rounded-lg border border-cx-borde p-1 bg-white">
++              <button
++                type="button"
++                onClick={() => setTipo("autonomo")}
++                className={`flex-1 rounded-md text-sm font-medium py-2 transition ${
++                  tipo === "autonomo" ? "bg-cx-noche text-white" : "text-cx-texto-2"
++                }`}
++              >
++                Autónomo
++              </button>
++              <button
++                type="button"
++                onClick={() => setTipo("sociedad")}
++                className={`flex-1 rounded-md text-sm font-medium py-2 transition ${
++                  tipo === "sociedad" ? "bg-cx-noche text-white" : "text-cx-texto-2"
++                }`}
++              >
++                Sociedad (SL, SA…)
++              </button>
++            </div>
++          </div>
++        )}
++
+         <form action={signUp} className="flex flex-col gap-3">
+           <input type="hidden" name="role" value={role} />
++          <input type="hidden" name="legal_type" value={sociedad ? "sociedad" : "autonomo"} />
+           <input type="hidden" name="ref" value={searchParams.ref ?? ""} />
+ 
++          {sociedad && (
++            <input
++              type="text"
++              name="legal_name"
++              required
++              placeholder="Razón social (ej. Mi Empresa, S.L.)"
++              className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
++            />
++          )}
++
+           <input
+             type="text"
+             name="full_name"
+             required
+-            placeholder="Nombre completo"
++            placeholder={sociedad ? "Nombre del administrador o representante" : "Nombre completo"}
+             className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
+           />
+ 
+@@ -77,7 +116,7 @@ export default function RegistroForm({
+             name="tax_id"
+             required
+             autoComplete="off"
+-            placeholder="NIF / NIE"
++            placeholder={sociedad ? "CIF de la sociedad" : "NIF / NIE"}
+             className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
+           />
+ 
+@@ -87,7 +126,7 @@ export default function RegistroForm({
+                 type="text"
+                 name="business_name"
+                 defaultValue={searchParams.slug ?? ""}
+-                placeholder="Nombre de tu negocio (opcional)"
++                placeholder={sociedad ? "Nombre comercial (opcional)" : "Nombre de tu negocio (opcional)"}
+                 className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
+               />
+               <div>
+@@ -193,8 +232,8 @@ export default function RegistroForm({
+               </a>
+               {role === "provider" && (
+                 <>
+-                  , y autorizo a Coxiro a emitir facturas en mi nombre
+-                  (autofacturación)
++                  , y autorizo a Coxiro a emitir facturas en {sociedad ? "nombre de la sociedad" : "mi nombre"}
++                  (autofacturación){sociedad && ", declarando que tengo poder para vincularla"}
+                 </>
+               )}
+               .
+diff --git a/lib/payment-processing.ts b/lib/payment-processing.ts
+index e6a428b..9b63bd3 100644
+--- a/lib/payment-processing.ts
++++ b/lib/payment-processing.ts
+@@ -64,7 +64,7 @@ export async function processPayment(params: {
+     supabase.from("clients").select("billing_name, tax_id").eq("user_id", clientId).single(),
+     supabase
+       .from("providers")
+-      .select("business_name, tax_id, stripe_account_id")
++      .select("business_name, legal_name, tax_id, stripe_account_id")
+       .eq("user_id", providerId)
+       .single(),
+     supabase.from("users").select("email").eq("id", clientId).single(),
+@@ -197,7 +197,7 @@ export async function processPayment(params: {
+           tax_rate: TAX_RATE_PROVEEDOR,
+           tax_amount: Number(provTaxAmount.toFixed(2)),
+           total: netoProveedor,
+-          issuer_name: provider?.business_name ?? "Proveedor",
++          issuer_name: provider?.legal_name || provider?.business_name || "Proveedor",
+           issuer_tax_id: provider?.tax_id ?? null,
+           recipient_name: COXIRO_LEGAL_NAME,
+           recipient_tax_id: COXIRO_TAX_ID,
+diff --git a/lib/tax-id.ts b/lib/tax-id.ts
+new file mode 100644
+index 0000000..0cd23c0
+--- /dev/null
++++ b/lib/tax-id.ts
+@@ -0,0 +1,48 @@
++// Validación de identificadores fiscales españoles (NIF, NIE y CIF),
++// con comprobación del dígito/letra de control.
++
++const LETRAS_NIF = "TRWAGMYFPDXBNJZSQVHLCKE";
++
++export function normalizarTaxId(valor: string): string {
++  return (valor ?? "").toUpperCase().replace(/[\s.\-_/]/g, "");
++}
++
++export function esNifOrNie(valor: string): boolean {
++  const v = normalizarTaxId(valor);
++  if (/^[0-9]{8}[A-Z]$/.test(v)) {
++    return LETRAS_NIF[parseInt(v.slice(0, 8), 10) % 23] === v[8];
++  }
++  if (/^[XYZ][0-9]{7}[A-Z]$/.test(v)) {
++    const num = "XYZ".indexOf(v[0]) + v.slice(1, 8);
++    return LETRAS_NIF[parseInt(num, 10) % 23] === v[8];
++  }
++  return false;
++}
++
++export function esCif(valor: string): boolean {
++  const v = normalizarTaxId(valor);
++  if (!/^[ABCDEFGHJKLMNPQRSUVW][0-9]{7}[0-9A-J]$/.test(v)) return false;
++  const digitos = v.slice(1, 8).split("").map(Number);
++  let suma = 0;
++  digitos.forEach((d, i) => {
++    if (i % 2 === 0) {
++      const doble = d * 2;
++      suma += Math.floor(doble / 10) + (doble % 10);
++    } else {
++      suma += d;
++    }
++  });
++  const control = (10 - (suma % 10)) % 10;
++  const letra = "JABCDEFGHI"[control];
++  const tipo = v[0];
++  const ultimo = v[8];
++  // Sociedades que usan letra de control: K, P, Q, R, S, N, W.
++  if ("KPQRSNW".includes(tipo)) return ultimo === letra;
++  // Las de dígito de control: A, B, E, H.
++  if ("ABEH".includes(tipo)) return ultimo === String(control);
++  return ultimo === String(control) || ultimo === letra;
++}
++
++export function esTaxIdValido(valor: string, sociedad: boolean): boolean {
++  return sociedad ? esCif(valor) : esNifOrNie(valor);
++}
+diff --git a/supabase/add-provider-legal-type.sql b/supabase/add-provider-legal-type.sql
+new file mode 100644
+index 0000000..d99f1e4
+--- /dev/null
++++ b/supabase/add-provider-legal-type.sql
+@@ -0,0 +1,11 @@
++-- Fase 10: profesionales que venden como sociedad (SL, SA...) o como
++-- autónomo/persona física. legal_name es el nombre fiscal (razón social
++-- o nombre y apellidos) que aparece como emisor en la autofactura;
++-- business_name sigue siendo el nombre comercial público.
++-- Es aditivo: los profesionales existentes quedan como autónomos.
++alter table providers add column if not exists legal_type text not null default 'autonomo';
++alter table providers add column if not exists legal_name text;
++
++alter table providers drop constraint if exists providers_legal_type_check;
++alter table providers add constraint providers_legal_type_check
++  check (legal_type in ('autonomo', 'sociedad'));

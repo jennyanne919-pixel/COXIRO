@@ -14,6 +14,8 @@ export default function RegistroForm({
   const [role, setRole] = useState<"provider" | "client">(
     searchParams.role === "client" ? "client" : "provider"
   );
+  const [tipo, setTipo] = useState<"autonomo" | "sociedad">("autonomo");
+  const sociedad = role === "provider" && tipo === "sociedad";
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
 
@@ -60,15 +62,52 @@ export default function RegistroForm({
           </button>
         </div>
 
+        {role === "provider" && (
+          <div className="mb-4">
+            <p className="text-xs text-cx-texto-2 mb-1">¿Cómo vas a facturar?</p>
+            <div className="flex rounded-lg border border-cx-borde p-1 bg-white">
+              <button
+                type="button"
+                onClick={() => setTipo("autonomo")}
+                className={`flex-1 rounded-md text-sm font-medium py-2 transition ${
+                  tipo === "autonomo" ? "bg-cx-noche text-white" : "text-cx-texto-2"
+                }`}
+              >
+                Autónomo
+              </button>
+              <button
+                type="button"
+                onClick={() => setTipo("sociedad")}
+                className={`flex-1 rounded-md text-sm font-medium py-2 transition ${
+                  tipo === "sociedad" ? "bg-cx-noche text-white" : "text-cx-texto-2"
+                }`}
+              >
+                Sociedad (SL, SA…)
+              </button>
+            </div>
+          </div>
+        )}
+
         <form action={signUp} className="flex flex-col gap-3">
           <input type="hidden" name="role" value={role} />
+          <input type="hidden" name="legal_type" value={sociedad ? "sociedad" : "autonomo"} />
           <input type="hidden" name="ref" value={searchParams.ref ?? ""} />
+
+          {sociedad && (
+            <input
+              type="text"
+              name="legal_name"
+              required
+              placeholder="Razón social (ej. Mi Empresa, S.L.)"
+              className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
+            />
+          )}
 
           <input
             type="text"
             name="full_name"
             required
-            placeholder="Nombre completo"
+            placeholder={sociedad ? "Nombre del administrador o representante" : "Nombre completo"}
             className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
           />
 
@@ -77,7 +116,7 @@ export default function RegistroForm({
             name="tax_id"
             required
             autoComplete="off"
-            placeholder="NIF / NIE"
+            placeholder={sociedad ? "CIF de la sociedad" : "NIF / NIE"}
             className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
           />
 
@@ -87,7 +126,7 @@ export default function RegistroForm({
                 type="text"
                 name="business_name"
                 defaultValue={searchParams.slug ?? ""}
-                placeholder="Nombre de tu negocio (opcional)"
+                placeholder={sociedad ? "Nombre comercial (opcional)" : "Nombre de tu negocio (opcional)"}
                 className="rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
               />
               <div>
@@ -193,8 +232,8 @@ export default function RegistroForm({
               </a>
               {role === "provider" && (
                 <>
-                  , y autorizo a Coxiro a emitir facturas en mi nombre
-                  (autofacturación)
+                  , y autorizo a Coxiro a emitir facturas en {sociedad ? "nombre de la sociedad" : "mi nombre"}
+                  (autofacturación){sociedad && ", declarando que tengo poder para vincularla"}
                 </>
               )}
               .

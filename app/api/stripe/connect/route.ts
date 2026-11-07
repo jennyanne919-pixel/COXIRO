@@ -25,7 +25,7 @@ export async function GET() {
 
     const { data: provider, error: providerError } = await supabase
       .from("providers")
-      .select("stripe_account_id")
+      .select("stripe_account_id, legal_type, legal_name, tax_id")
       .eq("user_id", user.id)
       .single();
 
@@ -45,7 +45,19 @@ export async function GET() {
 
       const account = await stripe.accounts.create({
         type: "express",
+        country: "ES",
         email: user.email,
+        // Se rellena con lo que el profesional indicó al registrarse;
+        // él puede completarlo o corregirlo en el formulario de Stripe.
+        business_type: provider?.legal_type === "sociedad" ? "company" : "individual",
+        ...(provider?.legal_type === "sociedad"
+          ? {
+              company: {
+                ...(provider.legal_name ? { name: provider.legal_name } : {}),
+                ...(provider.tax_id ? { tax_id: provider.tax_id } : {}),
+              },
+            }
+          : {}),
         capabilities: {
           card_payments: { requested: true },
           transfers: { requested: true },

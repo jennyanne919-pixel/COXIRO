@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { sendWelcomeEmail, sendInternalRegistration } from "@/lib/email/send";
 import { passwordValida, MENSAJE_PASSWORD } from "@/lib/password";
+import { esTaxIdValido, esNifOrNie, esCif, normalizarTaxId } from "@/lib/tax-id";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -29,10 +30,24 @@ export async function signUp(formData: FormData) {
   const fullName = formData.get("full_name") as string;
   const role = formData.get("role") as string; // "provider" | "client"
   const businessName = formData.get("business_name") as string;
-  const taxId = formData.get("tax_id") as string;
+  const taxIdRaw = formData.get("tax_id") as string;
+  const sociedad = role === "provider" && formData.get("legal_type") === "sociedad";
+  const legalName = sociedad ? ((formData.get("legal_name") as string) ?? "").trim() : "";
   const category = formData.get("category") as string;
   const clientType = (formData.get("client_type") as string) || "particular";
   const refCode = formData.get("ref") as string;
+
+  const taxId = normalizarTaxId(taxIdRaw ?? "");
+  const taxIdOk = role === "provider" ? esTaxIdValido(taxId, sociedad) : esNifOrNie(taxId) || esCif(taxId);
+  if (!taxIdOk) {
+    const msg = sociedad
+      ? "El CIF no es válido. Revisa que esté bien escrito (ej. B12345674)."
+      : "El NIF/NIE no es válido. Revisa que esté bien escrito (8 números y la letra).";
+    redirect(`/registro?error=${encodeURIComponent(msg)}&role=${role}`);
+  }
+  if (sociedad && legalName.length < 3) {
+    redirect(`/registro?error=${encodeURIComponent("Indica la razón social de la sociedad.")}&role=${role}`);
+  }
 
   if (!passwordValida(password ?? "")) {
     redirect(`/registro?error=${encodeURIComponent(MENSAJE_PASSWORD)}`);
@@ -63,7 +78,7 @@ export async function signUp(formData: FormData) {
 
   // Crea el perfil específico según el rol elegido
   if (role === "provider") {
-    const baseName = businessName || fullName;
+    const baseName = businessName || legalName || fullName;
     // Slug legible para la URL pública: minúsculas, sin acentos ni
     // símbolos, espacios -> guiones, + 4 caracteres del ID para
     // evitar choques entre dos profesionales con el mismo nombre.
@@ -93,6 +108,8 @@ export async function signUp(formData: FormData) {
       business_name: baseName,
       slug,
       tax_id: taxId,
+      legal_type: sociedad ? "sociedad" : "autonomo",
+      legal_name: sociedad ? legalName : fullName,
       category,
       referral_code: slug, // reutilizamos el slug como código de partner
       referred_by: referredBy,
