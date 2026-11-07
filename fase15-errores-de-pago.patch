@@ -1,0 +1,57 @@
+diff --git a/app/api/checkout/route.ts b/app/api/checkout/route.ts
+index 222f344..f5231ac 100644
+--- a/app/api/checkout/route.ts
++++ b/app/api/checkout/route.ts
+@@ -68,10 +68,9 @@ export async function GET(request: Request) {
+ 
+   if (!service || !provider?.stripe_account_id || provider.kyc_status !== "verified") {
+     console.error("[checkout] Bloqueado: servicio o proveedor no listos para cobrar");
+-    return NextResponse.json(
+-      { error: "Este servicio no está disponible para cobro todavía" },
+-      { status: 400 }
+-    );
++    // Se devuelve al comprador a la página del servicio con un aviso
++    // claro, en vez de mostrarle un error técnico.
++    return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=no-disponible`);
+   }
+ 
+   // Modelo económico (ver lib/pricing.ts): el precio del servicio es la
+@@ -199,9 +198,6 @@ export async function GET(request: Request) {
+     return NextResponse.redirect(session.url!);
+   } catch (err: any) {
+     console.error("[checkout] ERROR creando la sesion de Stripe:", err?.message, err);
+-    return NextResponse.json(
+-      { error: "Error al crear el pago", detail: err?.message },
+-      { status: 500 }
+-    );
++    return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=pago`);
+   }
+ }
+\ No newline at end of file
+diff --git a/app/servicio/[id]/page.tsx b/app/servicio/[id]/page.tsx
+index da1f844..178da6b 100644
+--- a/app/servicio/[id]/page.tsx
++++ b/app/servicio/[id]/page.tsx
+@@ -33,7 +33,7 @@ export default async function ServicioPage({
+   searchParams,
+ }: {
+   params: Promise<{ id: string }>;
+-  searchParams: Promise<{ paid?: string; cancelled?: string; inquiry_sent?: string }>;
++  searchParams: Promise<{ paid?: string; cancelled?: string; inquiry_sent?: string; error?: string }>;
+ }) {
+   const { id } = await params;
+   const sp = await searchParams;
+@@ -123,6 +123,13 @@ export default async function ServicioPage({
+               Pago realizado correctamente. Recibirás la confirmación en tu email.
+             </div>
+           )}
++          {sp.error && (
++            <div className="rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 mb-6">
++              {sp.error === "no-disponible"
++                ? "Este servicio no está disponible para comprar ahora mismo. Inténtalo más tarde o contacta con el profesional."
++                : "No hemos podido iniciar el pago. No se ha cobrado nada. Inténtalo de nuevo en unos minutos."}
++            </div>
++          )}
+           {sp.cancelled && (
+             <div className="rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm px-4 py-3 mb-6">
+               Pago cancelado. Puedes intentarlo de nuevo cuando quieras.

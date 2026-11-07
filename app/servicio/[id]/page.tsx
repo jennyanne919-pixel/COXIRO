@@ -33,7 +33,7 @@ export default async function ServicioPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ paid?: string; cancelled?: string; inquiry_sent?: string }>;
+  searchParams: Promise<{ paid?: string; cancelled?: string; inquiry_sent?: string; error?: string }>;
 }) {
   const { id } = await params;
   const sp = await searchParams;
@@ -121,6 +121,13 @@ export default async function ServicioPage({
           {sp.paid && (
             <div className="rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-4 py-3 mb-6">
               Pago realizado correctamente. Recibirás la confirmación en tu email.
+            </div>
+          )}
+          {sp.error && (
+            <div className="rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 mb-6">
+              {sp.error === "no-disponible"
+                ? "Este servicio no está disponible para comprar ahora mismo. Inténtalo más tarde o contacta con el profesional."
+                : "No hemos podido iniciar el pago. No se ha cobrado nada. Inténtalo de nuevo en unos minutos."}
             </div>
           )}
           {sp.cancelled && (

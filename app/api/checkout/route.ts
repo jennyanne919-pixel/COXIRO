@@ -68,10 +68,9 @@ export async function GET(request: Request) {
 
   if (!service || !provider?.stripe_account_id || provider.kyc_status !== "verified") {
     console.error("[checkout] Bloqueado: servicio o proveedor no listos para cobrar");
-    return NextResponse.json(
-      { error: "Este servicio no está disponible para cobro todavía" },
-      { status: 400 }
-    );
+    // Se devuelve al comprador a la página del servicio con un aviso
+    // claro, en vez de mostrarle un error técnico.
+    return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=no-disponible`);
   }
 
   // Modelo económico (ver lib/pricing.ts): el precio del servicio es la
@@ -199,9 +198,6 @@ export async function GET(request: Request) {
     return NextResponse.redirect(session.url!);
   } catch (err: any) {
     console.error("[checkout] ERROR creando la sesion de Stripe:", err?.message, err);
-    return NextResponse.json(
-      { error: "Error al crear el pago", detail: err?.message },
-      { status: 500 }
-    );
+    return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=pago`);
   }
 }
