@@ -27,7 +27,7 @@ export default async function ReproductorPage({
     .select(
       `
       id, title, service_id, content_type, r2_key, file_url, is_free,
-      services ( title, image_url )
+      services ( title, image_url, provider_id )
     `
     )
     .eq("id", itemId)
@@ -35,12 +35,15 @@ export default async function ReproductorPage({
 
   if (!item) notFound();
 
-  if (!item.is_free) {
+  const esDueno = (item.services as any)?.provider_id === user.id;
+
+  if (!item.is_free && !esDueno) {
     const { data: access } = await admin
       .from("content_access")
       .select("id")
       .eq("client_id", user.id)
       .eq("service_id", item.service_id)
+      .limit(1)
       .maybeSingle();
 
     if (!access) {
@@ -78,10 +81,10 @@ export default async function ReproductorPage({
       </header>
       <div className="max-w-4xl mx-auto px-6 pb-16">
         <a
-          href={`/servicio/${item.service_id}`}
+          href="/dashboard/contenido"
           className="text-xs text-cx-texto-osc-2 hover:text-white block mb-1"
         >
-          ← {(item.services as any)?.title ?? "Volver al servicio"}
+          ← Mi contenido · {(item.services as any)?.title ?? ""}
         </a>
         <h1 className="text-white text-lg font-medium mb-4">{item.title}</h1>
         <VideoPlayer

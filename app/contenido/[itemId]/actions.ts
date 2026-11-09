@@ -49,6 +49,7 @@ export async function saveProgress(
           .select("id")
           .eq("client_id", user.id)
           .eq("service_id", item.service_id)
+          .limit(1)
           .maybeSingle();
         permitido = !!acceso;
       }

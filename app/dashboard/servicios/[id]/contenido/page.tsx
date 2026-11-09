@@ -1,15 +1,31 @@
 import { createClient } from "@/lib/supabase/server";
 import { deleteContentItem } from "./actions";
 import AddContentForm from "./AddContentForm";
+import DeleteContentButton from "./DeleteContentButton";
 import { notFound } from "next/navigation";
+import {
+  Badge,
+  BTN_SECONDARY,
+  Card,
+  EmptyState,
+  Icon,
+  PageHeader,
+  type IconName,
+} from "@/components/dashboard/ui";
 
-const TYPE_LABELS: Record<string, string> = {
-  video: "Vídeo",
-  pdf: "PDF",
-  audio: "Audio",
-  link: "Enlace",
-  document: "Documento",
+const TYPES: Record<string, { label: string; icon: IconName }> = {
+  video: { label: "Vídeo", icon: "play" },
+  pdf: { label: "PDF", icon: "doc" },
+  audio: { label: "Audio", icon: "play" },
+  link: { label: "Enlace", icon: "external" },
+  document: { label: "Documento", icon: "doc" },
 };
+
+function tamano(bytes?: number | null) {
+  if (!bytes) return "";
+  const mb = bytes / 1024 / 1024;
+  return mb >= 1 ? `${mb.toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
 
 export default async function ContenidoServicioPage({
   params,
@@ -40,53 +56,60 @@ export default async function ContenidoServicioPage({
 
   return (
     <div>
-      <div className="mb-6">
-        <a href="/dashboard/servicios" className="text-xs text-cx-texto-2 hover:text-cx-texto">
-          ← Volver a mis servicios
-        </a>
-        <h1 className="text-lg font-medium mt-2">Contenido de "{service.title}"</h1>
-        <p className="text-sm text-cx-texto-2 mt-0.5">
-          Lo que verá el cliente después de pagar
-        </p>
-      </div>
+      <a href="/dashboard/servicios" className="inline-flex items-center gap-1 text-xs text-cx-texto-2 hover:text-cx-prof mb-3">
+        ← Volver a mis servicios
+      </a>
+      <PageHeader
+        title={`Contenido de «${service.title}»`}
+        subtitle="Lo que verá el cliente después de pagar"
+      />
 
       <AddContentForm serviceId={service.id} />
 
-      <div className="rounded-lg bg-cx-hielo overflow-hidden">
-        <div className="grid grid-cols-4 px-3.5 py-2.5 text-xs text-cx-texto-2 border-b border-cx-borde">
-          <span className="col-span-2">Título</span>
-          <span>Tipo</span>
-          <span></span>
-        </div>
-        {items?.map((item) => (
-          <div
-            key={item.id}
-            className="grid grid-cols-4 px-3.5 py-3 text-sm items-center border-b border-cx-borde last:border-0 gap-2"
-          >
-            <span className="col-span-2">
-              {item.title}
-              {item.is_free && (
-                <span className="ml-2 text-[10px] font-semibold uppercase text-emerald-700 bg-emerald-50 rounded-full px-2 py-0.5">
-                  Gratis
-                </span>
-              )}
-            </span>
-            <span className="text-cx-texto-2">{TYPE_LABELS[item.content_type] ?? item.content_type}</span>
-            <form action={deleteContentItem}>
-              <input type="hidden" name="item_id" value={item.id} />
-              <input type="hidden" name="service_id" value={service.id} />
-              <button className="text-xs text-red-600 hover:underline justify-self-end">
-                Eliminar
-              </button>
-            </form>
-          </div>
-        ))}
-        {!items?.length && (
-          <p className="text-sm text-cx-texto-2 p-4">
-            Todavía no has añadido contenido a este servicio.
-          </p>
+      <Card>
+        {items?.length ? (
+          <ul className="divide-y divide-cx-borde">
+            {items.map((item) => {
+              const t = TYPES[item.content_type] ?? { label: item.content_type, icon: "doc" as IconName };
+              const reproducible = item.r2_key && ["video", "audio"].includes(item.content_type);
+              return (
+                <li key={item.id} className="flex items-center gap-3 px-4 py-3.5">
+                  <span className="w-10 h-10 rounded-xl bg-cx-hielo text-cx-prof flex items-center justify-center shrink-0">
+                    <Icon name={t.icon} className="w-[18px] h-[18px]" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-cx-noche truncate">{item.title}</p>
+                    <p className="text-xs text-cx-texto-2">
+                      {t.label}
+                      {item.file_size ? ` · ${tamano(item.file_size)}` : ""}
+                    </p>
+                  </div>
+                  {item.is_free && <Badge tone="verde">Gratis</Badge>}
+                  <a
+                    href={reproducible ? `/contenido/${item.id}` : `/api/access/${item.id}`}
+                    target="_blank"
+                    className={BTN_SECONDARY}
+                  >
+                    <Icon name={reproducible ? "play" : "eye"} className="w-3.5 h-3.5" />
+                    Ver
+                  </a>
+                  <DeleteContentButton
+                    itemId={item.id}
+                    serviceId={service.id}
+                    deleteContentItem={deleteContentItem}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <EmptyState
+            icon="folder"
+            title="Todavía no has añadido contenido"
+            text="Sube un vídeo, un PDF o un enlace con el formulario de arriba."
+          />
         )}
-      </div>
+      </Card>
     </div>
   );
 }

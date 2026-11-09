@@ -87,7 +87,7 @@ export default function AddContentForm({ serviceId }: { serviceId: string }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-lg bg-cx-hielo p-5 mb-8 grid gap-3 max-w-lg"
+      className="rounded-2xl bg-white border border-cx-borde p-5 mb-6 grid gap-3 max-w-lg"
     >
       <input type="hidden" name="service_id" value={serviceId} />
 
@@ -159,7 +159,7 @@ export default function AddContentForm({ serviceId }: { serviceId: string }) {
 
       <button
         disabled={subiendo}
-        className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition disabled:opacity-50"
+        className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition disabled:opacity-50"
       >
         {subiendo ? `Subiendo... ${progreso}%` : "Añadir contenido"}
       </button>

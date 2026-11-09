@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { PageHeader } from "@/components/dashboard/ui";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import PasswordField from "@/components/PasswordField";
@@ -59,12 +60,7 @@ export default async function MiCuentaPage({
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-lg font-medium">Mi perfil</h1>
-        <p className="text-sm text-cx-texto-2 mt-0.5">
-          Tus datos de cuenta. Son privados.
-        </p>
-      </div>
+      <PageHeader title="Mi perfil" subtitle="Tus datos de cuenta. Son privados." />
 
       {sp.saved && (
         <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-4 max-w-lg">
@@ -95,7 +91,7 @@ export default async function MiCuentaPage({
         <h2 className="text-base font-medium">Datos personales</h2>
       </div>
 
-      <form action={updateDatos} className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
+      <form action={updateDatos} className="rounded-2xl bg-white border border-cx-borde p-5 grid gap-3 max-w-lg">
         <div>
           <label className="text-xs text-cx-texto-2 block mb-1">Nombre</label>
           <p className="w-full rounded-lg border border-cx-borde bg-white/60 px-3.5 py-2 text-sm text-cx-texto">
@@ -140,7 +136,7 @@ export default async function MiCuentaPage({
             className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
           />
         </div>
-        <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
+        <button className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
           Guardar
         </button>
       </form>
@@ -153,7 +149,7 @@ export default async function MiCuentaPage({
         </p>
       </div>
 
-      <form action={cambiarPassword} className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
+      <form action={cambiarPassword} className="rounded-2xl bg-white border border-cx-borde p-5 grid gap-3 max-w-lg">
         <PasswordField
           name="current_password"
           label="Contraseña actual"
@@ -174,7 +170,7 @@ export default async function MiCuentaPage({
           autoComplete="new-password"
           minLength={8}
         />
-        <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
+        <button className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
           Cambiar contraseña
         </button>
       </form>

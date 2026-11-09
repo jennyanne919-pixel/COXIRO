@@ -23,7 +23,7 @@ export async function GET(
 
   const { data: item } = await admin
     .from("content_items")
-    .select("id, service_id, file_url, r2_key, is_free")
+    .select("id, service_id, file_url, r2_key, is_free, services ( provider_id )")
     .eq("id", itemId)
     .single();
 
@@ -31,7 +31,10 @@ export async function GET(
     return NextResponse.json({ error: "Contenido no encontrado" }, { status: 404 });
   }
 
-  if (!item.is_free) {
+  // El propio profesional puede ver su contenido para comprobarlo.
+  const esDueno = !!user && (item.services as any)?.provider_id === user.id;
+
+  if (!item.is_free && !esDueno) {
     if (!user) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
@@ -41,6 +44,7 @@ export async function GET(
       .select("id")
       .eq("client_id", user.id)
       .eq("service_id", item.service_id)
+      .limit(1)
       .maybeSingle();
 
     if (!access) {

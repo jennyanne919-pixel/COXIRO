@@ -3,28 +3,9 @@ import Logo from "@/components/Logo";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
 import { tieneAceptacionVigente } from "@/lib/acceptances";
-import { CONDICIONES_RUTA } from "@/lib/condiciones";
-import DashboardNav, { type NavItem } from "@/components/dashboard/DashboardNav";
+import DashboardNav from "@/components/dashboard/DashboardNav";
+import { PROVIDER_NAV, CLIENT_NAV } from "@/components/dashboard/navItems";
 import { Icon } from "@/components/dashboard/ui";
-
-// Menú del proveedor: gestiona lo que vende y lo que cobra.
-const PROVIDER_NAV: NavItem[] = [
-  { label: "Cobros y facturas", href: "/dashboard", icon: "cobros" },
-  { label: "Mis servicios", href: "/dashboard/servicios", icon: "servicios" },
-  { label: "Solicitudes", href: "/dashboard/solicitudes", icon: "inbox" },
-  { label: "Mis partners", href: "/dashboard/referidos", icon: "partners" },
-  { label: "Mis clientes", href: "#", icon: "users", soon: true },
-  { label: "Mi perfil", href: "/dashboard/perfil", icon: "user" },
-  { label: "Condiciones económicas", href: CONDICIONES_RUTA, icon: "doc" },
-];
-
-// Menú del cliente: lo que ha comprado, no lo que cobra.
-const CLIENT_NAV: NavItem[] = [
-  { label: "Mis compras", href: "/dashboard", icon: "bag" },
-  { label: "Mi contenido", href: "/dashboard/contenido", icon: "play" },
-  { label: "Productos digitales", href: "/catalogo", icon: "globe" },
-  { label: "Mi perfil", href: "/dashboard/mi-cuenta", icon: "user" },
-];
 
 export default async function DashboardLayout({
   children,

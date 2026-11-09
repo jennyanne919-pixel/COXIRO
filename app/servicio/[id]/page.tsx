@@ -103,6 +103,7 @@ export default async function ServicioPage({
       .select("id")
       .eq("client_id", user.id)
       .eq("service_id", service.id)
+      .limit(1)
       .maybeSingle();
     yaComprado = !!access;
   }

@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/dashboard/ui";
 import { createClient } from "@/lib/supabase/server";
 import { calcularGananciasPartner } from "@/lib/referrals";
 
@@ -22,16 +23,9 @@ export default async function ReferidosPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-lg font-medium">Mis partners</h1>
-        <p className="text-sm text-cx-texto-2 mt-0.5">
-          Gana un 1% de la facturación de cada profesional que traigas a
-          Coxiro, durante sus primeros 12 meses. Se paga automáticamente el
-          día 1 de cada mes a tu cuenta de Stripe.
-        </p>
-      </div>
+      <PageHeader title="Mis partners" subtitle="Gana un 1% de la facturación de cada profesional que traigas a Coxiro, durante sus primeros 12 meses. Se paga automáticamente el día 1 de cada mes a tu cuenta de Stripe." />
 
-      <div className="rounded-lg bg-cx-hielo p-5 mb-8">
+      <div className="rounded-2xl bg-white border border-cx-borde p-5 mb-8">
         <p className="text-xs text-cx-texto-2 mb-2">Tu enlace para compartir</p>
         {referralUrl ? (
           <code className="text-sm bg-white border border-cx-borde rounded-lg px-3 py-2 break-all inline-block">
@@ -45,21 +39,21 @@ export default async function ReferidosPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-        <div className="rounded-lg bg-cx-hielo p-4">
+        <div className="rounded-2xl bg-white border border-cx-borde p-4">
           <p className="text-sm text-cx-texto-2 mb-1">Ganado en total</p>
           <p className="text-2xl font-medium">{totalGanado.toFixed(2)} €</p>
         </div>
-        <div className="rounded-lg bg-cx-hielo p-4">
+        <div className="rounded-2xl bg-white border border-cx-borde p-4">
           <p className="text-sm text-cx-texto-2 mb-1">Ya pagado</p>
           <p className="text-2xl font-medium">{totalPagado.toFixed(2)} €</p>
         </div>
-        <div className="rounded-lg bg-cx-celeste/10 p-4">
+        <div className="rounded-2xl bg-cx-celeste/10 border border-cx-celeste/30 p-4">
           <p className="text-sm text-cx-texto-2 mb-1">Pendiente (próximo pago día 1)</p>
           <p className="text-2xl font-medium text-cx-prof">{pendiente.toFixed(2)} €</p>
         </div>
       </div>
 
-      <div className="rounded-lg bg-cx-hielo overflow-hidden hidden md:block">
+      <div className="rounded-2xl bg-white border border-cx-borde overflow-hidden hidden md:block">
         <div className="grid grid-cols-5 px-3.5 py-2.5 text-xs text-cx-texto-2 border-b border-cx-borde">
           <span>Profesional</span>
           <span>Referido desde</span>
@@ -91,7 +85,7 @@ export default async function ReferidosPage() {
 
       <div className="grid gap-3 md:hidden">
         {filas.map((f) => (
-          <div key={f.id} className="rounded-lg bg-cx-hielo p-4 text-sm">
+          <div key={f.id} className="rounded-2xl bg-white border border-cx-borde p-4 text-sm">
             <div className="flex items-start justify-between mb-2">
               <p className="font-medium">{f.nombre}</p>
               <p className="font-display font-semibold">{f.ganancia.toFixed(2)} €</p>
@@ -103,7 +97,7 @@ export default async function ReferidosPage() {
           </div>
         ))}
         {!filas.length && (
-          <p className="text-sm text-cx-texto-2 bg-cx-hielo rounded-lg p-4">
+          <p className="text-sm text-cx-texto-2 bg-white border border-cx-borde rounded-2xl p-4">
             Todavía no has traído a ningún profesional. Comparte tu enlace
             para empezar a ganar.
           </p>

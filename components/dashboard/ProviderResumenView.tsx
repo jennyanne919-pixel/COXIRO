@@ -64,7 +64,7 @@ export default function ProviderResumenView({
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-        <StatCard className="col-span-2 sm:col-span-1" dark icon="trend" label="Cobrado este mes" value={fmtEur(cobradoMes)} hint="Tu parte, sin IVA" />
+        <StatCard className="col-span-2 sm:col-span-1" dark icon="trend" label="Cobrado este mes" value={fmtEur(cobradoMes)} />
         <StatCard icon="clock" label="Pendiente de cobro" value={fmtEur(pendiente)} />
         <StatCard icon="bag" label="Ventas realizadas" value={String(ventasTotales)} />
       </div>

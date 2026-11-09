@@ -1,3 +1,4 @@
+import { BTN_SECONDARY, Icon, PageHeader } from "@/components/dashboard/ui";
 import { createClient } from "@/lib/supabase/server";
 import ConectarStripeBoton from "@/components/dashboard/ConectarStripeBoton";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -86,21 +87,18 @@ export default async function PerfilPage({
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-lg font-medium">Mi perfil</h1>
-        <p className="text-sm text-cx-texto-2 mt-0.5">
-          Esto es lo que verán tus clientes antes de comprarte
-        </p>
-        {provider?.slug && (
-          <a
-            href={`/${provider.slug}`}
-            target="_blank"
-            className="inline-block text-sm text-cx-prof hover:underline mt-2"
-          >
-            Ver mi perfil público →
-          </a>
-        )}
-      </div>
+      <PageHeader
+        title="Mi perfil"
+        subtitle="Esto es lo que verán tus clientes antes de comprarte"
+        action={
+          provider?.slug ? (
+            <a href={`/${provider.slug}`} target="_blank" className={BTN_SECONDARY}>
+              <Icon name="external" className="w-3.5 h-3.5" />
+              Ver mi perfil público
+            </a>
+          ) : undefined
+        }
+      />
 
       {sp.saved && (
         <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 mb-4 max-w-lg">
@@ -127,7 +125,7 @@ export default async function PerfilPage({
         </p>
       )}
 
-      <form action={updateBio} className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
+      <form action={updateBio} className="rounded-2xl bg-white border border-cx-borde p-5 grid gap-3 max-w-lg">
         <div>
           <label className="text-xs text-cx-texto-2 block mb-2">
             Tu foto (aparece junto a tu descripción)
@@ -200,7 +198,7 @@ export default async function PerfilPage({
             className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
           />
         </div>
-        <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
+        <button className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
           Guardar
         </button>
       </form>
@@ -212,7 +210,7 @@ export default async function PerfilPage({
         </p>
       </div>
 
-      <form action={updateContacto} className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
+      <form action={updateContacto} className="rounded-2xl bg-white border border-cx-borde p-5 grid gap-3 max-w-lg">
         <div>
           <label className="text-xs text-cx-texto-2 block mb-1">Email</label>
           <input
@@ -243,7 +241,7 @@ export default async function PerfilPage({
             className="w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm"
           />
         </div>
-        <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
+        <button className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
           Guardar datos de contacto
         </button>
       </form>
@@ -256,7 +254,7 @@ export default async function PerfilPage({
         </p>
       </div>
 
-      <form action={cambiarPassword} className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
+      <form action={cambiarPassword} className="rounded-2xl bg-white border border-cx-borde p-5 grid gap-3 max-w-lg">
         <PasswordField
           name="current_password"
           label="Contraseña actual"
@@ -274,7 +272,7 @@ export default async function PerfilPage({
           autoComplete="new-password"
           minLength={8}
         />
-        <button className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
+        <button className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 mt-1 hover:brightness-105 transition">
           Cambiar contraseña
         </button>
       </form>
@@ -287,7 +285,7 @@ export default async function PerfilPage({
         </p>
       </div>
 
-      <div className="rounded-lg bg-cx-hielo p-5 grid gap-3 max-w-lg">
+      <div className="rounded-2xl bg-white border border-cx-borde p-5 grid gap-3 max-w-lg">
         {provider?.stripe_account_id ? (
           <>
             {provider.kyc_status === "verified" ? (
@@ -308,7 +306,7 @@ export default async function PerfilPage({
             </a>
           </>
         ) : (
-          <ConectarStripeBoton className="rounded-lg bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 text-center hover:brightness-105 transition">
+          <ConectarStripeBoton className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold py-2.5 text-center hover:brightness-105 transition">
             Conectar mi cuenta de Stripe
           </ConectarStripeBoton>
         )}
