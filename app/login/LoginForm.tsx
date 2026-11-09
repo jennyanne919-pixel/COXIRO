@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Logo from "@/components/Logo";
+import SubmitButton from "@/components/SubmitButton";
 import { signIn, signInWithGoogle } from "@/app/auth/actions";
 
 export default function LoginForm({
@@ -82,9 +83,12 @@ export default function LoginForm({
               )}
             </button>
           </div>
-          <button className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition">
+          <SubmitButton
+            pendingText="Entrando…"
+            className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition"
+          >
             Entrar
-          </button>
+          </SubmitButton>
         </form>
 
         <p className="text-sm text-cx-texto-2 mt-3">

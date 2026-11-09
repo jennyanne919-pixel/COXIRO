@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CONDICIONES_RUTA } from "@/lib/condiciones";
 import Logo from "@/components/Logo";
+import SubmitButton from "@/components/SubmitButton";
 import { signUp } from "@/app/auth/actions";
 import PasswordRequisitos from "@/components/PasswordRequisitos";
 import { passwordValida, PASSWORD_MIN } from "@/lib/password";
@@ -256,12 +257,13 @@ export default function RegistroForm({
             </span>
           </label>
 
-          <button
+          <SubmitButton
             disabled={!passwordValida(password)}
+            pendingText="Creando tu cuenta… un momento"
             className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Crear cuenta
-          </button>
+          </SubmitButton>
         </form>
 
         <p className="text-sm text-cx-texto-2 mt-5">

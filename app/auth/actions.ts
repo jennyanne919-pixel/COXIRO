@@ -57,7 +57,11 @@ export async function signUp(formData: FormData) {
   const { data, error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    redirect(`/registro?error=${encodeURIComponent(error.message)}`);
+    const yaExiste = error.message.toLowerCase().includes("already registered");
+    const mensaje = yaExiste
+      ? "Ya existe una cuenta con este correo. Si eres tú, entra desde «Inicia sesión»."
+      : error.message;
+    redirect(`/registro?error=${encodeURIComponent(mensaje)}`);
   }
 
   const user = data.user;

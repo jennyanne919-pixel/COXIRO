@@ -1,0 +1,151 @@
+From b71cb8e7d6aa4c94e944d292a1f217822e588f63 Mon Sep 17 00:00:00 2001
+From: c <a@b>
+Date: Sun, 8 Nov 2026 15:31:06 +0000
+Subject: [PATCH] registro y login: boton que se bloquea al enviar, error en
+ espanol y redireccion si ya hay sesion
+
+---
+ app/auth/actions.ts           |  6 +++++-
+ app/login/LoginForm.tsx       |  8 ++++++--
+ app/registro/RegistroForm.tsx |  6 ++++--
+ app/registro/page.tsx         | 12 ++++++++++++
+ components/SubmitButton.tsx   | 29 +++++++++++++++++++++++++++++
+ 5 files changed, 56 insertions(+), 5 deletions(-)
+ create mode 100644 components/SubmitButton.tsx
+
+diff --git a/app/auth/actions.ts b/app/auth/actions.ts
+index 006db5e..804df36 100644
+--- a/app/auth/actions.ts
++++ b/app/auth/actions.ts
+@@ -57,7 +57,11 @@ export async function signUp(formData: FormData) {
+   const { data, error } = await supabase.auth.signUp({ email, password });
+ 
+   if (error) {
+-    redirect(`/registro?error=${encodeURIComponent(error.message)}`);
++    const yaExiste = error.message.toLowerCase().includes("already registered");
++    const mensaje = yaExiste
++      ? "Ya existe una cuenta con este correo. Si eres tú, entra desde «Inicia sesión»."
++      : error.message;
++    redirect(`/registro?error=${encodeURIComponent(mensaje)}`);
+   }
+ 
+   const user = data.user;
+diff --git a/app/login/LoginForm.tsx b/app/login/LoginForm.tsx
+index 05e5e10..d9a60e0 100644
+--- a/app/login/LoginForm.tsx
++++ b/app/login/LoginForm.tsx
+@@ -2,6 +2,7 @@
+ 
+ import { useState } from "react";
+ import Logo from "@/components/Logo";
++import SubmitButton from "@/components/SubmitButton";
+ import { signIn, signInWithGoogle } from "@/app/auth/actions";
+ 
+ export default function LoginForm({
+@@ -82,9 +83,12 @@ export default function LoginForm({
+               )}
+             </button>
+           </div>
+-          <button className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition">
++          <SubmitButton
++            pendingText="Entrando…"
++            className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition"
++          >
+             Entrar
+-          </button>
++          </SubmitButton>
+         </form>
+ 
+         <p className="text-sm text-cx-texto-2 mt-3">
+diff --git a/app/registro/RegistroForm.tsx b/app/registro/RegistroForm.tsx
+index c2dce2b..0a4bf81 100644
+--- a/app/registro/RegistroForm.tsx
++++ b/app/registro/RegistroForm.tsx
+@@ -3,6 +3,7 @@
+ import { useState } from "react";
+ import { CONDICIONES_RUTA } from "@/lib/condiciones";
+ import Logo from "@/components/Logo";
++import SubmitButton from "@/components/SubmitButton";
+ import { signUp } from "@/app/auth/actions";
+ import PasswordRequisitos from "@/components/PasswordRequisitos";
+ import { passwordValida, PASSWORD_MIN } from "@/lib/password";
+@@ -256,12 +257,13 @@ export default function RegistroForm({
+             </span>
+           </label>
+ 
+-          <button
++          <SubmitButton
+             disabled={!passwordValida(password)}
++            pendingText="Creando tu cuenta… un momento"
+             className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
+           >
+             Crear cuenta
+-          </button>
++          </SubmitButton>
+         </form>
+ 
+         <p className="text-sm text-cx-texto-2 mt-5">
+diff --git a/app/registro/page.tsx b/app/registro/page.tsx
+index dbcaab8..f7a0158 100644
+--- a/app/registro/page.tsx
++++ b/app/registro/page.tsx
+@@ -1,3 +1,5 @@
++import { redirect } from "next/navigation";
++import { createClient } from "@/lib/supabase/server";
+ import RegistroForm from "./RegistroForm";
+ 
+ export default async function RegistroPage({
+@@ -6,5 +8,15 @@ export default async function RegistroPage({
+   searchParams: Promise<{ error?: string; ["check-email"]?: string; ref?: string; role?: string; slug?: string }>;
+ }) {
+   const sp = await searchParams;
++
++  // Si ya hay sesión (por ejemplo, tras registrarse), no tiene sentido volver
++  // a mostrar el registro: se va al panel. Evita ver un error de "usuario ya
++  // registrado" cuando la cuenta se creó bien.
++  const supabase = await createClient();
++  const {
++    data: { user },
++  } = await supabase.auth.getUser();
++  if (user) redirect("/dashboard");
++
+   return <RegistroForm searchParams={sp} />;
+ }
+diff --git a/components/SubmitButton.tsx b/components/SubmitButton.tsx
+new file mode 100644
+index 0000000..eed10d8
+--- /dev/null
++++ b/components/SubmitButton.tsx
+@@ -0,0 +1,29 @@
++"use client";
++
++import { useFormStatus } from "react-dom";
++
++// Botón de envío que se bloquea mientras el formulario se procesa, para que
++// nadie lo pulse varias veces (registro y login tardan unos segundos).
++export default function SubmitButton({
++  className,
++  children,
++  pendingText,
++  disabled,
++}: {
++  className: string;
++  children: React.ReactNode;
++  pendingText: string;
++  disabled?: boolean;
++}) {
++  const { pending } = useFormStatus();
++  return (
++    <button
++      type="submit"
++      disabled={pending || disabled}
++      aria-busy={pending}
++      className={`${className} ${pending ? "opacity-70 cursor-wait" : ""}`}
++    >
++      {pending ? pendingText : children}
++    </button>
++  );
++}
+-- 
+2.43.0
+
