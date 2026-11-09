@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Logo from "@/components/Logo";
-import { createClient } from "@/lib/supabase/client";
+import { pedirRecuperacion } from "./actions";
 
 export default function RecuperarContrasenaPage() {
   const [email, setEmail] = useState("");
@@ -12,14 +12,10 @@ export default function RecuperarContrasenaPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    const supabase = createClient();
+    const { ok } = await pedirRecuperacion(email);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/actualizar-contrasena`,
-    });
-
-    if (error) {
-      setError(error.message);
+    if (!ok) {
+      setError("Escribe un email válido.");
       return;
     }
 
@@ -39,8 +35,8 @@ export default function RecuperarContrasenaPage() {
 
         {enviado ? (
           <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-            Revisa tu email — te hemos enviado un enlace para crear tu
-            contraseña nueva.
+            Si ese email tiene cuenta en Coxiro, te llegará un enlace en un
+            minuto o dos. Mira también en el correo no deseado.
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">

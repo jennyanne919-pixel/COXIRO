@@ -2,6 +2,7 @@ import { sendEmail } from "./client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import WelcomeEmail from "@/components/emails/WelcomeEmail";
 import CreatePasswordEmail from "@/components/emails/CreatePasswordEmail";
+import RecoverPasswordEmail from "@/components/emails/RecoverPasswordEmail";
 import PurchaseConfirmationEmail from "@/components/emails/PurchaseConfirmationEmail";
 import ProviderSaleEmail from "@/components/emails/ProviderSaleEmail";
 import InternalSaleEmail from "@/components/emails/InternalSaleEmail";
@@ -53,6 +54,30 @@ export async function sendCreatePasswordEmail(params: {
       enlace,
     }),
     emailType: "create_password",
+  });
+}
+
+// Recuperación de contraseña por nuestro propio correo (Resend) en vez
+// del correo por defecto de Supabase, que es lento, limitado y a menudo
+// acaba en spam (sobre todo con Hotmail/Outlook).
+export async function sendRecoveryEmail(to: string) {
+  const admin = createAdminClient();
+
+  const { data, error } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email: to,
+  });
+
+  // Si el email no tiene cuenta, generateLink falla: no se envía nada.
+  if (error || !data) return { success: false };
+
+  const enlace = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm?token_hash=${data.properties.hashed_token}&type=recovery&next=${encodeURIComponent("/actualizar-contrasena")}`;
+
+  return sendEmail({
+    to,
+    subject: "Recupera tu contraseña — Coxiro",
+    react: RecoverPasswordEmail({ enlace }),
+    emailType: "password_recovery",
   });
 }
 
