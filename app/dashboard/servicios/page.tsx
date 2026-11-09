@@ -3,14 +3,15 @@ import { createService, toggleServiceActive, toggleServicePublic, deleteService 
 import NewServiceForm from "./NewServiceForm";
 import DeleteServiceButton from "./DeleteServiceButton";
 import CopyLinkButton from "./CopyLinkButton";
-
-const TYPE_LABELS: Record<string, string> = {
-  content: "Contenido",
-  consult: "Consulta",
-  course: "Curso",
-  custom: "Servicios IA",
-  membership: "Membresía / Suscripción",
-};
+import ServiceCard from "@/components/dashboard/ServiceCard";
+import {
+  BTN_PRIMARY,
+  BTN_SECONDARY,
+  Card,
+  EmptyState,
+  Icon,
+  PageHeader,
+} from "@/components/dashboard/ui";
 
 export default async function ServiciosPage() {
   const supabase = await createClient();
@@ -30,161 +31,103 @@ export default async function ServiciosPage() {
     .eq("provider_id", user?.id ?? "")
     .order("created_at", { ascending: false });
 
+  const chip = (on: boolean, tono: string) =>
+    `inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-2.5 py-1 transition hover:brightness-95 ${
+      on ? tono : "bg-cx-hielo text-cx-texto-2"
+    }`;
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-lg font-medium">Mis servicios</h1>
-        <p className="text-sm text-cx-texto-2 mt-0.5">
-          Lo que ofreces a tus clientes, con su precio
-        </p>
-        {providerProfile?.slug && (
-          <a
-            href={`/${providerProfile.slug}`}
-            target="_blank"
-            className="inline-block text-sm text-cx-prof hover:underline mt-2"
-          >
-            Ver mi perfil público →
-          </a>
-        )}
-      </div>
-
-      <NewServiceForm
-        createService={createService}
-        comision={Number(providerProfile?.commission_rate ?? 10)}
+      <PageHeader
+        title="Mis servicios"
+        subtitle="Lo que ofreces a tus clientes, con su precio"
+        action={
+          providerProfile?.slug ? (
+            <a href={`/${providerProfile.slug}`} target="_blank" className={BTN_SECONDARY}>
+              <Icon name="external" className="w-3.5 h-3.5" />
+              Ver mi perfil público
+            </a>
+          ) : undefined
+        }
       />
 
+      <details className="group mb-6" open={!services?.length}>
+        <summary className={`${BTN_PRIMARY} cursor-pointer list-none [&::-webkit-details-marker]:hidden w-fit`}>
+          <Icon name="plus" />
+          Nuevo servicio
+        </summary>
+        <Card className="mt-4 p-5">
+          <NewServiceForm
+            createService={createService}
+            comision={Number(providerProfile?.commission_rate ?? 10)}
+          />
+        </Card>
+      </details>
 
-      <div className="rounded-lg bg-cx-hielo overflow-hidden hidden md:block">
-        <div className="grid grid-cols-8 px-3.5 py-2.5 text-xs text-cx-texto-2 border-b border-cx-borde">
-          <span className="col-span-2">Servicio</span>
-          <span>Tipo</span>
-          <span>Precio</span>
-          <span>Estado</span>
-          <span>Catálogo</span>
-          <span>Contenido</span>
-          <span></span>
+      {services?.length ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          {services.map((s) => (
+            <ServiceCard
+              key={s.id}
+              s={s}
+              estado={
+                <form action={toggleServiceActive}>
+                  <input type="hidden" name="id" value={s.id} />
+                  <input type="hidden" name="is_active" value={String(s.is_active)} />
+                  <button
+                    title={s.is_active ? "Pulsa para pausarlo" : "Pulsa para activarlo"}
+                    className={chip(s.is_active, "bg-emerald-50 text-emerald-700")}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                    {s.is_active ? "Activo" : "Pausado"}
+                  </button>
+                </form>
+              }
+              visibilidad={
+                <form action={toggleServicePublic}>
+                  <input type="hidden" name="id" value={s.id} />
+                  <input type="hidden" name="is_public" value={String(s.is_public)} />
+                  <button
+                    title={
+                      s.is_public
+                        ? "Aparece en el catálogo. Pulsa para hacerlo privado"
+                        : "Solo con enlace directo. Pulsa para publicarlo"
+                    }
+                    className={chip(s.is_public, "bg-cx-celeste/15 text-cx-prof")}
+                  >
+                    <Icon name={s.is_public ? "globe" : "lock"} className="w-3 h-3" />
+                    {s.is_public ? "Público" : "Privado"}
+                  </button>
+                </form>
+              }
+              acciones={
+                <>
+                  <a href={`/dashboard/servicios/${s.id}/contenido`} className={BTN_SECONDARY}>
+                    <Icon name="folder" className="w-3.5 h-3.5" />
+                    Contenido
+                  </a>
+                  <a href={`/dashboard/servicios/${s.id}/editar`} className={BTN_SECONDARY}>
+                    <Icon name="pencil" className="w-3.5 h-3.5" />
+                    Editar
+                  </a>
+                  <CopyLinkButton id={s.id} />
+                  <div className="ml-auto">
+                    <DeleteServiceButton id={s.id} deleteService={deleteService} />
+                  </div>
+                </>
+              }
+            />
+          ))}
         </div>
-        {services?.map((s) => (
-          <div
-            key={s.id}
-            className="grid grid-cols-8 px-3.5 py-3 text-sm items-center border-b border-cx-borde last:border-0"
-          >
-            <span className="col-span-2">{s.title}</span>
-            <span className="text-cx-texto-2">{TYPE_LABELS[s.type] ?? s.type}</span>
-            <span>{s.requires_inquiry ? "A medida" : `${Number(s.price).toFixed(2)} €`}</span>
-            <form action={toggleServiceActive}>
-              <input type="hidden" name="id" value={s.id} />
-              <input type="hidden" name="is_active" value={String(s.is_active)} />
-              <button
-                className={`text-xs font-medium rounded-full px-2.5 py-1 ${
-                  s.is_active
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-cx-hielo text-cx-texto-2"
-                }`}
-              >
-                {s.is_active ? "Activo" : "Pausado"}
-              </button>
-            </form>
-            <form action={toggleServicePublic}>
-              <input type="hidden" name="id" value={s.id} />
-              <input type="hidden" name="is_public" value={String(s.is_public)} />
-              <button
-                className={`text-xs font-medium rounded-full px-2.5 py-1 ${
-                  s.is_public
-                    ? "bg-cx-celeste/10 text-cx-prof"
-                    : "bg-cx-hielo text-cx-texto-2"
-                }`}
-              >
-                {s.is_public ? "Público" : "Privado"}
-              </button>
-            </form>
-            <a
-              href={`/dashboard/servicios/${s.id}/contenido`}
-              className="text-xs text-cx-prof hover:underline"
-            >
-              Gestionar →
-            </a>
-            <div className="flex items-center gap-3">
-              <CopyLinkButton id={s.id} />
-              <a
-                href={`/dashboard/servicios/${s.id}/editar`}
-                className="text-xs text-cx-texto-2 hover:underline"
-              >
-                Editar
-              </a>
-              <DeleteServiceButton id={s.id} deleteService={deleteService} />
-            </div>
-          </div>
-        ))}
-        {!services?.length && (
-          <p className="text-sm text-cx-texto-2 p-4">
-            Todavía no has publicado ningún servicio. Crea el primero arriba.
-          </p>
-        )}
-      </div>
-
-      <div className="grid gap-3 md:hidden">
-        {services?.map((s) => (
-          <div key={s.id} className="rounded-lg bg-cx-hielo p-4 text-sm">
-            <div className="flex items-start justify-between mb-2 gap-2">
-              <p className="font-medium">{s.title}</p>
-              <p className="font-display font-semibold whitespace-nowrap">
-                {s.requires_inquiry ? "A medida" : `${Number(s.price).toFixed(2)} €`}
-              </p>
-            </div>
-            <p className="text-cx-texto-2 text-xs mb-3">{TYPE_LABELS[s.type] ?? s.type}</p>
-            <div className="flex items-center gap-2 flex-wrap">
-              <form action={toggleServiceActive}>
-                <input type="hidden" name="id" value={s.id} />
-                <input type="hidden" name="is_active" value={String(s.is_active)} />
-                <button
-                  className={`text-xs font-medium rounded-full px-2.5 py-1 ${
-                    s.is_active
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-cx-hielo text-cx-texto-2"
-                  }`}
-                >
-                  {s.is_active ? "Activo" : "Pausado"}
-                </button>
-              </form>
-              <form action={toggleServicePublic}>
-                <input type="hidden" name="id" value={s.id} />
-                <input type="hidden" name="is_public" value={String(s.is_public)} />
-                <button
-                  className={`text-xs font-medium rounded-full px-2.5 py-1 ${
-                    s.is_public
-                      ? "bg-cx-celeste/10 text-cx-prof"
-                      : "bg-cx-hielo text-cx-texto-2"
-                  }`}
-                >
-                  {s.is_public ? "Público" : "Privado"}
-                </button>
-              </form>
-              <a
-                href={`/dashboard/servicios/${s.id}/contenido`}
-                className="text-xs text-cx-prof font-medium"
-              >
-                Gestionar →
-              </a>
-              <a
-                href={`/dashboard/servicios/${s.id}/editar`}
-                className="text-xs text-cx-texto-2 font-medium"
-              >
-                Editar
-              </a>
-              <CopyLinkButton id={s.id} />
-              <div className="ml-auto">
-                <DeleteServiceButton id={s.id} deleteService={deleteService} />
-              </div>
-            </div>
-          </div>
-        ))}
-        {!services?.length && (
-          <p className="text-sm text-cx-texto-2 bg-cx-hielo rounded-lg p-4">
-            Todavía no has publicado ningún servicio. Crea el primero arriba.
-          </p>
-        )}
-      </div>
+      ) : (
+        <Card>
+          <EmptyState
+            icon="servicios"
+            title="Todavía no has publicado ningún servicio"
+            text="Crea el primero con el botón de arriba y comparte su enlace."
+          />
+        </Card>
+      )}
     </div>
   );
 }

@@ -27,34 +27,58 @@ export default function VideoPlayer({
 }) {
   const playerRef = useRef<MediaPlayerInstance>(null);
   const yaSaltoRef = useRef(false);
+  const ultimoTiempoRef = useRef(0);
+  const ultimoGuardadoRef = useRef(0);
 
-  const guardarProgreso = useCallback(() => {
-    const t = playerRef.current?.currentTime;
-    if (t && t > 0) {
-      saveProgress(contentItemId, t);
-    }
-  }, [contentItemId]);
+  const guardarProgreso = useCallback(
+    (forzar = true) => {
+      const player = playerRef.current;
+      const t = player?.currentTime || ultimoTiempoRef.current;
+      if (!t || t <= 0) return;
+      const ahora = Date.now();
+      if (!forzar && ahora - ultimoGuardadoRef.current < 10000) return;
+      ultimoGuardadoRef.current = ahora;
+      const d = player?.duration;
+      saveProgress(contentItemId, t, d && Number.isFinite(d) ? d : undefined);
+    },
+    [contentItemId]
+  );
 
-  // Guarda el progreso cada 10 segundos mientras se reproduce, y al
-  // salir de la página -- así, si la cierra a media reproducción, no
-  // se pierde el punto donde iba.
+  // Guarda cada 10 s mientras se reproduce (onTimeUpdate), al pausar, al
+  // terminar y al salir de la página o cambiar de pestaña. Antes solo
+  // guardaba con un temporizador y al desmontar, y el último tramo se perdía.
   useEffect(() => {
-    const interval = setInterval(guardarProgreso, 10000);
-    window.addEventListener("beforeunload", guardarProgreso);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("beforeunload", guardarProgreso);
-      guardarProgreso();
+    const alOcultar = () => {
+      if (document.visibilityState === "hidden") guardarProgreso(true);
     };
-  }, [guardarProgreso]);
+    const alSalir = () => guardarProgreso(true);
+    document.addEventListener("visibilitychange", alOcultar);
+    window.addEventListener("pagehide", alSalir);
+    return () => {
+      document.removeEventListener("visibilitychange", alOcultar);
+      window.removeEventListener("pagehide", alSalir);
+      if (ultimoTiempoRef.current > 0) {
+        saveProgress(contentItemId, ultimoTiempoRef.current);
+      }
+    };
+  }, [guardarProgreso, contentItemId]);
 
   function handleCanPlay() {
-    // Solo saltamos al punto guardado la primera vez que carga, no
-    // cada vez que el navegador dispara "canPlay" de nuevo.
-    if (!yaSaltoRef.current && resumeAt > 5 && playerRef.current) {
+    // Solo saltamos al punto guardado la primera vez que carga. Si ya lo
+    // había visto casi entero, empieza desde el principio.
+    if (yaSaltoRef.current || !playerRef.current) return;
+    yaSaltoRef.current = true;
+    const d = playerRef.current.duration;
+    const casiFinal = d && Number.isFinite(d) && resumeAt >= d - 10;
+    if (resumeAt > 5 && !casiFinal) {
       playerRef.current.currentTime = resumeAt;
-      yaSaltoRef.current = true;
     }
+  }
+
+  function handleTimeUpdate() {
+    const t = playerRef.current?.currentTime;
+    if (t) ultimoTiempoRef.current = t;
+    guardarProgreso(false);
   }
 
   return (
@@ -65,7 +89,9 @@ export default function VideoPlayer({
       crossOrigin
       playsInline
       onCanPlay={handleCanPlay}
-      onPause={guardarProgreso}
+      onTimeUpdate={handleTimeUpdate}
+      onPause={() => guardarProgreso(true)}
+      onEnded={() => guardarProgreso(true)}
       className="w-full rounded-lg overflow-hidden"
     >
       <MediaProvider />

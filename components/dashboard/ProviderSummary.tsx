@@ -1,12 +1,23 @@
 import { createClient } from "@/lib/supabase/server";
 import ConectarStripeBoton from "./ConectarStripeBoton";
+import ProviderResumenView, { type VentaFila } from "./ProviderResumenView";
+import { BTN_PRIMARY, Icon } from "./ui";
+
+// "JENNY ANNE ABRIAM" -> "Jenny". Las sociedades se muestran tal cual.
+function saludoDe(nombre: string | null, legalType: string | null) {
+  if (!nombre) return "Hola";
+  if (legalType === "sociedad") return `Hola, ${nombre}`;
+  const primero = nombre.trim().split(/\s+/)[0];
+  const bonito = primero.charAt(0).toUpperCase() + primero.slice(1).toLowerCase();
+  return `Hola, ${bonito}`;
+}
 
 export default async function ProviderSummary({ userId }: { userId: string }) {
   const supabase = await createClient();
 
   const { data: provider } = await supabase
     .from("providers")
-    .select("kyc_status")
+    .select("kyc_status, business_name, legal_type")
     .eq("user_id", userId)
     .single();
 
@@ -16,6 +27,7 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
       `
       id,
       amount_total,
+      provider_net,
       status,
       created_at,
       client_id,
@@ -26,6 +38,27 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
     .eq("provider_id", userId)
     .order("created_at", { ascending: false })
     .limit(10);
+
+  // Totales calculados aparte para que no dependan de las 10 últimas ventas.
+  const inicioMes = new Date();
+  inicioMes.setDate(1);
+  inicioMes.setHours(0, 0, 0, 0);
+
+  const { data: pagadas } = await supabase
+    .from("transactions")
+    .select("provider_net, created_at")
+    .eq("provider_id", userId)
+    .eq("status", "paid");
+  const { data: pendientes } = await supabase
+    .from("transactions")
+    .select("provider_net")
+    .eq("provider_id", userId)
+    .eq("status", "pending");
+
+  const cobradoMes = (pagadas ?? [])
+    .filter((t) => new Date(t.created_at) >= inicioMes)
+    .reduce((sum, t) => sum + Number(t.provider_net ?? 0), 0);
+  const pendiente = (pendientes ?? []).reduce((sum, t) => sum + Number(t.provider_net ?? 0), 0);
 
   const clientIds = [...new Set(transactions?.map((t) => t.client_id) ?? [])];
   const { data: clientUsers } = clientIds.length
@@ -43,136 +76,31 @@ export default async function ProviderSummary({ userId }: { userId: string }) {
     : { data: [] };
   const invoiceIdByTx = new Map(invoices?.map((i) => [i.transaction_id, i.id]));
 
-  const paidThisMonth =
-    transactions
-      ?.filter((t) => t.status === "paid")
-      .reduce((sum, t) => sum + Number(t.amount_total), 0) ?? 0;
-
-  const pending =
-    transactions
-      ?.filter((t) => t.status === "pending")
-      .reduce((sum, t) => sum + Number(t.amount_total), 0) ?? 0;
+  const filas: VentaFila[] = (transactions ?? []).map((t: any) => ({
+    id: t.id,
+    cliente: t.clients?.billing_name ?? emailById.get(t.client_id) ?? "Cliente",
+    email: emailById.get(t.client_id) ?? undefined,
+    servicio: t.services?.title ?? "Servicio",
+    importe: Number(t.provider_net ?? 0),
+    estado: t.status === "paid" ? "paid" : "pending",
+    fecha: t.created_at,
+    facturaHref: invoiceIdByTx.get(t.id) ? `/api/invoices/${invoiceIdByTx.get(t.id)}/pdf` : undefined,
+  }));
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-lg font-medium">Cobros y facturas</h1>
-        <p className="text-sm text-cx-texto-2 mt-0.5">Resumen de tu actividad</p>
-      </div>
-
-      {provider?.kyc_status !== "verified" && (
-        <div className="rounded-lg bg-cx-celeste/10 border border-cx-celeste/30 p-4 mb-6 flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <p className="text-sm font-medium">Falta conectar tu cuenta de cobro</p>
-            <p className="text-sm text-cx-texto-2 mt-0.5">
-              Sin esto, no podrás recibir los pagos de tus clientes.
-            </p>
-          </div>
-          <ConectarStripeBoton className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-4 py-2 hover:brightness-105 transition whitespace-nowrap">
-            Conectar con Stripe
-          </ConectarStripeBoton>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-        <div className="rounded-lg bg-cx-hielo p-4">
-          <p className="text-sm text-cx-texto-2 mb-1">Cobrado este mes</p>
-          <p className="text-2xl font-medium">{paidThisMonth.toFixed(2)} €</p>
-        </div>
-        <div className="rounded-lg bg-cx-hielo p-4">
-          <p className="text-sm text-cx-texto-2 mb-1">Pendiente de cobro</p>
-          <p className="text-2xl font-medium">{pending.toFixed(2)} €</p>
-        </div>
-        <div className="rounded-lg bg-cx-hielo p-4">
-          <p className="text-sm text-cx-texto-2 mb-1">Transacciones</p>
-          <p className="text-2xl font-medium">{transactions?.length ?? 0}</p>
-        </div>
-      </div>
-
-      {/* Cabecera de tabla: solo en escritorio */}
-      <div className="rounded-lg bg-cx-hielo overflow-hidden hidden md:block">
-        <div className="grid grid-cols-6 px-3.5 py-2.5 text-xs text-cx-texto-2 border-b border-cx-borde">
-          <span>Cliente</span>
-          <span>Contacto</span>
-          <span>Servicio</span>
-          <span>Importe</span>
-          <span>Estado</span>
-          <span>Factura</span>
-        </div>
-        {transactions?.map((t: any) => (
-          <div
-            key={t.id}
-            className="grid grid-cols-6 px-3.5 py-3 text-sm items-center border-b border-cx-borde last:border-0"
-          >
-            <span>{t.clients?.billing_name ?? "—"}</span>
-            <span className="text-cx-texto-2 truncate">{emailById.get(t.client_id) ?? "—"}</span>
-            <span className="text-cx-texto-2">{t.services?.title ?? "—"}</span>
-            <span>{Number(t.amount_total).toFixed(2)} €</span>
-            <span className={t.status === "paid" ? "text-emerald-700" : "text-amber-700"}>
-              {t.status === "paid" ? "Pagado" : "Pendiente"}
-            </span>
-            {invoiceIdByTx.get(t.id) ? (
-              <a
-                href={`/api/invoices/${invoiceIdByTx.get(t.id)}/pdf`}
-                target="_blank"
-                className="text-xs text-cx-prof hover:underline"
-              >
-                Descargar
-              </a>
-            ) : (
-              <span className="text-xs text-cx-texto-2">—</span>
-            )}
-          </div>
-        ))}
-        {!transactions?.length && (
-          <p className="text-sm text-cx-texto-2 p-4">
-            Todavía no tienes cobros registrados.
-          </p>
-        )}
-      </div>
-
-      {/* Tarjetas apiladas: solo en móvil */}
-      <div className="grid gap-3 md:hidden">
-        {transactions?.map((t: any) => (
-          <div key={t.id} className="rounded-lg bg-cx-hielo p-4 text-sm">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <p className="font-medium">{t.clients?.billing_name ?? "—"}</p>
-                <p className="text-cx-texto-2 text-xs break-all">{emailById.get(t.client_id) ?? "—"}</p>
-              </div>
-              <span
-                className={`text-xs font-medium rounded-full px-2 py-1 whitespace-nowrap ${
-                  t.status === "paid"
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-amber-50 text-amber-700"
-                }`}
-              >
-                {t.status === "paid" ? "Pagado" : "Pendiente"}
-              </span>
-            </div>
-            <p className="text-cx-texto-2 text-xs mb-1">{t.services?.title ?? "—"}</p>
-            <div className="flex items-center justify-between mt-2">
-              <p className="font-display font-semibold">{Number(t.amount_total).toFixed(2)} €</p>
-              {invoiceIdByTx.get(t.id) ? (
-                <a
-                  href={`/api/invoices/${invoiceIdByTx.get(t.id)}/pdf`}
-                  target="_blank"
-                  className="text-xs text-cx-prof font-medium"
-                >
-                  Descargar factura →
-                </a>
-              ) : (
-                <span className="text-xs text-cx-texto-2">—</span>
-              )}
-            </div>
-          </div>
-        ))}
-        {!transactions?.length && (
-          <p className="text-sm text-cx-texto-2 bg-cx-hielo rounded-lg p-4">
-            Todavía no tienes cobros registrados.
-          </p>
-        )}
-      </div>
-    </div>
+    <ProviderResumenView
+      saludo={saludoDe(provider?.business_name ?? null, provider?.legal_type ?? null)}
+      verificado={provider?.kyc_status === "verified"}
+      conectar={
+        <ConectarStripeBoton className={BTN_PRIMARY}>
+          <Icon name="link" />
+          Conectar con Stripe
+        </ConectarStripeBoton>
+      }
+      cobradoMes={cobradoMes}
+      pendiente={pendiente}
+      ventasTotales={pagadas?.length ?? 0}
+      filas={filas}
+    />
   );
 }

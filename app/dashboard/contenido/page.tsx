@@ -42,6 +42,17 @@ export default async function MiContenidoPage() {
         .order("sort_order", { ascending: true })
     : { data: [] };
 
+  const { data: progresoRows } = allItems?.length
+    ? await admin
+        .from("content_progress")
+        .select("content_item_id, position_seconds")
+        .eq("client_id", user?.id ?? "")
+        .in("content_item_id", allItems.map((i) => i.id))
+    : { data: [] };
+  const progreso = new Map<string, number>(
+    (progresoRows ?? []).map((r) => [r.content_item_id, Number(r.position_seconds)])
+  );
+
   const serviciosUnicos = new Map<string, any>();
   accessRows?.forEach((a) => {
     if (!serviciosUnicos.has(a.service_id)) {
@@ -75,6 +86,10 @@ export default async function MiContenidoPage() {
                     const href = esReproducible
                       ? `/contenido/${item.id}`
                       : `/api/access/${item.id}`;
+                    const pos = progreso.get(item.id) ?? 0;
+                    const dur = Number(item.duration_seconds ?? 0);
+                    const visto = esReproducible && dur > 0 && pos >= dur - 10;
+                    const pct = dur > 0 ? Math.min(100, Math.round((pos / dur) * 100)) : 0;
                     return (
                       <a
                         key={item.id}
@@ -82,8 +97,25 @@ export default async function MiContenidoPage() {
                         target={esReproducible ? "_self" : "_blank"}
                         className="flex items-center justify-between rounded-lg bg-white border border-cx-borde px-4 py-3 hover:border-cx-celeste transition"
                       >
-                        <span className="text-sm">{item.title}</span>
-                        <span className="text-xs text-cx-prof font-medium">
+                        <span className="min-w-0 flex-1">
+                          <span className="text-sm block">{item.title}</span>
+                          {esReproducible && pos > 5 && (
+                            <span className="flex items-center gap-2 mt-1.5">
+                              {dur > 0 && (
+                                <span className="h-1 w-24 rounded-full bg-cx-borde overflow-hidden">
+                                  <span
+                                    className="block h-full bg-cx-celeste"
+                                    style={{ width: `${visto ? 100 : pct}%` }}
+                                  />
+                                </span>
+                              )}
+                              <span className="text-[11px] text-cx-texto-2">
+                                {visto ? "Visto" : dur > 0 ? `${pct} % · continuar` : "Continuar"}
+                              </span>
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-xs text-cx-prof font-medium shrink-0 ml-3">
                           {TYPE_LABELS[item.content_type] ?? item.content_type} →
                         </span>
                       </a>

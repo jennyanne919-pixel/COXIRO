@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { Avatar, Badge, BTN_SECONDARY, Card, EmptyState, Icon, PageHeader } from "@/components/dashboard/ui";
 
 export default async function SolicitudesPage() {
   const supabase = await createClient();
@@ -24,33 +25,47 @@ export default async function SolicitudesPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-lg font-medium">Solicitudes</h1>
-        <p className="text-sm text-cx-texto-2 mt-0.5">
-          Personas interesadas en tus servicios a medida
-        </p>
-      </div>
+      <PageHeader
+        title="Solicitudes"
+        subtitle="Personas interesadas en tus servicios a medida"
+      />
 
-      <div className="grid gap-3">
-        {solicitudes?.map((s: any) => (
-          <div key={s.id} className="rounded-lg bg-cx-hielo p-4 text-sm">
-            <div className="flex items-start justify-between mb-1 gap-2 flex-wrap">
-              <p className="font-medium">{s.name}</p>
-              <p className="text-xs text-cx-texto-2">
-                {new Date(s.created_at).toLocaleDateString("es-ES")}
-              </p>
-            </div>
-            <p className="text-xs text-cx-prof mb-2">{s.services?.title}</p>
-            <p className="text-cx-texto-2 text-xs mb-2 break-all">{s.email}</p>
-            {s.message && <p className="text-sm">{s.message}</p>}
-          </div>
-        ))}
-        {!solicitudes?.length && (
-          <p className="text-sm text-cx-texto-2 bg-cx-hielo rounded-lg p-4">
-            Todavía no has recibido ninguna solicitud.
-          </p>
-        )}
-      </div>
+      {solicitudes?.length ? (
+        <div className="grid gap-3">
+          {solicitudes.map((s: any) => (
+            <Card key={s.id} className="p-5">
+              <div className="flex items-start gap-3 flex-wrap sm:flex-nowrap">
+                <Avatar name={s.name} />
+                <div className="min-w-0 flex-1 basis-48">
+                  <p className="font-medium text-cx-noche">{s.name}</p>
+                  <p className="text-xs text-cx-texto-2 break-all">{s.email}</p>
+                </div>
+                <Badge tone="celeste">{s.services?.title}</Badge>
+                <span className="text-xs text-cx-texto-2 whitespace-nowrap">
+                  {new Date(s.created_at).toLocaleDateString("es-ES", { day: "numeric", month: "short" })}
+                </span>
+              </div>
+              {s.message && (
+                <p className="text-sm text-cx-noche bg-cx-hielo/60 rounded-xl p-3.5 mt-4">{s.message}</p>
+              )}
+              <div className="mt-4">
+                <a href={`mailto:${s.email}`} className={BTN_SECONDARY}>
+                  <Icon name="inbox" className="w-3.5 h-3.5" />
+                  Responder por email
+                </a>
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <EmptyState
+            icon="inbox"
+            title="Todavía no has recibido ninguna solicitud"
+            text="Las verás aquí cuando alguien te escriba desde un servicio a medida."
+          />
+        </Card>
+      )}
     </div>
   );
 }

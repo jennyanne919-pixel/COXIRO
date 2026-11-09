@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BTN_SECONDARY, Icon } from "@/components/dashboard/ui";
 
 // Copia el enlace directo al servicio (funciona este o no marcado como
 // publico en el catalogo -- la pagina /servicio/[id] no depende de eso).
@@ -24,12 +25,9 @@ export default function CopyLinkButton({ id }: { id: string }) {
   };
 
   return (
-    <button
-      type="button"
-      onClick={copiarEnlace}
-      className="text-xs text-cx-prof hover:underline font-medium"
-    >
-      {copiado ? "Copiado!" : "Copiar enlace"}
+    <button type="button" onClick={copiarEnlace} className={BTN_SECONDARY}>
+      <Icon name={copiado ? "check" : "link"} className="w-3.5 h-3.5" />
+      {copiado ? "¡Copiado!" : "Copiar enlace"}
     </button>
   );
 }

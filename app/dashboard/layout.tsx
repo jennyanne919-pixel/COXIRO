@@ -4,24 +4,26 @@ import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/auth/actions";
 import { tieneAceptacionVigente } from "@/lib/acceptances";
 import { CONDICIONES_RUTA } from "@/lib/condiciones";
+import DashboardNav, { type NavItem } from "@/components/dashboard/DashboardNav";
+import { Icon } from "@/components/dashboard/ui";
 
 // Menú del proveedor: gestiona lo que vende y lo que cobra.
-const PROVIDER_NAV = [
-  { label: "Cobros y facturas", href: "/dashboard", soon: false },
-  { label: "Mis servicios", href: "/dashboard/servicios", soon: false },
-  { label: "Solicitudes", href: "/dashboard/solicitudes", soon: false },
-  { label: "Mis partners", href: "/dashboard/referidos", soon: false },
-  { label: "Mis clientes", href: "#", soon: true },
-  { label: "Mi perfil", href: "/dashboard/perfil", soon: false },
-  { label: "Condiciones económicas", href: CONDICIONES_RUTA, soon: false },
+const PROVIDER_NAV: NavItem[] = [
+  { label: "Cobros y facturas", href: "/dashboard", icon: "cobros" },
+  { label: "Mis servicios", href: "/dashboard/servicios", icon: "servicios" },
+  { label: "Solicitudes", href: "/dashboard/solicitudes", icon: "inbox" },
+  { label: "Mis partners", href: "/dashboard/referidos", icon: "partners" },
+  { label: "Mis clientes", href: "#", icon: "users", soon: true },
+  { label: "Mi perfil", href: "/dashboard/perfil", icon: "user" },
+  { label: "Condiciones económicas", href: CONDICIONES_RUTA, icon: "doc" },
 ];
 
 // Menú del cliente: lo que ha comprado, no lo que cobra.
-const CLIENT_NAV = [
-  { label: "Mis compras", href: "/dashboard", soon: false },
-  { label: "Mi contenido", href: "/dashboard/contenido", soon: false },
-  { label: "Productos digitales", href: "/catalogo", soon: false },
-  { label: "Mi perfil", href: "/dashboard/mi-cuenta", soon: false },
+const CLIENT_NAV: NavItem[] = [
+  { label: "Mis compras", href: "/dashboard", icon: "bag" },
+  { label: "Mi contenido", href: "/dashboard/contenido", icon: "play" },
+  { label: "Productos digitales", href: "/catalogo", icon: "globe" },
+  { label: "Mi perfil", href: "/dashboard/mi-cuenta", icon: "user" },
 ];
 
 export default async function DashboardLayout({
@@ -53,38 +55,47 @@ export default async function DashboardLayout({
   }
   const NAV = isProvider ? PROVIDER_NAV : CLIENT_NAV;
 
+  let nombre = user.email ?? "";
+  if (isProvider) {
+    const { data: prov } = await supabase
+      .from("providers")
+      .select("business_name")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (prov?.business_name) nombre = prov.business_name;
+  }
+  const inicial = (nombre[0] ?? "?").toUpperCase();
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen">
-      <aside className="w-full md:w-52 bg-cx-noche flex-shrink-0 py-3 md:py-6 px-3 flex flex-row md:flex-col items-center md:items-stretch gap-3 md:gap-0">
-        <a href="/" className="px-1 md:px-2 md:pb-6 flex-shrink-0">
+      <aside className="w-full md:w-60 bg-cx-noche flex-shrink-0 md:sticky md:top-0 md:h-screen py-3 md:py-6 px-3 flex flex-row md:flex-col items-center md:items-stretch gap-3 md:gap-0">
+        <a href="/" className="px-1 md:px-3 md:pb-7 flex-shrink-0">
           <Logo variant="dark" size={20} />
         </a>
 
-        <nav className="flex flex-row md:flex-col gap-1 md:gap-0.5 flex-1 overflow-x-auto md:overflow-visible">
-          {NAV.map((item) => (
-            <a
-              key={item.label}
-              href={item.soon ? undefined : item.href}
-              aria-disabled={item.soon}
-              className={`text-sm rounded-lg px-2.5 py-2 whitespace-nowrap ${
-                item.soon
-                  ? "text-cx-texto-osc-2/70 cursor-default"
-                  : "text-white/80 hover:bg-white/5"
-              }`}
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
+        <DashboardNav items={NAV} />
 
-        <form action={signOut} className="flex-shrink-0 md:w-full">
-          <button className="text-sm text-white/60 hover:text-white px-2.5 py-2 whitespace-nowrap md:w-full md:text-left">
-            Cerrar sesión
-          </button>
-        </form>
+        <div className="flex-shrink-0 md:border-t md:border-white/10 md:pt-4 flex items-center gap-2.5">
+          <span className="hidden md:flex w-9 h-9 rounded-full bg-cx-celeste/20 text-cx-celeste font-display font-bold items-center justify-center shrink-0">
+            {inicial}
+          </span>
+          <div className="hidden md:block min-w-0 flex-1">
+            <p className="text-sm text-white truncate">{nombre}</p>
+            <p className="text-xs text-cx-texto-osc-2">{isProvider ? "Profesional" : "Cliente"}</p>
+          </div>
+          <form action={signOut}>
+            <button
+              title="Cerrar sesión"
+              aria-label="Cerrar sesión"
+              className="w-9 h-9 rounded-xl text-white/60 hover:text-white hover:bg-white/5 flex items-center justify-center"
+            >
+              <Icon name="logout" className="w-[18px] h-[18px]" />
+            </button>
+          </form>
+        </div>
       </aside>
-      <main className="flex-1 bg-white p-5 md:p-8 overflow-x-hidden">
-        {children}
+      <main className="flex-1 bg-cx-hielo/40 p-5 md:p-10 overflow-x-hidden">
+        <div className="max-w-5xl mx-auto">{children}</div>
       </main>
     </div>
   );

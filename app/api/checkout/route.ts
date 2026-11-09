@@ -172,6 +172,11 @@ export async function GET(request: Request) {
           mode: "payment",
           customer_email: user?.email,
           billing_address_collection: "auto",
+          // Solo tarjeta (incluye Apple Pay, Google Pay y Link). Klarna cuesta
+          // un 4,99 % + 0,40 € en España y los métodos con confirmación
+          // diferida (SEPA, Multibanco) darían acceso antes de cobrar, porque
+          // el webhook solo atiende checkout.session.completed.
+          payment_method_types: ["card"],
           line_items: [
             {
               price_data: {

@@ -18,7 +18,7 @@ export default function NewServiceForm({
   return (
     <form
       action={createService}
-      className="rounded-lg bg-cx-hielo p-5 mb-8 grid gap-3 max-w-lg"
+      className="grid gap-3 max-w-lg"
     >
       <div>
         <label className="text-xs text-cx-texto-2 block mb-1">Título</label>
