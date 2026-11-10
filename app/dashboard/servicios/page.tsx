@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createService, toggleServiceActive, toggleServicePublic, deleteService } from "./actions";
 import NewServiceForm from "./NewServiceForm";
 import DeleteServiceButton from "./DeleteServiceButton";
-import CopyLinkButton from "./CopyLinkButton";
+import CompartirServicio from "./CompartirServicio";
 import ServiceCard from "@/components/dashboard/ServiceCard";
 import {
   BTN_PRIMARY,
@@ -110,7 +110,7 @@ export default async function ServiciosPage() {
                     <Icon name="pencil" className="w-3.5 h-3.5" />
                     Editar
                   </a>
-                  <CopyLinkButton id={s.id} />
+                  <CompartirServicio id={s.id} title={s.title} />
                   <div className="ml-auto">
                     <DeleteServiceButton id={s.id} deleteService={deleteService} />
                   </div>
