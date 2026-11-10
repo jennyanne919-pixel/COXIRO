@@ -1,3 +1,4 @@
+import { rolEfectivo } from "@/lib/admin/vista";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/dashboard/ui";
 import { createClient } from "@/lib/supabase/server";
@@ -45,7 +46,7 @@ export default async function MiCuentaPage({
     .single();
 
   // Los vendedores tienen su propio perfil.
-  if (appUser?.role === "provider") {
+  if ((await rolEfectivo(user.email, appUser?.role)) === "provider") {
     redirect("/dashboard/perfil");
   }
 

@@ -6,6 +6,9 @@ import { tieneAceptacionVigente } from "@/lib/acceptances";
 import DashboardNav from "@/components/dashboard/DashboardNav";
 import { PROVIDER_NAV, CLIENT_NAV } from "@/components/dashboard/navItems";
 import { Icon } from "@/components/dashboard/ui";
+import CambiarVista from "@/components/dashboard/CambiarVista";
+import { esAdminEmail } from "@/lib/admin/auth";
+import { vistaElegida, rolEfectivo } from "@/lib/admin/vista";
 
 export default async function DashboardLayout({
   children,
@@ -27,11 +30,13 @@ export default async function DashboardLayout({
     .eq("id", user.id)
     .single();
 
-  const isProvider = profile?.role === "provider";
+  const esAdmin = esAdminEmail(user.email);
+  const vista = await vistaElegida(user.email);
+  const isProvider = (await rolEfectivo(user.email, profile?.role)) === "provider";
 
   // Si el profesional no ha aceptado la versión vigente de las condiciones,
   // se le pide antes de dejarle usar el panel.
-  if (isProvider && !(await tieneAceptacionVigente(supabase, user.id))) {
+  if (isProvider && !esAdmin && !(await tieneAceptacionVigente(supabase, user.id))) {
     redirect("/aceptar-condiciones");
   }
   const NAV = isProvider ? PROVIDER_NAV : CLIENT_NAV;
@@ -55,6 +60,13 @@ export default async function DashboardLayout({
         </a>
 
         <DashboardNav items={NAV} />
+
+        {esAdmin && (
+          <CambiarVista
+            actual={vista ?? (isProvider ? "proveedor" : "cliente")}
+            className="hidden md:block pb-4"
+          />
+        )}
 
         <div className="flex-shrink-0 md:border-t md:border-white/10 md:pt-4 flex items-center gap-2.5">
           <span className="hidden md:flex w-9 h-9 rounded-full bg-cx-celeste/20 text-cx-celeste font-display font-bold items-center justify-center shrink-0">

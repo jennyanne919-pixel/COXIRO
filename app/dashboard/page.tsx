@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import ProviderSummary from "@/components/dashboard/ProviderSummary";
 import ClientSummary from "@/components/dashboard/ClientSummary";
+import { rolEfectivo } from "@/lib/admin/vista";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -17,7 +18,7 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  if (profile?.role === "provider") {
+  if ((await rolEfectivo(user.email, profile?.role)) === "provider") {
     return <ProviderSummary userId={user.id} />;
   }
 

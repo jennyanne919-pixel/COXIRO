@@ -4,8 +4,9 @@ const REDES = {
   instagram: "https://www.instagram.com/coxiro_hq",
   facebook: "https://www.facebook.com/share/1EuuACtxey/",
   tiktok: "https://www.tiktok.com/@coxiro_hq",
-  youtube: "",
-  linkedin: "",
+  youtube: "https://www.youtube.com/@COXIRO_HQ",
+  linkedin: "https://www.linkedin.com/in/jenny-anne-abriam-98973244a/",
+  x: "https://x.com/COXIRO_",
   telegram: "",
 };
 
@@ -45,6 +46,10 @@ const ICONOS: Record<keyof typeof REDES, { nombre: string; ruta: React.ReactNode
         <path d="M8 11v6M8 7.5v.01M12 17v-6M12 13.5a2.5 2.5 0 0 1 5 0V17" />
       </>
     ),
+  },
+  x: {
+    nombre: "X",
+    ruta: <path d="M4 4l16 16M20 4 4 20" />,
   },
   telegram: {
     nombre: "Telegram",

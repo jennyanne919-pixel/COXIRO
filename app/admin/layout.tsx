@@ -1,6 +1,7 @@
 import Logo from "@/components/Logo";
 import DashboardNav, { type NavItem } from "@/components/dashboard/DashboardNav";
 import { requireAdmin } from "@/lib/admin/auth";
+import CambiarVista from "@/components/dashboard/CambiarVista";
 
 const ADMIN_NAV: NavItem[] = [
   { label: "Resumen", href: "/admin", icon: "trend" },
@@ -23,12 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           Administración
         </span>
         <DashboardNav items={ADMIN_NAV} />
-        <a
-          href="/dashboard"
-          className="hidden md:block px-3 py-2 text-xs text-white/50 hover:text-white"
-        >
-          Salir del panel admin
-        </a>
+        <CambiarVista actual="admin" className="hidden md:block pb-4" />
       </aside>
       <main className="flex-1 min-w-0 bg-cx-hielo/40">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 sm:py-8">{children}</div>
