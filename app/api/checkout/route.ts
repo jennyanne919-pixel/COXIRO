@@ -113,11 +113,17 @@ export async function GET(request: Request) {
   // suscripcion es indefinida hasta que se cancele.
   let cancelAt: number | undefined;
   if (esMembresia && service.total_installments) {
+    // Se cobra el día 0 y luego cada periodo: con N pagos, el último cobro
+    // cae en el periodo N-1. La fecha de fin se pone DESPUÉS de ese último
+    // cobro pero ANTES del siguiente (margen de 15 días / 1 mes), para que
+    // Stripe no intente un pago N+1 justo en el instante de cancelar.
     const cancelDate = new Date();
     if (service.billing_interval === "year") {
-      cancelDate.setFullYear(cancelDate.getFullYear() + service.total_installments);
+      cancelDate.setFullYear(cancelDate.getFullYear() + service.total_installments - 1);
+      cancelDate.setMonth(cancelDate.getMonth() + 1);
     } else {
-      cancelDate.setMonth(cancelDate.getMonth() + service.total_installments);
+      cancelDate.setMonth(cancelDate.getMonth() + service.total_installments - 1);
+      cancelDate.setDate(cancelDate.getDate() + 15);
     }
     cancelAt = Math.floor(cancelDate.getTime() / 1000);
   }

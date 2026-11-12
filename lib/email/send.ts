@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import WelcomeEmail from "@/components/emails/WelcomeEmail";
 import CreatePasswordEmail from "@/components/emails/CreatePasswordEmail";
 import RecoverPasswordEmail from "@/components/emails/RecoverPasswordEmail";
+import SubscriptionCancelledEmail from "@/components/emails/SubscriptionCancelledEmail";
 import PurchaseConfirmationEmail from "@/components/emails/PurchaseConfirmationEmail";
 import ProviderSaleEmail from "@/components/emails/ProviderSaleEmail";
 import InternalSaleEmail from "@/components/emails/InternalSaleEmail";
@@ -78,6 +79,21 @@ export async function sendRecoveryEmail(to: string) {
     subject: "Recupera tu contraseña — Coxiro",
     react: RecoverPasswordEmail({ enlace }),
     emailType: "password_recovery",
+  });
+}
+
+export async function sendSubscriptionCancelled(params: {
+  to: string;
+  nombreCliente: string;
+  servicio: string;
+  proveedor: string;
+  fechaFin: string;
+}) {
+  return sendEmail({
+    to: params.to,
+    subject: "Tu suscripción se ha dado de baja — Coxiro",
+    react: SubscriptionCancelledEmail(params),
+    emailType: "subscription_cancelled",
   });
 }
 

@@ -9,6 +9,51 @@ import Stripe from "stripe";
 import { feeDesdeTotal } from "@/lib/pricing";
 import { aplicarReembolsoEnBD } from "@/lib/refunds";
 
+// Devuelve la fila de `subscriptions` de una suscripción de Stripe y la crea
+// si aún no existe. Stripe no garantiza el orden de los avisos: "invoice.paid"
+// del primer cobro puede llegar ANTES que "checkout.session.completed", así
+// que ambos pasan por aquí. También se asegura de que la fecha de fin
+// (cancel_at) esté aplicada en Stripe.
+async function asegurarSuscripcion(subscriptionId: string) {
+  const supabase = createAdminClient();
+
+  let { data: fila } = await supabase
+    .from("subscriptions")
+    .select("service_id, client_id, provider_id")
+    .eq("stripe_subscription_id", subscriptionId)
+    .limit(1)
+    .maybeSingle();
+
+  const sub = await stripe.subscriptions.retrieve(subscriptionId);
+  const meta = (sub.metadata ?? {}) as Record<string, string>;
+
+  if (!fila) {
+    if (!meta.service_id || !meta.client_id || !meta.provider_id) return null;
+    await supabase.from("subscriptions").insert({
+      service_id: meta.service_id,
+      client_id: meta.client_id,
+      provider_id: meta.provider_id,
+      stripe_subscription_id: subscriptionId,
+      status: "active",
+    });
+    fila = {
+      service_id: meta.service_id,
+      client_id: meta.client_id,
+      provider_id: meta.provider_id,
+    };
+  }
+
+  if (meta.cancel_at && !sub.cancel_at) {
+    try {
+      await stripe.subscriptions.update(subscriptionId, { cancel_at: Number(meta.cancel_at) });
+    } catch (err: any) {
+      console.error("[suscripcion] Error aplicando cancel_at:", err?.message);
+    }
+  }
+
+  return fila;
+}
+
 export async function POST(request: Request) {
   const body = await request.text();
   const signature = (await headers()).get("stripe-signature")!;
@@ -114,28 +159,7 @@ export async function POST(request: Request) {
       // cobro y para todos los siguientes, así todo pasa por el mismo
       // camino sin duplicar lógica. Aquí solo registramos que existe.
       if (session.mode === "subscription" && session.subscription) {
-        await supabase.from("subscriptions").insert({
-          service_id,
-          client_id,
-          provider_id,
-          stripe_subscription_id: session.subscription as string,
-          status: "active",
-        });
-
-        // Si el servicio tiene un numero de pagos limitado, aplicamos
-        // ahora la fecha de fin -- Stripe solo admite este campo
-        // sobre una suscripcion ya creada, no en la creacion del
-        // Checkout.
-        const cancelAtRaw = (session.metadata as Record<string, string>).cancel_at;
-        if (cancelAtRaw) {
-          try {
-            await stripe.subscriptions.update(session.subscription as string, {
-              cancel_at: Number(cancelAtRaw),
-            });
-          } catch (err: any) {
-            console.error("Error aplicando cancel_at a la suscripcion:", err?.message);
-          }
-        }
+        await asegurarSuscripcion(session.subscription as string);
 
         break;
       }
@@ -156,8 +180,16 @@ export async function POST(request: Request) {
     // Cada cobro de una suscripción (el primero y todos los
     // siguientes, mes a mes o año a año) dispara este evento.
     case "invoice.paid": {
-      const invoice = event.data.object as Stripe.Invoice;
-      const subscriptionId = invoice.subscription as string | null;
+      // El endpoint de Stripe envía los eventos con una versión de API más
+      // moderna que la del SDK (donde la factura ya no trae "subscription" ni
+      // "payment_intent" en el mismo sitio). Se vuelve a pedir la factura con
+      // la versión del SDK para leer siempre los mismos campos.
+      const invoiceEvento = event.data.object as Stripe.Invoice;
+      const invoice = await stripe.invoices.retrieve(invoiceEvento.id);
+      const subscriptionId =
+        typeof invoice.subscription === "string"
+          ? invoice.subscription
+          : invoice.subscription?.id ?? null;
 
       if (!subscriptionId) {
         // Factura suelta, no asociada a una suscripción -- no es
@@ -165,15 +197,13 @@ export async function POST(request: Request) {
         break;
       }
 
-      const { data: subscription } = await supabase
-        .from("subscriptions")
-        .select("service_id, client_id, provider_id")
-        .eq("stripe_subscription_id", subscriptionId)
-        .single();
+      const subscription = await asegurarSuscripcion(subscriptionId);
 
       if (!subscription) {
-        console.error("[invoice.paid] No se encontro la suscripcion:", subscriptionId);
-        break;
+        // Error (no "break"): Stripe reintentará el aviso en vez de darlo por
+        // bueno y dejar al cliente sin acceso ni factura.
+        console.error("[invoice.paid] No se pudo resolver la suscripcion:", subscriptionId);
+        return NextResponse.json({ error: "subscription_not_found" }, { status: 500 });
       }
 
       const { data: provider } = await supabase
@@ -194,7 +224,11 @@ export async function POST(request: Request) {
         providerId: subscription.provider_id,
         amountTotal,
         platformFee,
-        stripePaymentIntentId: (invoice.payment_intent as string) ?? null,
+        avisarInterno: invoice.billing_reason === "subscription_create",
+        stripePaymentIntentId:
+          typeof invoice.payment_intent === "string"
+            ? invoice.payment_intent
+            : invoice.payment_intent?.id ?? null,
       });
 
       break;
@@ -209,13 +243,44 @@ export async function POST(request: Request) {
         .select("client_id, service_id")
         .maybeSingle();
 
-      // Al terminar la membresía se retira el acceso al contenido.
       if (cancelada?.client_id && cancelada?.service_id) {
-        await supabase
-          .from("content_access")
-          .delete()
+        const { data: servicio } = await supabase
+          .from("services")
+          .select("total_installments, billing_interval")
+          .eq("id", cancelada.service_id)
+          .maybeSingle();
+
+        const { data: pagos } = await supabase
+          .from("transactions")
+          .select("created_at")
           .eq("client_id", cancelada.client_id)
-          .eq("service_id", cancelada.service_id);
+          .eq("service_id", cancelada.service_id)
+          .eq("status", "paid")
+          .order("created_at", { ascending: false });
+
+        const completada =
+          !!servicio?.total_installments && (pagos?.length ?? 0) >= servicio.total_installments;
+
+        if (completada && pagos?.[0]) {
+          // Terminó todos sus pagos: conserva el acceso hasta el final del
+          // último periodo ya pagado.
+          const fin = new Date(pagos[0].created_at);
+          if (servicio?.billing_interval === "year") fin.setFullYear(fin.getFullYear() + 1);
+          else fin.setMonth(fin.getMonth() + 1);
+          await supabase
+            .from("content_access")
+            .update({ expires_at: fin.toISOString() })
+            .eq("client_id", cancelada.client_id)
+            .eq("service_id", cancelada.service_id)
+            .is("expires_at", null);
+        } else {
+          // Cancelada antes de tiempo (impago, baja...): se retira el acceso.
+          await supabase
+            .from("content_access")
+            .delete()
+            .eq("client_id", cancelada.client_id)
+            .eq("service_id", cancelada.service_id);
+        }
       }
       break;
     }

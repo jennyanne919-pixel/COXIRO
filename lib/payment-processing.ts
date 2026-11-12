@@ -24,9 +24,28 @@ export async function processPayment(params: {
   amountTotal: number; // en euros, no céntimos
   platformFee: number; // en euros
   stripePaymentIntentId: string | null;
+  // false en las renovaciones de una suscripción: no se avisa a Coxiro de
+  // cada cuota (quedan en Ventas y en la contabilidad) para no llenar el buzón.
+  avisarInterno?: boolean;
 }) {
   const supabase = createAdminClient();
   const { serviceId, clientId, providerId, amountTotal, platformFee, stripePaymentIntentId } = params;
+  const avisarInterno = params.avisarInterno ?? true;
+
+  // Idempotencia: si Stripe reenvía el aviso (reintentos del webhook), no
+  // se duplica la venta, las facturas ni los correos.
+  if (stripePaymentIntentId) {
+    const { data: yaExiste } = await supabase
+      .from("transactions")
+      .select("id")
+      .eq("stripe_payment_intent_id", stripePaymentIntentId)
+      .limit(1)
+      .maybeSingle();
+    if (yaExiste) {
+      console.log("[processPayment] Cobro ya procesado, se ignora:", stripePaymentIntentId);
+      return;
+    }
+  }
 
   const { data: transaction, error: txError } = await supabase
     .from("transactions")
@@ -256,13 +275,15 @@ export async function processPayment(params: {
           invoicePdf: provInvoicePdf,
         })
       : Promise.resolve(),
-    sendInternalSale({
+    avisarInterno
+      ? sendInternalSale({
       cliente: client?.billing_name ?? "Cliente",
       clienteEmail: clientUser?.email ?? "No disponible",
       proveedor: provider?.business_name ?? "Profesional",
       servicio: service?.title ?? "Servicio",
       importe: `${amountTotal.toFixed(2)} €`,
       stripePaymentIntentId: stripePaymentIntentId ?? "N/A",
-    }),
+    })
+      : Promise.resolve(),
   ]);
 }
