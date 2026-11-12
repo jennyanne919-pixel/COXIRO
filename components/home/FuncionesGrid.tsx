@@ -10,7 +10,7 @@ const I = {
 };
 
 const ITEMS = [
-  { icon: I.tarjeta, t: "Cobros con tarjeta y SEPA", d: "Pago único o suscripción. Cobros recurrentes por SEPA automatizados." },
+  { icon: I.tarjeta, t: "Cobros con tarjeta", d: "Pago único o suscripción. Cobros recurrentes automáticos con tarjeta." },
   { icon: I.factura, t: "Facturas automáticas", d: "La factura de tu cliente y tu autofactura, en cada cobro y con VeriFactu." },
   { icon: I.candado, t: "Área privada de contenido", d: "Tus alumnos o clientes tienen su contenido alojado y ordenado, con el progreso de sus avances." },
   { icon: I.enlace, t: "Enlaces privados de pago", d: "Cobra sin publicar nada: un enlace por cliente o por servicio." },

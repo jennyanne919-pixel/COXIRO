@@ -314,8 +314,8 @@ export default async function ServicioPage({
                 {service.type === "membership" && (
                   <p className="text-xs text-cx-texto-2 mt-1">
                     {service.total_installments
-                      ? `Domiciliación ${service.billing_interval === "year" ? "anual" : "mensual"} — se cobrará ${service.total_installments} ${service.total_installments === 1 ? "vez" : "veces"} en total, y se detiene sola.`
-                      : `Domiciliación ${service.billing_interval === "year" ? "anual" : "mensual"} — se renueva automáticamente hasta que canceles.`}
+                      ? `Cobro ${service.billing_interval === "year" ? "anual" : "mensual"} con tarjeta — se cobrará ${service.total_installments} ${service.total_installments === 1 ? "vez" : "veces"} en total, y se detiene sola.`
+                      : `Cobro ${service.billing_interval === "year" ? "anual" : "mensual"} con tarjeta — se renueva automáticamente hasta que canceles.`}
                   </p>
                 )}
               </div>

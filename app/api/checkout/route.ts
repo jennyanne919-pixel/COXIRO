@@ -148,7 +148,9 @@ export async function GET(request: Request) {
           mode: "subscription",
           customer_email: user?.email,
           billing_address_collection: "auto",
-          payment_method_types: ["card", "sepa_debit"],
+          // Solo tarjeta: la domiciliación SEPA no está activada en la cuenta de
+          // Stripe (pedirla hace que Stripe rechace la sesión entera).
+          payment_method_types: ["card"],
           line_items: [
             {
               price_data: {
