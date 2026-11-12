@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   addLesson,
   addSection,
@@ -9,6 +10,8 @@ import {
   renameSection,
   setComentarios,
 } from "./actions";
+import { addDirecto, avisarDirecto, deleteDirecto } from "./directos";
+import { fechaMadrid } from "@/lib/fechas";
 import ConfirmForm from "@/components/dashboard/ConfirmForm";
 import { notFound } from "next/navigation";
 import { fmtBytes, getAlmacenamiento, MAX_ARCHIVO_BYTES } from "@/lib/storage";
@@ -92,6 +95,12 @@ export default async function ContenidoServicioPage({
   ]);
 
   const { usado, cuota } = await getAlmacenamiento(supabase, user!.id);
+  const { data: directos } = await createAdminClient()
+    .from("live_sessions")
+    .select("id, title, starts_at, join_url, notified_at")
+    .eq("service_id", service.id)
+    .order("starts_at", { ascending: false });
+  const ahora = Date.now();
   const pct = Math.min(100, Math.round((usado / cuota) * 100));
 
   const grupos = [
@@ -152,6 +161,58 @@ export default async function ContenidoServicioPage({
           <input type="hidden" name="activar" value={service.comments_enabled ? "0" : "1"} />
           <button className={BTN_SECONDARY}>{service.comments_enabled ? "Desactivar" : "Activar"}</button>
         </form>
+      </div>
+
+      <div className="max-w-2xl mb-6 rounded-xl border border-cx-borde bg-white p-4">
+        <p className="text-sm font-medium text-cx-noche">Sesiones en directo</p>
+        <p className="text-xs text-cx-texto-2 mt-0.5">
+          Programa una videollamada (Zoom, Meet…) y tus alumnos la verán en el curso. Hora de Madrid.
+        </p>
+        <form action={addDirecto} className="grid gap-2 mt-3 sm:grid-cols-2">
+          <input type="hidden" name="service_id" value={service.id} />
+          <input name="title" required maxLength={150} placeholder="Título (ej. Sesión de dudas)" className={INPUT} />
+          <input name="starts_at" type="datetime-local" required className={INPUT} />
+          <input name="join_url" type="url" required placeholder="Enlace de la videollamada (https://…)" className={`${INPUT} sm:col-span-2`} />
+          <textarea name="notes" rows={2} maxLength={1000} placeholder="Notas para los alumnos (opcional)" className={`${INPUT} sm:col-span-2`} />
+          <div className="sm:col-span-2">
+            <button className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-4 py-1.5 hover:brightness-105 transition">
+              Programar sesión
+            </button>
+          </div>
+        </form>
+        {(directos ?? []).length > 0 && (
+          <ul className="mt-4 grid gap-2">
+            {(directos ?? []).map((d) => (
+              <li key={d.id} className="flex items-center gap-3 flex-wrap rounded-lg border border-cx-borde px-3 py-2">
+                <div className="min-w-0 flex-1 basis-48">
+                  <p className="text-sm font-medium text-cx-noche">{d.title}</p>
+                  <p className="text-xs text-cx-texto-2">
+                    {fechaMadrid(d.starts_at)}
+                    {new Date(d.starts_at).getTime() < ahora && " · ya celebrada"}
+                  </p>
+                </div>
+                {d.notified_at ? (
+                  <span className="text-[11px] rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5">Alumnos avisados</span>
+                ) : (
+                  new Date(d.starts_at).getTime() > ahora && (
+                    <ConfirmForm
+                      action={avisarDirecto}
+                      fields={{ service_id: service.id, session_id: d.id }}
+                      confirmText="Se enviará un email a todos los alumnos con acceso. Solo se puede hacer una vez. ¿Continuar?"
+                    >
+                      <button className={BTN_SECONDARY}>Avisar a los alumnos</button>
+                    </ConfirmForm>
+                  )
+                )}
+                <form action={deleteDirecto}>
+                  <input type="hidden" name="service_id" value={service.id} />
+                  <input type="hidden" name="session_id" value={d.id} />
+                  <button className="text-[11px] text-cx-texto-2 hover:text-red-600 underline">Borrar</button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <form action={addSection} className="flex gap-2 mb-6 max-w-lg">

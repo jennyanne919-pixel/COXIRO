@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import VideoPlayer from "@/app/contenido/[itemId]/VideoPlayer";
 import { completarLeccion, desmarcarLeccion } from "./actions";
+import { fechaMadrid } from "@/lib/fechas";
 import Dudas, { type Comentario } from "@/components/curso/Dudas";
 
 export const dynamic = "force-dynamic";
@@ -131,6 +132,15 @@ export default async function CursoPage({
     );
   }
 
+  // Próximas sesiones en directo (el enlace solo lo ven quienes tienen acceso)
+  const { data: directos } = await admin
+    .from("live_sessions")
+    .select("id, title, starts_at, join_url, notes")
+    .eq("service_id", serviceId)
+    .gte("starts_at", new Date(Date.now() - 2 * 3600_000).toISOString())
+    .order("starts_at", { ascending: true })
+    .limit(5);
+
   // Dudas de la lección (solo quien ha comprado o el dueño)
   let comentarios: Comentario[] = [];
   const nombres: Record<string, string> = {};
@@ -227,6 +237,32 @@ export default async function CursoPage({
 
         {/* Lección */}
         <section className="min-w-0">
+          {(esDueno || acceso) && (directos ?? []).length > 0 && (
+            <div className="mb-5 rounded-2xl bg-white border border-cx-celeste/50 p-5">
+              <p className="text-sm font-semibold text-cx-noche">Próximas sesiones en directo</p>
+              <ul className="mt-3 grid gap-3">
+                {(directos ?? []).map((d) => (
+                  <li key={d.id} className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-cx-noche">{d.title}</p>
+                      <p className="text-xs text-cx-texto-2 capitalize">{fechaMadrid(d.starts_at)} (hora de Madrid)</p>
+                      {d.notes && <p className="text-xs text-cx-noche mt-1 whitespace-pre-wrap">{d.notes}</p>}
+                    </div>
+                    {/^https?:\/\//i.test(d.join_url) && (
+                      <a
+                        href={d.join_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-4 py-1.5 hover:brightness-105 transition"
+                      >
+                        Unirme
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {!actual ? (
             <div className="rounded-2xl bg-white border border-cx-borde p-8 text-center text-sm text-cx-texto-2">
               El profesional todavía no ha publicado lecciones en este curso.

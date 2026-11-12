@@ -4,6 +4,7 @@ import WelcomeEmail from "@/components/emails/WelcomeEmail";
 import CreatePasswordEmail from "@/components/emails/CreatePasswordEmail";
 import RecoverPasswordEmail from "@/components/emails/RecoverPasswordEmail";
 import SubscriptionCancelledEmail from "@/components/emails/SubscriptionCancelledEmail";
+import LiveSessionEmail from "@/components/emails/LiveSessionEmail";
 import LessonCommentEmail from "@/components/emails/LessonCommentEmail";
 import PurchaseConfirmationEmail from "@/components/emails/PurchaseConfirmationEmail";
 import ProviderSaleEmail from "@/components/emails/ProviderSaleEmail";
@@ -115,6 +116,24 @@ export async function sendLessonComment(params: {
       : `Nueva duda en «${params.leccion}» — Coxiro`,
     react: LessonCommentEmail(params),
     emailType: params.esRespuesta ? "lesson_reply" : "lesson_question",
+  });
+}
+
+export async function sendLiveSession(params: {
+  to: string;
+  nombre: string;
+  servicio: string;
+  proveedor: string;
+  titulo: string;
+  cuando: string;
+  notas?: string;
+  enlace: string;
+}) {
+  return sendEmail({
+    to: params.to,
+    subject: `Sesión en directo: ${params.titulo} — Coxiro`,
+    react: LiveSessionEmail(params),
+    emailType: "live_session",
   });
 }
 
