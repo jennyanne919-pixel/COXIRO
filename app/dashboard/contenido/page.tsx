@@ -34,18 +34,22 @@ export default async function MiContenidoPage() {
         .from("content_items")
         .select("*")
         .in("service_id", serviceIds)
+        .eq("status", "published")
         .order("sort_order", { ascending: true })
     : { data: [] };
 
   const { data: progresoRows } = allItems?.length
     ? await admin
         .from("content_progress")
-        .select("content_item_id, position_seconds")
+        .select("content_item_id, position_seconds, completed_at")
         .eq("client_id", user?.id ?? "")
         .in("content_item_id", allItems.map((i) => i.id))
     : { data: [] };
   const progreso = new Map<string, number>(
     (progresoRows ?? []).map((r) => [r.content_item_id, Number(r.position_seconds)])
+  );
+  const completadas = new Set(
+    (progresoRows ?? []).filter((r) => r.completed_at).map((r) => r.content_item_id)
   );
 
   const serviciosUnicos = new Map<string, any>();
@@ -67,8 +71,10 @@ export default async function MiContenidoPage() {
           id: item.id,
           titulo: item.title,
           tipo: item.content_type,
-          href: reproducible ? `/contenido/${item.id}` : `/api/access/${item.id}`,
+          href: `/curso/${serviceId}?leccion=${item.id}`,
           reproducible,
+          interno: true,
+          completada: completadas.has(item.id),
           pos: progreso.get(item.id) ?? 0,
           dur: Number(item.duration_seconds ?? 0),
         };

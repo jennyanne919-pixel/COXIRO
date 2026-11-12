@@ -143,8 +143,14 @@ export async function deleteService(formData: FormData) {
   // huérfanos (costando dinero) si no los retiramos también.
   const { data: archivos } = await supabase
     .from("content_items")
-    .select("r2_key")
+    .select("id, r2_key")
     .eq("service_id", id);
+  const { data: archivosBloques } = archivos?.length
+    ? await supabase
+        .from("lesson_blocks")
+        .select("r2_key")
+        .in("item_id", archivos.map((a) => a.id))
+    : { data: [] };
 
   const { data: borrado } = await supabase
     .from("services")
@@ -154,6 +160,7 @@ export async function deleteService(formData: FormData) {
 
   if (borrado?.length) {
     for (const a of archivos ?? []) await deleteFile(a.r2_key);
+    for (const a of archivosBloques ?? []) await deleteFile(a.r2_key);
   }
 
   revalidatePath("/dashboard/servicios");

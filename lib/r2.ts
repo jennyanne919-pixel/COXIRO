@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const r2 = new S3Client({
@@ -28,10 +28,17 @@ export async function getUploadUrl(key: string, contentType: string) {
 // Genera un enlace temporal (1 hora) para REPRODUCIR/descargar un
 // archivo privado -- solo se genera después de comprobar que el
 // cliente tiene acceso comprado a ese contenido.
-export async function getPlaybackUrl(key: string) {
+export async function getPlaybackUrl(key: string, descargarComo?: string) {
   const command = new GetObjectCommand({
     Bucket: BUCKET,
     Key: key,
+    ...(descargarComo
+      ? {
+          ResponseContentDisposition: `attachment; filename="${descargarComo
+            .replace(/[^\w.\- ]/g, "_")
+            .slice(0, 100)}"`,
+        }
+      : {}),
   });
   return getSignedUrl(r2, command, { expiresIn: 3600 });
 }
@@ -46,5 +53,17 @@ export async function deleteFile(key: string | null | undefined) {
     await r2.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
   } catch (err) {
     console.error("[r2] No se pudo borrar el archivo", key, err);
+  }
+}
+
+// Tamaño REAL (en bytes) de un archivo ya subido a R2. No nos fiamos del
+// tamaño que dice el navegador: se comprueba aquí tras la subida.
+// Devuelve null si el archivo no existe.
+export async function getFileSize(key: string): Promise<number | null> {
+  try {
+    const r = await r2.send(new HeadObjectCommand({ Bucket: BUCKET, Key: key }));
+    return r.ContentLength ?? null;
+  } catch {
+    return null;
   }
 }

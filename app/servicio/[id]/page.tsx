@@ -79,6 +79,7 @@ export default async function ServicioPage({
       .from("content_items")
       .select("id, title, content_type, is_free")
       .eq("service_id", service.id)
+      .eq("status", "published")
       .order("sort_order", { ascending: true }),
     supabase
       .from("services")
@@ -169,11 +170,7 @@ export default async function ServicioPage({
                 {contenidoGratis.map((c) => (
                   <a
                     key={c.id}
-                    href={
-                      ["video", "audio"].includes(c.content_type)
-                        ? `/contenido/${c.id}`
-                        : `/api/access/${c.id}`
-                    }
+                    href={`/curso/${service.id}?leccion=${c.id}`}
                     className="flex items-center justify-between rounded-lg bg-white border border-cx-borde px-4 py-3 hover:border-cx-celeste transition"
                   >
                     <span className="text-sm">{c.title}</span>

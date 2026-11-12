@@ -16,6 +16,8 @@ export type ContenidoItem = {
   reproducible: boolean;
   pos: number; // segundos vistos
   dur: number; // segundos totales (0 si no se conoce)
+  interno?: boolean; // se abre en la misma pestaña (vista del curso)
+  completada?: boolean;
 };
 
 export type ContenidoGrupo = {
@@ -31,6 +33,7 @@ const TIPOS: Record<string, { label: string; icon: IconName }> = {
   pdf: { label: "PDF", icon: "doc" },
   link: { label: "Enlace", icon: "external" },
   document: { label: "Documento", icon: "doc" },
+  lesson: { label: "Lección", icon: "play" },
 };
 
 // Vista pura de "Mi contenido". La usa el panel real y la maqueta de la web.
@@ -63,6 +66,9 @@ export default function ContenidoView({ grupos }: { grupos: ContenidoGrupo[] }) 
                           <p className="font-medium text-cx-noche truncate">{it.titulo}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs text-cx-texto-2">{t.label}</span>
+                            {it.completada && (
+                              <span className="text-xs text-cx-prof font-medium">Completada ✓</span>
+                            )}
                             {empezado && (
                               <>
                                 {it.dur > 0 && (
@@ -82,11 +88,11 @@ export default function ContenidoView({ grupos }: { grupos: ContenidoGrupo[] }) 
                         </div>
                         <a
                           href={it.href}
-                          target={it.reproducible ? "_self" : "_blank"}
+                          target={it.reproducible || it.interno ? "_self" : "_blank"}
                           className={BTN_SECONDARY}
                         >
-                          <Icon name={it.reproducible ? "play" : "external"} className="w-3.5 h-3.5" />
-                          {empezado && !visto ? "Continuar" : it.reproducible ? "Ver" : "Abrir"}
+                          <Icon name={it.reproducible || it.interno ? "play" : "external"} className="w-3.5 h-3.5" />
+                          {empezado && !visto ? "Continuar" : it.reproducible || it.interno ? "Ver" : "Abrir"}
                         </a>
                       </li>
                     );
