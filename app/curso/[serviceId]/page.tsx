@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import VideoPlayer from "@/app/contenido/[itemId]/VideoPlayer";
 import { completarLeccion, desmarcarLeccion } from "./actions";
+import Dudas, { type Comentario } from "@/components/curso/Dudas";
 
 export const dynamic = "force-dynamic";
 
@@ -37,10 +38,10 @@ export default async function CursoPage({
   searchParams,
 }: {
   params: Promise<{ serviceId: string }>;
-  searchParams: Promise<{ leccion?: string; fin?: string }>;
+  searchParams: Promise<{ leccion?: string; fin?: string; limite?: string; error?: string }>;
 }) {
   const { serviceId } = await params;
-  const { leccion: leccionId, fin } = await searchParams;
+  const { leccion: leccionId, fin, limite, error: errorCom } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -55,7 +56,7 @@ export default async function CursoPage({
   const admin = createAdminClient();
   const { data: service } = await admin
     .from("services")
-    .select("id, title, provider_id, providers ( business_name )")
+    .select("id, title, provider_id, comments_enabled, providers ( business_name )")
     .eq("id", serviceId)
     .maybeSingle();
   if (!service) notFound();
@@ -128,6 +129,29 @@ export default async function CursoPage({
     resumeAt = Number(
       (progreso ?? []).find((p) => p.content_item_id === actual.id)?.position_seconds ?? 0
     );
+  }
+
+  // Dudas de la lección (solo quien ha comprado o el dueño)
+  let comentarios: Comentario[] = [];
+  const nombres: Record<string, string> = {};
+  const puedeComentar =
+    !!actual && puedeVer && (esDueno || acceso) && !!(service as any).comments_enabled;
+  if (actual && puedeComentar) {
+    const { data } = await admin
+      .from("lesson_comments")
+      .select("id, author_id, parent_id, body, is_instructor, resolved, created_at")
+      .eq("item_id", actual.id)
+      .order("created_at", { ascending: true });
+    comentarios = (data ?? []) as Comentario[];
+    const autores = [...new Set(comentarios.map((c) => c.author_id))];
+    if (autores.length) {
+      const [{ data: ps }, { data: cs }] = await Promise.all([
+        admin.from("providers").select("user_id, business_name").in("user_id", autores),
+        admin.from("clients").select("user_id, billing_name").in("user_id", autores),
+      ]);
+      for (const c of cs ?? []) nombres[(c as any).user_id] = (c as any).billing_name;
+      for (const p of ps ?? []) nombres[(p as any).user_id] = (p as any).business_name;
+    }
   }
 
   // Los vídeos de bloques llevan su URL firmada
@@ -389,6 +413,18 @@ export default async function CursoPage({
                 </div>
               </div>
             </div>
+          )}
+
+          {actual && puedeComentar && (
+            <Dudas
+              serviceId={serviceId}
+              itemId={actual.id}
+              userId={user.id}
+              esDueno={esDueno}
+              comentarios={comentarios}
+              nombres={nombres}
+              aviso={limite ? "limite" : errorCom ? "error" : undefined}
+            />
           )}
         </section>
       </div>

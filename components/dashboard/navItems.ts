@@ -6,6 +6,7 @@ export const PROVIDER_NAV: NavItem[] = [
   { label: "Cobros y facturas", href: "/dashboard", icon: "cobros" },
   { label: "Mis servicios", href: "/dashboard/servicios", icon: "servicios" },
   { label: "Solicitudes", href: "/dashboard/solicitudes", icon: "inbox" },
+  { label: "Dudas de alumnos", href: "/dashboard/dudas", icon: "inbox" },
   { label: "Suscripciones", href: "/dashboard/suscripciones", icon: "users" },
   { label: "Mis partners", href: "/dashboard/referidos", icon: "partners" },
   { label: "Mis clientes", href: "#", icon: "users", soon: true },

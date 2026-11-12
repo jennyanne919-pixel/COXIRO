@@ -69,6 +69,16 @@ export async function addSection(formData: FormData) {
   refrescar(serviceId);
 }
 
+export async function setComentarios(formData: FormData) {
+  const serviceId = String(formData.get("service_id") ?? "");
+  const activar = String(formData.get("activar") ?? "") === "1";
+  const ctx = await comoDueno(serviceId);
+  if (!ctx) return;
+  await ctx.supabase.from("services").update({ comments_enabled: activar }).eq("id", serviceId);
+  refrescar(serviceId);
+  revalidatePath(`/curso/${serviceId}`);
+}
+
 export async function renameSection(formData: FormData) {
   const serviceId = String(formData.get("service_id") ?? "");
   const id = String(formData.get("section_id") ?? "");

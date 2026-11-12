@@ -4,6 +4,7 @@ import WelcomeEmail from "@/components/emails/WelcomeEmail";
 import CreatePasswordEmail from "@/components/emails/CreatePasswordEmail";
 import RecoverPasswordEmail from "@/components/emails/RecoverPasswordEmail";
 import SubscriptionCancelledEmail from "@/components/emails/SubscriptionCancelledEmail";
+import LessonCommentEmail from "@/components/emails/LessonCommentEmail";
 import PurchaseConfirmationEmail from "@/components/emails/PurchaseConfirmationEmail";
 import ProviderSaleEmail from "@/components/emails/ProviderSaleEmail";
 import InternalSaleEmail from "@/components/emails/InternalSaleEmail";
@@ -94,6 +95,26 @@ export async function sendSubscriptionCancelled(params: {
     subject: "Tu suscripción se ha dado de baja — Coxiro",
     react: SubscriptionCancelledEmail(params),
     emailType: "subscription_cancelled",
+  });
+}
+
+export async function sendLessonComment(params: {
+  to: string;
+  destinatario: string;
+  autor: string;
+  leccion: string;
+  servicio: string;
+  texto: string;
+  enlace: string;
+  esRespuesta: boolean;
+}) {
+  return sendEmail({
+    to: params.to,
+    subject: params.esRespuesta
+      ? `Te han respondido en «${params.leccion}» — Coxiro`
+      : `Nueva duda en «${params.leccion}» — Coxiro`,
+    react: LessonCommentEmail(params),
+    emailType: params.esRespuesta ? "lesson_reply" : "lesson_question",
   });
 }
 

@@ -7,6 +7,7 @@ import {
   moveLesson,
   moveSection,
   renameSection,
+  setComentarios,
 } from "./actions";
 import ConfirmForm from "@/components/dashboard/ConfirmForm";
 import { notFound } from "next/navigation";
@@ -69,7 +70,7 @@ export default async function ContenidoServicioPage({
 
   const { data: service } = await supabase
     .from("services")
-    .select("id, title, provider_id")
+    .select("id, title, provider_id, comments_enabled")
     .eq("id", id)
     .single();
 
@@ -135,6 +136,22 @@ export default async function ContenidoServicioPage({
         <p className="text-[11px] text-cx-texto-2 mt-1">
           Máximo {fmtBytes(MAX_ARCHIVO_BYTES)} por archivo. Si necesitas más espacio, escríbenos.
         </p>
+      </div>
+
+      <div className="max-w-lg mb-5 rounded-xl border border-cx-borde bg-white p-4 flex items-center justify-between gap-3 flex-wrap">
+        <div className="min-w-0 flex-1 basis-56">
+          <p className="text-sm font-medium text-cx-noche">Dudas y comentarios de los alumnos</p>
+          <p className="text-xs text-cx-texto-2 mt-0.5">
+            {service.comments_enabled
+              ? "Activadas: tus alumnos pueden preguntar en cada lección y tú recibes un email."
+              : "Desactivadas: nadie puede escribir en las lecciones de este servicio."}
+          </p>
+        </div>
+        <form action={setComentarios}>
+          <input type="hidden" name="service_id" value={service.id} />
+          <input type="hidden" name="activar" value={service.comments_enabled ? "0" : "1"} />
+          <button className={BTN_SECONDARY}>{service.comments_enabled ? "Desactivar" : "Activar"}</button>
+        </form>
       </div>
 
       <form action={addSection} className="flex gap-2 mb-6 max-w-lg">
