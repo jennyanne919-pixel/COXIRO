@@ -11,8 +11,10 @@ export const dynamic = "force-dynamic";
 // accionarlo por su cuenta. Se programa en vercel.json para el día 1
 // de cada mes.
 export async function GET(request: Request) {
+  const secreto = process.env.CRON_SECRET;
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  // Sin secreto configurado se rechaza todo: si no, "Bearer undefined" pasaría.
+  if (!secreto || secreto.length < 16 || authHeader !== `Bearer ${secreto}`) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

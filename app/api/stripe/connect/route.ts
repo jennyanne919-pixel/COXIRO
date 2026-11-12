@@ -17,13 +17,6 @@ export async function GET() {
     }
 
     console.log("[connect] Usuario:", user.id, user.email);
-    console.log(
-      "[connect] STRIPE_SECRET_KEY longitud:",
-      process.env.STRIPE_SECRET_KEY?.length,
-      "| empieza por:",
-      process.env.STRIPE_SECRET_KEY?.slice(0, 12)
-    );
-
     const { data: provider, error: providerError } = await supabase
       .from("providers")
       .select("stripe_account_id, legal_type, legal_name, tax_id")
@@ -32,6 +25,12 @@ export async function GET() {
 
     if (providerError) {
       console.error("[connect] Error leyendo el proveedor:", providerError);
+    }
+
+    // Solo los profesionales pueden abrir una cuenta de cobro: así un cliente
+    // no puede crear cuentas de Stripe sueltas.
+    if (!provider) {
+      return NextResponse.redirect(new URL("/dashboard", process.env.NEXT_PUBLIC_SITE_URL));
     }
 
     console.log(

@@ -72,7 +72,7 @@ export async function POST(request: Request) {
   const extension = (fileName.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "bin";
   const key = `${serviceId}/${randomBytes(8).toString("hex")}.${extension}`;
 
-  const uploadUrl = await getUploadUrl(key, contentType);
+  const uploadUrl = await getUploadUrl(key, contentType, Math.floor(tam));
 
   return NextResponse.json({ uploadUrl, key });
 }

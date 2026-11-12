@@ -15,7 +15,7 @@ export async function updateBio(formData: FormData) {
 
   if (!user) return;
 
-  const bio = formData.get("bio") as string;
+  const bio = String(formData.get("bio") ?? "").slice(0, 3000);
   const cambios: { bio: string; avatar_url?: string } = { bio };
   const promesa = String(formData.get("promesa") ?? "").trim().slice(0, 140);
   const chips = [1, 2, 3]
@@ -25,13 +25,14 @@ export async function updateBio(formData: FormData) {
 
   const avatar = formData.get("avatar") as File | null;
   if (avatar && avatar.size > 0) {
-    const tipoOk = avatar.type.startsWith("image/");
+    const EXT_IMG: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+    const tipoOk = !!EXT_IMG[avatar.type];
     const tamanoOk = avatar.size <= 4 * 1024 * 1024;
 
     if (!tipoOk || !tamanoOk) {
       errorFoto = true;
     } else {
-      const ext = (avatar.name.split(".").pop() || "jpg").toLowerCase();
+      const ext = EXT_IMG[avatar.type];
       const fileName = `avatar-${user.id}-${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from("service-images")

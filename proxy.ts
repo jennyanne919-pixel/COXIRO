@@ -35,5 +35,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/registro"],
+  // Debe cubrir TODAS las páginas con sesión (curso, contenido, servicio…): si no,
+  // el token caduca a la hora y el alumno es expulsado aunque siga conectado.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|robots.txt|api/stripe/webhook|api/cron|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+  ],
 };

@@ -16,13 +16,20 @@ const BUCKET = process.env.R2_BUCKET_NAME!;
 // proveedor suba el archivo directamente a R2, sin pasar por
 // nuestro servidor -- así evitamos el límite de tamaño de Vercel
 // por completo, sea cual sea el peso del vídeo.
-export async function getUploadUrl(key: string, contentType: string) {
+export async function getUploadUrl(key: string, contentType: string, contentLength: number) {
+  // El tamaño y el tipo van FIRMADOS: R2 rechaza la subida si el archivo real
+  // pesa distinto de lo declarado, así no se puede pedir permiso para 1 MB y
+  // subir 5 GB.
   const command = new PutObjectCommand({
     Bucket: BUCKET,
     Key: key,
     ContentType: contentType,
+    ContentLength: contentLength,
   });
-  return getSignedUrl(r2, command, { expiresIn: 900 });
+  return getSignedUrl(r2, command, {
+    expiresIn: 900,
+    signableHeaders: new Set(["content-type", "content-length"]),
+  });
 }
 
 // Genera un enlace temporal (1 hora) para REPRODUCIR/descargar un

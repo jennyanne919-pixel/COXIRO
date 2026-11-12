@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { tieneAceptacionVigente } from "@/lib/acceptances";
+import { SERVICE_TYPES } from "@/lib/topics";
 
 export async function createService(formData: FormData) {
   const supabase = await createClient();
@@ -15,25 +16,43 @@ export async function createService(formData: FormData) {
   if (!user) return;
   if (!(await tieneAceptacionVigente(supabase, user.id))) redirect("/aceptar-condiciones");
 
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
-  const price = formData.get("price") as string;
-  const type = formData.get("type") as string;
-  const topic = formData.get("topic") as string;
+  // Validación en el servidor: el formulario del navegador se puede saltar.
+  const title = String(formData.get("title") ?? "").trim().slice(0, 150);
+  const description = String(formData.get("description") ?? "").trim().slice(0, 5000);
+  const price = String(formData.get("price") ?? "");
+  const type = String(formData.get("type") ?? "");
+  const topic = String(formData.get("topic") ?? "").slice(0, 80);
+  const precioNum = Number(price);
+  const esAMedidaPeticion = type === "custom";
+  if (
+    !title ||
+    !SERVICE_TYPES.some((t) => t.value === type) ||
+    !Number.isFinite(precioNum) ||
+    precioNum < 0 ||
+    precioNum > 50000 ||
+    (!esAMedidaPeticion && precioNum < 1)
+  ) {
+    redirect("/dashboard/servicios?error=datos");
+  }
   const isPublic = formData.get("is_public") === "on";
   const requiresInquiry = formData.get("requires_inquiry") === "on";
-  const inquiryUrl = (formData.get("inquiry_url") as string) || null;
-  const billingInterval = (formData.get("billing_interval") as string) || null;
-  const totalInstallmentsRaw = formData.get("total_installments") as string;
-  const totalInstallments = totalInstallmentsRaw ? Number(totalInstallmentsRaw) : null;
+  const inquiryRaw = String(formData.get("inquiry_url") ?? "").trim().slice(0, 500);
+  const inquiryUrl = /^https?:\/\//i.test(inquiryRaw) ? inquiryRaw : null;
+  const intervaloRaw = String(formData.get("billing_interval") ?? "");
+  const billingInterval = intervaloRaw === "month" || intervaloRaw === "year" ? intervaloRaw : null;
+  const totalInstallmentsRaw = String(formData.get("total_installments") ?? "");
+  const cuotasNum = totalInstallmentsRaw ? Math.floor(Number(totalInstallmentsRaw)) : null;
+  const totalInstallments =
+    cuotasNum !== null && Number.isFinite(cuotasNum) && cuotasNum >= 1 && cuotasNum <= 120 ? cuotasNum : null;
 
   // Subida de imagen (opcional) -- si el proveedor no adjunta nada,
   // el campo llega como un File vacío, se ignora sin más.
   const imageFile = formData.get("image") as File | null;
   let imageUrl: string | null = null;
 
-  if (imageFile && imageFile.size > 0) {
-    const fileExt = imageFile.name.split(".").pop();
+  const TIPOS_IMG: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+  if (imageFile && imageFile.size > 0 && TIPOS_IMG[imageFile.type] && imageFile.size <= 4 * 1024 * 1024) {
+    const fileExt = TIPOS_IMG[imageFile.type];
     const fileName = `${user.id}-${Date.now()}.${fileExt}`;
 
     const { error: uploadError } = await supabase.storage
@@ -54,7 +73,7 @@ export async function createService(formData: FormData) {
     provider_id: user.id,
     title,
     description,
-    price: Number(price) || 0,
+    price: precioNum,
     type,
     topic: topic || null,
     is_public: isPublic,

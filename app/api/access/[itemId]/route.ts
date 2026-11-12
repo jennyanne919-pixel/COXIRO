@@ -24,7 +24,7 @@ export async function GET(
 
   const { data: item } = await admin
     .from("content_items")
-    .select("id, service_id, file_url, r2_key, is_free, services ( provider_id )")
+    .select("id, service_id, file_url, r2_key, is_free, status, services ( provider_id )")
     .eq("id", itemId)
     .single();
 
@@ -34,6 +34,11 @@ export async function GET(
 
   // El propio profesional puede ver su contenido para comprobarlo.
   const esDueno = !!user && (item.services as any)?.provider_id === user.id;
+
+  // Los borradores solo los ve el dueño.
+  if (!esDueno && item.status !== "published") {
+    return NextResponse.json({ error: "Contenido no encontrado" }, { status: 404 });
+  }
 
   if (!item.is_free && !esDueno) {
     if (!user) {

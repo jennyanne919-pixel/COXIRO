@@ -88,13 +88,6 @@ export async function GET(request: Request) {
     "| neto proveedor:", precios.netoProveedorCents
   );
 
-  console.log(
-    "[checkout] STRIPE_SECRET_KEY presente:",
-    !!process.env.STRIPE_SECRET_KEY,
-    "| empieza por:",
-    process.env.STRIPE_SECRET_KEY?.slice(0, 7)
-  );
-
   const esMembresia = service.type === "membership";
 
   // Reparto a tres partes (ej. José Luis/María Luisa en la membresía de
