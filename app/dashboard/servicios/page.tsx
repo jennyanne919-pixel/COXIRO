@@ -3,6 +3,7 @@ import { createService, toggleServiceActive, toggleServicePublic, deleteService,
 import NewServiceForm from "./NewServiceForm";
 import DeleteServiceButton from "./DeleteServiceButton";
 import CompartirServicio from "./CompartirServicio";
+import { calcularPrecios } from "@/lib/pricing";
 import ServiceCard from "@/components/dashboard/ServiceCard";
 import {
   BTN_PRIMARY,
@@ -80,6 +81,19 @@ export default async function ServiciosPage() {
             <ServiceCard
               key={s.id}
               s={s}
+              precios={(() => {
+                const p = calcularPrecios(Number(s.price) || 0, Number(providerProfile?.commission_rate ?? 10));
+                return {
+                  proveedor: p.netoProveedorCents / 100,
+                  cliente: p.totalCents / 100,
+                  sufijo:
+                    s.type === "membership"
+                      ? s.billing_interval === "year"
+                        ? "/ año"
+                        : "/ mes"
+                      : undefined,
+                };
+              })()}
               estado={
                 <form action={toggleServiceActive}>
                   <input type="hidden" name="id" value={s.id} />

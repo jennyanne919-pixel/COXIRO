@@ -88,7 +88,7 @@ function Servicios() {
                 </span>
                 <span className={BTN_SECONDARY}>
                   <Icon name="link" className="w-3.5 h-3.5" />
-                  Copiar enlace
+                  Compartir
                 </span>
               </>
             }
