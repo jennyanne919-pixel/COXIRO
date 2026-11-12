@@ -7,6 +7,7 @@ import { processPayment } from "@/lib/payment-processing";
 import { sendCreatePasswordEmail } from "@/lib/email/send";
 import Stripe from "stripe";
 import { feeDesdeTotal } from "@/lib/pricing";
+import { aplicarReembolsoEnBD } from "@/lib/refunds";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -216,6 +217,36 @@ export async function POST(request: Request) {
           .eq("client_id", cancelada.client_id)
           .eq("service_id", cancelada.service_id);
       }
+      break;
+    }
+
+    // Reembolso TOTAL de un cobro: se marca la venta y se corta el acceso
+    // al contenido de esa compra. Un reembolso parcial no corta nada.
+    // (Las facturas no se tocan aquí: un reembolso requiere factura
+    // rectificativa, pendiente de definir con el asesor.)
+    case "charge.refunded": {
+      const charge = event.data.object as Stripe.Charge;
+      if (!charge.refunded) break;
+
+      const paymentIntentId =
+        typeof charge.payment_intent === "string"
+          ? charge.payment_intent
+          : charge.payment_intent?.id;
+      if (!paymentIntentId) break;
+
+      const { data: tx } = await supabase
+        .from("transactions")
+        .select("id")
+        .eq("stripe_payment_intent_id", paymentIntentId)
+        .maybeSingle();
+
+      if (!tx) {
+        console.error("[charge.refunded] No se encontro la venta:", paymentIntentId);
+        break;
+      }
+
+      await aplicarReembolsoEnBD(tx.id);
+
       break;
     }
 

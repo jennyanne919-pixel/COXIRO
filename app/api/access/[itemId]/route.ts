@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlaybackUrl } from "@/lib/r2";
+import { tieneAcceso } from "@/lib/content-access";
 
 export const dynamic = "force-dynamic";
 
@@ -39,13 +40,7 @@ export async function GET(
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    const { data: access } = await admin
-      .from("content_access")
-      .select("id")
-      .eq("client_id", user.id)
-      .eq("service_id", item.service_id)
-      .limit(1)
-      .maybeSingle();
+    const access = await tieneAcceso(admin, user.id, item.service_id);
 
     if (!access) {
       return NextResponse.json({ error: "No tienes acceso a este contenido" }, { status: 403 });

@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const r2 = new S3Client({
@@ -34,4 +34,17 @@ export async function getPlaybackUrl(key: string) {
     Key: key,
   });
   return getSignedUrl(r2, command, { expiresIn: 3600 });
+}
+
+// Borra un archivo de R2. Se usa al eliminar contenido o un servicio:
+// si solo se borrara la ficha en la base de datos, el archivo seguiría
+// ocupando espacio (y costando dinero) para siempre. Un fallo aquí no
+// debe romper la acción del usuario: se registra y se sigue.
+export async function deleteFile(key: string | null | undefined) {
+  if (!key) return;
+  try {
+    await r2.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+  } catch (err) {
+    console.error("[r2] No se pudo borrar el archivo", key, err);
+  }
 }

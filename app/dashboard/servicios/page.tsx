@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createService, toggleServiceActive, toggleServicePublic, deleteService } from "./actions";
+import { createService, toggleServiceActive, toggleServicePublic, deleteService, restoreService } from "./actions";
 import NewServiceForm from "./NewServiceForm";
 import DeleteServiceButton from "./DeleteServiceButton";
 import CompartirServicio from "./CompartirServicio";
@@ -31,6 +31,16 @@ export default async function ServiciosPage() {
     .eq("provider_id", user?.id ?? "")
     .order("created_at", { ascending: false });
 
+  // Servicios con ventas: no se pueden borrar del todo, se archivan.
+  const { data: ventas } = await supabase
+    .from("transactions")
+    .select("service_id")
+    .eq("provider_id", user?.id ?? "");
+  const conVentas = new Set((ventas ?? []).map((v: any) => v.service_id));
+
+  const archivados = (services ?? []).filter((s: any) => s.archived_at);
+  const activosYPausados = (services ?? []).filter((s: any) => !s.archived_at);
+
   const chip = (on: boolean, tono: string) =>
     `inline-flex items-center gap-1.5 text-xs font-medium rounded-full px-2.5 py-1 transition hover:brightness-95 ${
       on ? tono : "bg-cx-hielo text-cx-texto-2"
@@ -51,7 +61,7 @@ export default async function ServiciosPage() {
         }
       />
 
-      <details className="group mb-6" open={!services?.length}>
+      <details className="group mb-6" open={!activosYPausados.length}>
         <summary className={`${BTN_PRIMARY} cursor-pointer list-none [&::-webkit-details-marker]:hidden w-fit`}>
           <Icon name="plus" />
           Nuevo servicio
@@ -64,9 +74,9 @@ export default async function ServiciosPage() {
         </Card>
       </details>
 
-      {services?.length ? (
+      {activosYPausados.length ? (
         <div className="grid gap-4 md:grid-cols-2">
-          {services.map((s) => (
+          {activosYPausados.map((s: any) => (
             <ServiceCard
               key={s.id}
               s={s}
@@ -112,7 +122,7 @@ export default async function ServiciosPage() {
                   </a>
                   <CompartirServicio id={s.id} title={s.title} />
                   <div className="ml-auto">
-                    <DeleteServiceButton id={s.id} deleteService={deleteService} />
+                    <DeleteServiceButton id={s.id} deleteService={deleteService} tieneVentas={conVentas.has(s.id)} />
                   </div>
                 </>
               }
@@ -127,6 +137,30 @@ export default async function ServiciosPage() {
             text="Crea el primero con el botón de arriba y comparte su enlace."
           />
         </Card>
+      )}
+
+      {archivados.length > 0 && (
+        <details className="mt-8">
+          <summary className="cursor-pointer text-sm font-medium text-cx-texto-2">
+            Servicios archivados ({archivados.length})
+          </summary>
+          <p className="text-xs text-cx-texto-2 mt-2 mb-3">
+            Ya no se venden ni aparecen en ningún sitio, pero quienes los compraron conservan su acceso.
+          </p>
+          <Card>
+            <ul>
+              {archivados.map((s: any) => (
+                <li key={s.id} className="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-cx-borde last:border-0">
+                  <span className="text-sm text-cx-noche truncate">{s.title}</span>
+                  <form action={restoreService}>
+                    <input type="hidden" name="id" value={s.id} />
+                    <button className={BTN_SECONDARY}>Restaurar</button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </details>
       )}
     </div>
   );

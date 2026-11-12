@@ -1,5 +1,6 @@
 "use server";
 
+import { deleteFile } from "@/lib/r2";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -66,7 +67,15 @@ export async function deleteContentItem(formData: FormData) {
   const itemId = formData.get("item_id") as string;
   const serviceId = formData.get("service_id") as string;
 
-  await supabase.from("content_items").delete().eq("id", itemId);
+  // RLS solo deja borrar contenido de servicios propios; "select" devuelve
+  // lo que se ha borrado de verdad para poder retirar también el archivo.
+  const { data: borrados } = await supabase
+    .from("content_items")
+    .delete()
+    .eq("id", itemId)
+    .select("r2_key");
+
+  for (const b of borrados ?? []) await deleteFile(b.r2_key);
 
   revalidatePath(`/dashboard/servicios/${serviceId}/contenido`);
 }

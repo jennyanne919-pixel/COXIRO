@@ -17,7 +17,7 @@ export default function DashboardNav({
   const pathname = usePathname();
 
   const activo = (href: string) =>
-    href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
+    href === "/dashboard" || href === "/admin" ? pathname === href : pathname.startsWith(href);
 
   return (
     <nav className="flex flex-row md:flex-col gap-1 flex-1 overflow-x-auto md:overflow-visible">

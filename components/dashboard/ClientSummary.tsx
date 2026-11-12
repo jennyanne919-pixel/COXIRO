@@ -50,7 +50,7 @@ export default async function ClientSummary({ userId }: { userId: string }) {
     profesional: providerNameById.get(t.provider_id) ?? "Profesional en Coxiro",
     servicio: t.services?.title ?? "Servicio",
     importe: Number(t.amount_total),
-    estado: t.status === "paid" ? "paid" : "pending",
+    estado: t.status === "paid" ? "paid" : t.status === "refunded" ? "refunded" : "pending",
     fecha: t.created_at,
     facturaHref: invoiceIdByTx.get(t.id) ? `/api/invoices/${invoiceIdByTx.get(t.id)}/pdf` : undefined,
   }));

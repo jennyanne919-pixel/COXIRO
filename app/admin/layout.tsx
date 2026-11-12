@@ -6,6 +6,7 @@ import CambiarVista from "@/components/dashboard/CambiarVista";
 const ADMIN_NAV: NavItem[] = [
   { label: "Resumen", href: "/admin", icon: "trend" },
   { label: "Libro de ingresos", href: "/admin/ingresos", icon: "cobros" },
+  { label: "Ventas y reembolsos", href: "/admin/ventas", icon: "inbox" },
   { label: "Gastos", href: "/admin/gastos", icon: "bag" },
   { label: "Impuestos y simulador", href: "/admin/impuestos", icon: "doc" },
   { label: "Lista de espera", href: "/admin/waitlist", icon: "users" },

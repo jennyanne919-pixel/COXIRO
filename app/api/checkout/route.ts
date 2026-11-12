@@ -38,6 +38,7 @@ export async function GET(request: Request) {
       `
       id,
       title,
+      is_active,
       price,
       currency,
       type,
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
     provider?.kyc_status
   );
 
-  if (!service || !provider?.stripe_account_id || provider.kyc_status !== "verified") {
+  if (!service || !service.is_active || !provider?.stripe_account_id || provider.kyc_status !== "verified") {
     console.error("[checkout] Bloqueado: servicio o proveedor no listos para cobrar");
     // Se devuelve al comprador a la página del servicio con un aviso
     // claro, en vez de mostrarle un error técnico.

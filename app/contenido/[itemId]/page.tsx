@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlaybackUrl } from "@/lib/r2";
+import { tieneAcceso } from "@/lib/content-access";
 import { notFound, redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import VideoPlayer from "./VideoPlayer";
@@ -38,13 +39,7 @@ export default async function ReproductorPage({
   const esDueno = (item.services as any)?.provider_id === user.id;
 
   if (!item.is_free && !esDueno) {
-    const { data: access } = await admin
-      .from("content_access")
-      .select("id")
-      .eq("client_id", user.id)
-      .eq("service_id", item.service_id)
-      .limit(1)
-      .maybeSingle();
+    const access = await tieneAcceso(admin, user.id, item.service_id);
 
     if (!access) {
       return (

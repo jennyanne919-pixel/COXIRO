@@ -1,5 +1,6 @@
 "use server";
 
+import { deleteFile } from "@/lib/r2";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -124,15 +125,47 @@ export async function deleteService(formData: FormData) {
     .eq("service_id", id);
 
   if (count && count > 0) {
-    // Tiene ventas -- no se borra, se deja tal cual (el proveedor debe
-    // desactivarlo en vez de eliminarlo).
-    console.warn(
-      `Intento de borrar el servicio ${id}, pero tiene ${count} venta(s) asociada(s). No se borra.`
-    );
+    // Tiene ventas: no se puede borrar (hay facturas que conservar por ley y
+    // clientes con derecho a su contenido). Se ARCHIVA: deja de aparecer, de
+    // venderse y de estar en el catálogo; quien ya lo compró sigue teniendo
+    // acceso. El profesional puede borrar archivos concretos del contenido.
+    await supabase
+      .from("services")
+      .update({ is_active: false, is_public: false, archived_at: new Date().toISOString() })
+      .eq("id", id);
+
+    revalidatePath("/dashboard/servicios");
     return;
   }
 
-  await supabase.from("services").delete().eq("id", id);
+  // Anotamos los archivos antes de borrar: al borrar el servicio se borran
+  // en cascada sus fichas de contenido, y los archivos de R2 quedarían
+  // huérfanos (costando dinero) si no los retiramos también.
+  const { data: archivos } = await supabase
+    .from("content_items")
+    .select("r2_key")
+    .eq("service_id", id);
+
+  const { data: borrado } = await supabase
+    .from("services")
+    .delete()
+    .eq("id", id)
+    .select("id");
+
+  if (borrado?.length) {
+    for (const a of archivos ?? []) await deleteFile(a.r2_key);
+  }
+
+  revalidatePath("/dashboard/servicios");
+}
+
+// Saca un servicio archivado del archivo. Vuelve como pausado y privado:
+// el profesional decide cuándo reactivarlo.
+export async function restoreService(formData: FormData) {
+  const supabase = await createClient();
+  const id = formData.get("id") as string;
+
+  await supabase.from("services").update({ archived_at: null }).eq("id", id);
 
   revalidatePath("/dashboard/servicios");
 }

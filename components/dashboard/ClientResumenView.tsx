@@ -17,7 +17,7 @@ export type CompraFila = {
   profesional: string;
   servicio: string;
   importe: number; // lo que pagó el cliente
-  estado: "paid" | "pending";
+  estado: "paid" | "pending" | "refunded";
   fecha: string; // ISO
   facturaHref?: string;
 };
@@ -55,8 +55,8 @@ export default function ClientResumenView({
                     {c.profesional} · {fmtFecha(c.fecha)}
                   </p>
                 </div>
-                <Badge tone={c.estado === "paid" ? "verde" : "ambar"} dot>
-                  {c.estado === "paid" ? "Pagado" : "Pendiente"}
+                <Badge tone={c.estado === "paid" ? "verde" : c.estado === "refunded" ? "gris" : "ambar"} dot>
+                  {c.estado === "paid" ? "Pagado" : c.estado === "refunded" ? "Reembolsada" : "Pendiente"}
                 </Badge>
                 <p className="font-display font-bold text-cx-noche sm:w-24 text-right ml-auto sm:ml-0">
                   {fmtEur(c.importe)}
