@@ -15,7 +15,7 @@ export async function submitInquiry(formData: FormData) {
   // email y hora (evita que alguien llene la bandeja de un profesional).
   const emailOk = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email);
   const { data: existe } = /^[0-9a-f-]{36}$/i.test(serviceId)
-    ? await admin.from("services").select("id").eq("id", serviceId).eq("is_active", true).maybeSingle()
+    ? await admin.from("services").select("id").eq("id", serviceId).eq("is_active", true).eq("review_status", "approved").maybeSingle()
     : { data: null };
   if (!existe || !name || !emailOk) {
     redirect(`/servicio/${serviceId}?error=datos`);

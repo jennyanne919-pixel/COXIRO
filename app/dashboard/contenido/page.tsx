@@ -63,6 +63,7 @@ export default async function MiContenidoPage() {
     id: serviceId,
     titulo: service?.title ?? "Servicio",
     profesional: service?.providers?.business_name ?? "Profesional en Coxiro",
+    href: `/curso/${serviceId}`,
     items: (allItems ?? [])
       .filter((i) => i.service_id === serviceId)
       .map((item) => {

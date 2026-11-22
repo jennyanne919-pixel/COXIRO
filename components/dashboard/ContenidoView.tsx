@@ -24,6 +24,7 @@ export type ContenidoGrupo = {
   id: string;
   titulo: string;
   profesional: string;
+  href?: string; // al pulsar el título se abre el curso completo
   items: ContenidoItem[];
 };
 
@@ -47,7 +48,13 @@ export default function ContenidoView({ grupos }: { grupos: ContenidoGrupo[] }) 
           {grupos.map((g) => (
             <Card key={g.id} className="overflow-hidden">
               <div className="px-5 py-4 border-b border-cx-borde bg-cx-hielo/40">
-                <p className="font-display font-bold text-cx-noche">{g.titulo}</p>
+                {g.href ? (
+                  <a href={g.href} className="font-display font-bold text-cx-noche hover:text-cx-prof">
+                    {g.titulo}
+                  </a>
+                ) : (
+                  <p className="font-display font-bold text-cx-noche">{g.titulo}</p>
+                )}
                 <p className="text-xs text-cx-texto-2 mt-0.5">{g.profesional}</p>
               </div>
               {g.items.length ? (
@@ -63,7 +70,13 @@ export default function ContenidoView({ grupos }: { grupos: ContenidoGrupo[] }) 
                           <Icon name={t.icon} className="w-[18px] h-[18px]" />
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-cx-noche truncate">{it.titulo}</p>
+                          {it.interno ? (
+                            <a href={it.href} className="font-medium text-cx-noche truncate block hover:text-cx-prof">
+                              {it.titulo}
+                            </a>
+                          ) : (
+                            <p className="font-medium text-cx-noche truncate">{it.titulo}</p>
+                          )}
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-xs text-cx-texto-2">{t.label}</span>
                             {it.completada && (

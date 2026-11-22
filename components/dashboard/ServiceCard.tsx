@@ -17,6 +17,7 @@ export type ServiceData = {
   requires_inquiry?: boolean;
   is_active: boolean;
   is_public: boolean;
+  review_status?: string; // "pending" = Coxiro todavía debe aprobar la ficha
 };
 
 // Tarjeta de servicio. El panel real le pasa botones con acciones de servidor;
@@ -68,6 +69,7 @@ export default function ServiceCard({
             {s.is_active ? "Activo" : "Pausado"}
           </Badge>
         )}
+        {s.review_status === "pending" && <Badge tone="ambar">En revisión por Coxiro</Badge>}
         {visibilidad ?? (
           <Badge tone={s.is_public ? "celeste" : "gris"}>
             {s.is_public ? "Público" : "Privado"}

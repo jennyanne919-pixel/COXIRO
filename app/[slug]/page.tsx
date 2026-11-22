@@ -69,6 +69,7 @@ export default async function PerfilProfesionalPage({
     .eq("provider_id", provider.user_id)
     .eq("is_active", true)
     .eq("is_public", true)
+    .eq("review_status", "approved")
     .order("created_at", { ascending: false });
 
   const principal = services?.[0];

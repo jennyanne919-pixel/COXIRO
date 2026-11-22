@@ -7,6 +7,7 @@ import { passwordValida, MENSAJE_PASSWORD } from "@/lib/password";
 import { esTaxIdValido, esNifOrNie, esCif, normalizarTaxId } from "@/lib/tax-id";
 import { rutaInternaSegura } from "@/lib/safe-redirect";
 import { registrarAceptacion } from "@/lib/acceptances";
+import { esCategoria } from "@/lib/categorias";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -37,6 +38,16 @@ export async function signUp(formData: FormData) {
   const category = formData.get("category") as string;
   const clientType = (formData.get("client_type") as string) || "particular";
   const refCode = formData.get("ref") as string;
+  const categoriaRaw = formData.get("fiscal_category");
+  const fiscalCategory = esCategoria(categoriaRaw) ? categoriaRaw : null;
+  const declaracion = formData.get("declaracion_categoria") === "on";
+
+  // Un profesional debe elegir categoría y marcar la declaración responsable.
+  if (role === "provider" && (!fiscalCategory || !declaracion)) {
+    redirect(
+      `/registro?error=${encodeURIComponent("Elige tu tipo de servicio y marca la declaración para continuar.")}&role=provider`
+    );
+  }
 
   const taxId = normalizarTaxId(taxIdRaw ?? "");
   const taxIdOk = role === "provider" ? esTaxIdValido(taxId, sociedad) : esNifOrNie(taxId) || esCif(taxId);
@@ -117,12 +128,13 @@ export async function signUp(formData: FormData) {
       legal_name: sociedad ? legalName : fullName,
       representative_name: sociedad ? fullName : null,
       category,
+      fiscal_category: fiscalCategory,
       referral_code: slug, // reutilizamos el slug como código de partner
       referred_by: referredBy,
     });
 
     // Prueba de que aceptó Términos, condiciones económicas y autofacturación.
-    await registrarAceptacion(user.id, "registro");
+    await registrarAceptacion(user.id, "registro", fiscalCategory ?? "formacion", declaracion);
   } else {
     await supabase.from("clients").insert({
       user_id: user.id,

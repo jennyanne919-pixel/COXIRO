@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { addFileBlock } from "./actions";
 
 // Sube un archivo (vídeo, audio, PDF, documento...) a R2 y lo añade como
@@ -17,6 +17,40 @@ export default function AddFileBlockForm({
   const [subiendo, setSubiendo] = useState(false);
   const [progreso, setProgreso] = useState(0);
   const [error, setError] = useState("");
+  const wakeLock = useRef<{ release: () => Promise<void> } | null>(null);
+
+  // Mientras se sube: la pantalla no se apaga (en el móvil, al bloquearse, la
+  // subida se corta) y el navegador avisa si intentas cerrar la página.
+  useEffect(() => {
+    if (!subiendo) return;
+    let activo = true;
+    const pedir = async () => {
+      try {
+        const wl = (navigator as any).wakeLock;
+        if (wl && activo) wakeLock.current = await wl.request("screen");
+      } catch {
+        // Sin soporte o denegado: se sigue con el aviso en pantalla.
+      }
+    };
+    pedir();
+    // Si la pestaña pierde el foco el bloqueo se libera solo: lo pedimos otra vez al volver.
+    const alVolver = () => {
+      if (document.visibilityState === "visible") pedir();
+    };
+    const avisarSalida = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    document.addEventListener("visibilitychange", alVolver);
+    window.addEventListener("beforeunload", avisarSalida);
+    return () => {
+      activo = false;
+      document.removeEventListener("visibilitychange", alVolver);
+      window.removeEventListener("beforeunload", avisarSalida);
+      wakeLock.current?.release().catch(() => {});
+      wakeLock.current = null;
+    };
+  }, [subiendo]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -95,9 +129,15 @@ export default function AddFileBlockForm({
       </p>
       {error && <p className="text-xs text-red-600">{error}</p>}
       {subiendo && (
-        <div className="h-2 rounded-full bg-cx-hielo overflow-hidden">
-          <div className="h-full bg-cx-celeste" style={{ width: `${progreso}%` }} />
-        </div>
+        <>
+          <div className="h-2 rounded-full bg-cx-hielo overflow-hidden">
+            <div className="h-full bg-cx-celeste" style={{ width: `${progreso}%` }} />
+          </div>
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            Subiendo: no cierres esta página ni cambies de aplicación hasta que termine. Mantenemos la
+            pantalla encendida; si el móvil se bloquea, la subida puede cortarse.
+          </p>
+        </>
       )}
       <button
         disabled={subiendo}

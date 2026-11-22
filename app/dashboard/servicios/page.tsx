@@ -4,6 +4,7 @@ import NewServiceForm from "./NewServiceForm";
 import DeleteServiceButton from "./DeleteServiceButton";
 import CompartirServicio from "./CompartirServicio";
 import { calcularPrecios } from "@/lib/pricing";
+import { CATEGORIAS } from "@/lib/categorias";
 import ServiceCard from "@/components/dashboard/ServiceCard";
 import {
   BTN_PRIMARY,
@@ -22,7 +23,7 @@ export default async function ServiciosPage() {
 
   const { data: providerProfile } = await supabase
     .from("providers")
-    .select("slug, commission_rate")
+    .select("slug, commission_rate, fiscal_category")
     .eq("user_id", user?.id ?? "")
     .single();
 
@@ -61,6 +62,13 @@ export default async function ServiciosPage() {
           ) : undefined
         }
       />
+
+      {providerProfile?.fiscal_category === "mentoria" && (
+        <p className="text-xs text-cx-texto-2 bg-cx-hielo border border-cx-borde rounded-lg px-3 py-2 mb-4 max-w-2xl">
+          Tu cuenta es de <strong>{CATEGORIAS.mentoria.nombre}</strong>. Cada servicio nuevo queda «en revisión»
+          y no se puede vender hasta que Coxiro lo apruebe (suele ser cuestión de horas).
+        </p>
+      )}
 
       <details className="group mb-6" open={!activosYPausados.length}>
         <summary className={`${BTN_PRIMARY} cursor-pointer list-none [&::-webkit-details-marker]:hidden w-fit`}>

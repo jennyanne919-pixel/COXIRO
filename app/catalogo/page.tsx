@@ -2,20 +2,36 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import Logo from "@/components/Logo";
 import { TOPICS } from "@/lib/topics";
 import { totalCliente } from "@/lib/pricing";
+import { CATEGORIAS, ORDEN_CATEGORIAS, esCategoria, type Categoria } from "@/lib/categorias";
 
 export default async function CatalogoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoria?: string; q?: string; tema?: string }>;
+  searchParams: Promise<{ categoria?: string; q?: string; tema?: string; area?: string }>;
 }) {
   const sp = await searchParams;
   const categoriaActiva = ["curso", "mentoria", "membresia", "medida", "otros"].includes(sp.categoria ?? "")
     ? sp.categoria!
     : "curso";
+  const supabase = createAdminClient();
+
+  // Dos áreas separadas: Formación y cursos | Mentoría, consultoría y desarrollo personal.
+  // Por defecto se abre Mentoría si ya tiene servicios aprobados; si no, Formación.
+  let area: Categoria;
+  if (esCategoria(sp.area)) {
+    area = sp.area;
+  } else {
+    const { count: nMentoria } = await supabase
+      .from("services")
+      .select("id", { count: "exact", head: true })
+      .eq("is_public", true)
+      .eq("is_active", true)
+      .eq("review_status", "approved")
+      .eq("fiscal_category", "mentoria");
+    area = (nMentoria ?? 0) > 0 ? "mentoria" : "formacion";
+  }
   const busqueda = sp.q?.trim() ?? "";
   const temaActivo = sp.tema ?? "";
-
-  const supabase = createAdminClient();
 
   let query = supabase
     .from("services")
@@ -35,6 +51,8 @@ export default async function CatalogoPage({
     )
     .eq("is_public", true)
     .eq("is_active", true)
+    .eq("review_status", "approved")
+    .eq("fiscal_category", area)
     .order("created_at", { ascending: false });
 
   if (busqueda) {
@@ -63,6 +81,7 @@ export default async function CatalogoPage({
 
   const qs = (extra: Record<string, string>) => {
     const params = new URLSearchParams({
+      area,
       categoria: categoriaActiva,
       ...(busqueda ? { q: busqueda } : {}),
       ...(temaActivo ? { tema: temaActivo } : {}),
@@ -103,7 +122,25 @@ export default async function CatalogoPage({
           Catálogo de Coxiro
         </h1>
 
+        <div className="flex gap-2 mb-5 flex-wrap">
+          {ORDEN_CATEGORIAS.map((k) => (
+            <a
+              key={k}
+              href={`/catalogo?area=${k}`}
+              aria-current={area === k ? "page" : undefined}
+              className={`rounded-full px-4 py-2 text-sm font-semibold border transition ${
+                area === k
+                  ? "bg-cx-noche text-white border-cx-noche"
+                  : "bg-white text-cx-texto border-cx-borde hover:border-cx-celeste"
+              }`}
+            >
+              {CATEGORIAS[k].nombre}
+            </a>
+          ))}
+        </div>
+
         <form method="GET" className="mb-6 flex gap-2">
+          <input type="hidden" name="area" value={area} />
           <input type="hidden" name="categoria" value={categoriaActiva} />
           {temaActivo && <input type="hidden" name="tema" value={temaActivo} />}
           <input
@@ -238,7 +275,7 @@ export default async function CatalogoPage({
             <div className="text-sm text-cx-texto-2">
               {(() => {
                 if (!busqueda && !temaActivo) {
-                  return <p>Todavía no hay servicios publicados en esta categoría.</p>;
+                  return <p>Todavía no hay servicios publicados en esta área.</p>;
                 }
                 const otraCategoria = Object.entries(listas).find(
                   ([key, lista]) => key !== categoriaActiva && (lista?.length ?? 0) > 0

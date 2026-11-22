@@ -9,10 +9,12 @@ import {
   moveSection,
   renameSection,
   setComentarios,
+  setLessonStatus,
 } from "./actions";
 import { addDirecto, avisarDirecto, deleteDirecto } from "./directos";
 import { fechaMadrid } from "@/lib/fechas";
 import ConfirmForm from "@/components/dashboard/ConfirmForm";
+import GuardarBtn from "@/components/dashboard/GuardarBtn";
 import { notFound } from "next/navigation";
 import { fmtBytes, getAlmacenamiento, MAX_ARCHIVO_BYTES } from "@/lib/storage";
 import {
@@ -104,7 +106,7 @@ export default async function ContenidoServicioPage({
   const pct = Math.min(100, Math.round((usado / cuota) * 100));
 
   const grupos = [
-    { id: null as string | null, titulo: "Sin sección", lecciones: (lecciones ?? []).filter((l) => !l.section_id) },
+    { id: null as string | null, titulo: "Sin módulo", lecciones: (lecciones ?? []).filter((l) => !l.section_id) },
     ...(secciones ?? []).map((s) => ({
       id: s.id as string | null,
       titulo: s.title,
@@ -120,12 +122,18 @@ export default async function ContenidoServicioPage({
       </a>
       <PageHeader
         title={`Contenido de «${service.title}»`}
-        subtitle="Organiza el curso en secciones y lecciones. Lo que verá el cliente después de pagar"
+        subtitle="Organiza el curso en módulos y lecciones. Lo que verá el cliente después de pagar"
         action={
-          <a href={`/curso/${service.id}`} target="_blank" className={BTN_SECONDARY}>
-            <Icon name="eye" className="w-3.5 h-3.5" />
-            Ver como alumno
-          </a>
+          <div className="flex items-center gap-2 flex-wrap">
+            <a href={`/dashboard/servicios/${service.id}/alumnos`} className={BTN_SECONDARY}>
+              <Icon name="users" className="w-3.5 h-3.5" />
+              Alumnos
+            </a>
+            <a href={`/curso/${service.id}`} target="_blank" className={BTN_SECONDARY}>
+              <Icon name="eye" className="w-3.5 h-3.5" />
+              Ver como alumno
+            </a>
+          </div>
         }
       />
 
@@ -217,16 +225,16 @@ export default async function ContenidoServicioPage({
 
       <form action={addSection} className="flex gap-2 mb-6 max-w-lg">
         <input type="hidden" name="service_id" value={service.id} />
-        <input name="title" required placeholder="Nueva sección (ej. Módulo 1 — Introducción)" className={`${INPUT} flex-1`} />
+        <input name="title" required placeholder="Nuevo módulo (ej. Introducción al curso)" className={`${INPUT} flex-1`} />
         <button className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-4 py-1.5 hover:brightness-105 transition whitespace-nowrap">
-          Añadir sección
+          Añadir módulo
         </button>
       </form>
 
       <div className="grid gap-5">
         {grupos.map((g) => {
           const idxSec = g.id ? idsSecciones.indexOf(g.id) : -1;
-          // "Sin sección" solo se muestra si tiene lecciones, o si no hay ninguna sección.
+          // "Sin módulo" solo se muestra si tiene lecciones, o si no hay ningún módulo.
           if (!g.id && !g.lecciones.length && (secciones?.length ?? 0) > 0) return null;
           return (
             <Card key={g.id ?? "sin"} className="overflow-hidden">
@@ -237,7 +245,7 @@ export default async function ContenidoServicioPage({
                       <input type="hidden" name="service_id" value={service.id} />
                       <input type="hidden" name="section_id" value={g.id} />
                       <input name="title" defaultValue={g.titulo} required className={`${INPUT} flex-1 font-medium`} />
-                      <button className={BTN_SECONDARY}>Guardar</button>
+                      <GuardarBtn className={BTN_SECONDARY}>Guardar</GuardarBtn>
                     </form>
                     <Flechas
                       action={moveSection}
@@ -248,9 +256,9 @@ export default async function ContenidoServicioPage({
                     <ConfirmForm
                       action={deleteSection}
                       fields={{ service_id: service.id, section_id: g.id }}
-                      confirmText="¿Eliminar esta sección? Sus lecciones NO se borran: pasan a «Sin sección»."
+                      confirmText="¿Eliminar este módulo? Sus lecciones NO se borran: pasan a «Sin módulo»."
                     >
-                      <button title="Eliminar sección" aria-label="Eliminar sección" className={`${BTN_ICON} hover:!border-red-300 hover:!text-red-600`}>
+                      <button title="Eliminar módulo" aria-label="Eliminar módulo" className={`${BTN_ICON} hover:!border-red-300 hover:!text-red-600`}>
                         <Icon name="trash" className="w-3.5 h-3.5" />
                       </button>
                     </ConfirmForm>
@@ -265,7 +273,9 @@ export default async function ContenidoServicioPage({
                   {g.lecciones.map((l, i) => (
                     <li key={l.id} className="flex items-center gap-3 px-4 py-3">
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-cx-noche truncate">{l.title}</p>
+                        <a href={`/dashboard/servicios/${service.id}/contenido/${l.id}`} className="font-medium text-cx-noche truncate block hover:text-cx-prof">
+                          {l.title}
+                        </a>
                         <div className="flex gap-1.5 mt-1 flex-wrap">
                           <Badge tone={l.status === "published" ? "verde" : "ambar"}>
                             {l.status === "published" ? "Publicada" : "Borrador"}
@@ -274,6 +284,14 @@ export default async function ContenidoServicioPage({
                           {l.content_type !== "lesson" && <Badge>Archivo original</Badge>}
                         </div>
                       </div>
+                      <form action={setLessonStatus}>
+                        <input type="hidden" name="service_id" value={service.id} />
+                        <input type="hidden" name="item_id" value={l.id} />
+                        <input type="hidden" name="status" value={l.status === "published" ? "draft" : "published"} />
+                        <button className={BTN_SECONDARY} title={l.status === "published" ? "Pasar a borrador" : "Publicar para tus clientes"}>
+                          {l.status === "published" ? "Pasar a borrador" : "Publicar"}
+                        </button>
+                      </form>
                       <Flechas
                         action={moveLesson}
                         fields={{ service_id: service.id, item_id: l.id }}
@@ -297,7 +315,7 @@ export default async function ContenidoServicioPage({
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-cx-texto-2 px-4 py-4">Esta sección aún no tiene lecciones.</p>
+                <p className="text-sm text-cx-texto-2 px-4 py-4">Este módulo aún no tiene lecciones.</p>
               )}
 
               <form action={addLesson} className="flex gap-2 px-4 py-3 border-t border-cx-borde">
@@ -319,7 +337,7 @@ export default async function ContenidoServicioPage({
           <EmptyState
             icon="folder"
             title="Todavía no has añadido contenido"
-            text="Crea una sección y añade tu primera lección. Cada lección puede llevar vídeo, texto, PDF y archivos."
+            text="Crea un módulo y añade tu primera lección. Cada lección puede llevar vídeo, texto, PDF y archivos."
           />
         </Card>
       )}

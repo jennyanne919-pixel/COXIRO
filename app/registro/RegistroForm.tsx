@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { CONDICIONES_RUTA } from "@/lib/condiciones";
+import {
+  CATEGORIAS,
+  ORDEN_CATEGORIAS,
+  CRITERIO_CLASIFICACION,
+  esCategoria,
+  rutaCondicionesCategoria,
+  type Categoria,
+} from "@/lib/categorias";
 import Logo from "@/components/Logo";
 import SubmitButton from "@/components/SubmitButton";
 import { signUp } from "@/app/auth/actions";
@@ -11,15 +18,21 @@ import { passwordValida, PASSWORD_MIN } from "@/lib/password";
 export default function RegistroForm({
   searchParams,
 }: {
-  searchParams: { error?: string; ["check-email"]?: string; ref?: string; role?: string; slug?: string };
+  searchParams: { error?: string; ["check-email"]?: string; ref?: string; role?: string; slug?: string; categoria?: string };
 }) {
   const [role, setRole] = useState<"provider" | "client">(
     searchParams.role === "client" ? "client" : "provider"
+  );
+  const [categoria, setCategoria] = useState<Categoria | "">(
+    esCategoria(searchParams.categoria) ? searchParams.categoria : ""
   );
   const [tipo, setTipo] = useState<"autonomo" | "sociedad">("autonomo");
   const sociedad = role === "provider" && tipo === "sociedad";
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const cat = categoria ? CATEGORIAS[categoria] : null;
+  // Un profesional no puede crear la cuenta sin elegir categoría.
+  const faltaCategoria = role === "provider" && !categoria;
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-cx-hielo px-6 py-12">
@@ -66,6 +79,39 @@ export default function RegistroForm({
 
         {role === "provider" && (
           <div className="mb-4">
+            <p className="text-xs text-cx-texto-2 mb-1">¿Qué tipo de servicio ofreces?</p>
+            <div className="grid gap-2">
+              {ORDEN_CATEGORIAS.map((k) => {
+                const c = CATEGORIAS[k];
+                const activa = categoria === k;
+                return (
+                  <button
+                    key={k}
+                    type="button"
+                    onClick={() => setCategoria(k)}
+                    aria-pressed={activa}
+                    className={`text-left rounded-lg border p-3 bg-white transition ${
+                      activa ? "border-cx-celeste ring-2 ring-cx-celeste/40" : "border-cx-borde hover:border-cx-celeste"
+                    }`}
+                  >
+                    <span className="block text-sm font-semibold text-cx-texto">{c.nombre}</span>
+                    <span className="block text-xs text-cx-texto-2 mt-0.5">{c.criterio}</span>
+                    <span className="block text-xs text-cx-texto-2 mt-0.5">{c.ejemplos}</span>
+                    <span className="block text-xs font-medium text-cx-prof mt-1.5">{c.condiciones[0]}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <ul className="list-disc pl-4 mt-2 space-y-0.5 text-[11px] text-cx-texto-2">
+              {CRITERIO_CLASIFICACION.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {role === "provider" && (
+          <div className="mb-4">
             <p className="text-xs text-cx-texto-2 mb-1">¿Cómo vas a facturar?</p>
             <div className="flex rounded-lg border border-cx-borde p-1 bg-white">
               <button
@@ -92,6 +138,7 @@ export default function RegistroForm({
 
         <form action={signUp} className="flex flex-col gap-3">
           <input type="hidden" name="role" value={role} />
+          <input type="hidden" name="fiscal_category" value={role === "provider" ? categoria : ""} />
           <input type="hidden" name="legal_type" value={sociedad ? "sociedad" : "autonomo"} />
           <input type="hidden" name="ref" value={searchParams.ref ?? ""} />
 
@@ -133,7 +180,7 @@ export default function RegistroForm({
               />
               <div>
                 <label className="text-xs text-cx-texto-2 block mb-1">
-                  ¿Qué ofreces?
+                  Tu especialidad
                 </label>
                 <select
                   name="category"
@@ -221,18 +268,24 @@ export default function RegistroForm({
 
           <PasswordRequisitos password={password} />
 
-          {role === "provider" && (
-            <div className="rounded-lg border border-cx-borde bg-cx-hielo px-4 py-3 text-xs text-cx-texto-2">
-              <p className="font-semibold text-cx-texto mb-1">Condiciones económicas</p>
-              <ul className="list-disc pl-4 space-y-0.5">
-                <li>Recibes el precio base de tu servicio (sin impuestos) más un 10 %.</li>
-                <li>Cobras a los 7 días de cada venta.</li>
-                <li>Sin cuotas de alta ni mensualidad.</li>
-              </ul>
-              <a href={CONDICIONES_RUTA} target="_blank" className="text-cx-prof underline mt-1.5 inline-block">
-                Ver condiciones completas
-              </a>
-            </div>
+          {role === "provider" && cat && categoria && (
+            <>
+              <div className="rounded-lg border border-cx-borde bg-cx-hielo px-4 py-3 text-xs text-cx-texto-2">
+                <p className="font-semibold text-cx-texto mb-1">Condiciones económicas · {cat.nombre}</p>
+                <ul className="list-disc pl-4 space-y-0.5">
+                  {cat.condiciones.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ul>
+                <a href={rutaCondicionesCategoria(categoria)} target="_blank" className="text-cx-prof underline mt-1.5 inline-block">
+                  Ver condiciones completas
+                </a>
+              </div>
+              <label className="flex items-start gap-2 text-xs text-cx-texto-2">
+                <input type="checkbox" name="declaracion_categoria" required className="mt-0.5" />
+                <span>{cat.declaracion}</span>
+              </label>
+            </>
           )}
 
           <label className="flex items-start gap-2 text-xs text-cx-texto-2">
@@ -258,7 +311,7 @@ export default function RegistroForm({
           </label>
 
           <SubmitButton
-            disabled={!passwordValida(password)}
+            disabled={!passwordValida(password) || faltaCategoria}
             pendingText="Creando tu cuenta… un momento"
             className="rounded-lg bg-cx-celeste text-cx-noche font-semibold text-sm py-2.5 mt-1 hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >

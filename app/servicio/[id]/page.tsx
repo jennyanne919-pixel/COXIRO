@@ -51,6 +51,7 @@ export default async function ServicioPage({
       price,
       currency,
       is_active,
+      review_status,
       requires_inquiry,
       inquiry_url,
       image_url,
@@ -72,6 +73,12 @@ export default async function ServicioPage({
     notFound();
   }
 
+  // Ficha en revisión (categoría Mentoría): solo la ve su dueño, que la prepara.
+  if (service.review_status !== "approved") {
+    const { data: { user: viewer } } = await (await createClient()).auth.getUser();
+    if (viewer?.id !== service.provider_id) notFound();
+  }
+
   const provider = service.providers as any;
 
   const [{ data: contentItems }, { data: otherServices }] = await Promise.all([
@@ -87,6 +94,7 @@ export default async function ServicioPage({
       .eq("provider_id", service.provider_id)
       .eq("is_public", true)
       .eq("is_active", true)
+      .eq("review_status", "approved")
       .neq("id", service.id)
       .limit(3),
   ]);

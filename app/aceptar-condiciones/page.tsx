@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import { createClient } from "@/lib/supabase/server";
-import { tieneAceptacionVigente } from "@/lib/acceptances";
-import { CONDICIONES_RUTA, CONDICIONES_VERSION } from "@/lib/condiciones";
+import { tieneAceptacionVigente, categoriaDe } from "@/lib/acceptances";
+import { CATEGORIAS, CONDICIONES_CATEGORIA_VERSION, rutaCondicionesCategoria } from "@/lib/categorias";
 import { aceptarCondiciones } from "./actions";
 
 export const metadata: Metadata = {
@@ -26,6 +26,8 @@ export default async function AceptarCondicionesPage({
   const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single();
   if (profile?.role !== "provider") redirect("/dashboard");
   if (await tieneAceptacionVigente(supabase, user.id)) redirect("/dashboard");
+  const categoria = await categoriaDe(supabase, user.id);
+  const cat = CATEGORIAS[categoria];
 
   return (
     <main className="min-h-screen bg-cx-hielo flex items-center justify-center px-6 py-10">
@@ -33,23 +35,32 @@ export default async function AceptarCondicionesPage({
         <Logo variant="light" />
         <h1 className="font-display text-2xl font-semibold mt-6 mb-2">Condiciones del proveedor</h1>
         <p className="text-sm text-cx-texto-2 mb-4">
-          Hemos actualizado las condiciones económicas y de facturación que se aplican a tus ventas
-          (versión {CONDICIONES_VERSION}). Para seguir usando tu panel necesitamos que las aceptes una vez.
+          Tu cuenta está en la categoría <strong>{cat.nombre}</strong>. Para seguir usando tu panel necesitamos
+          que aceptes las condiciones de esa categoría (versión {CONDICIONES_CATEGORIA_VERSION}).
         </p>
         <ul className="text-sm text-cx-texto space-y-1.5 mb-4 list-disc pl-5">
-          <li>Recibes el precio base de tu servicio (sin impuestos) más un 10 %.</li>
-          <li>El pago de cada venta se hace efectivo a los 7 días.</li>
+          {cat.condiciones.map((c) => (
+            <li key={c}>{c}</li>
+          ))}
           <li>Coxiro emite en tu nombre la factura por el servicio (facturación por el destinatario).</li>
         </ul>
         <p className="text-sm mb-6">
-          <a href={CONDICIONES_RUTA} target="_blank" className="text-cx-prof underline">
+          <a href={rutaCondicionesCategoria(categoria)} target="_blank" className="text-cx-prof underline">
             Leer las condiciones completas
           </a>
         </p>
         {sp.error && (
-          <p className="text-sm text-red-600 mb-4">No se pudo guardar. Inténtalo de nuevo.</p>
+          <p className="text-sm text-red-600 mb-4">
+            {sp.error === "declaracion"
+              ? "Marca la declaración para continuar."
+              : "No se pudo guardar. Inténtalo de nuevo."}
+          </p>
         )}
         <form action={aceptarCondiciones}>
+          <label className="flex items-start gap-2 text-xs text-cx-texto-2 mb-3">
+            <input type="checkbox" name="declaracion" required className="mt-0.5" />
+            <span>{cat.declaracion}</span>
+          </label>
           <p className="text-xs text-cx-texto-2 mb-3">
             Al pulsar el botón aceptas estas condiciones y los{" "}
             <a href="/terminos" target="_blank" className="underline">Términos y Condiciones</a>. Guardamos la

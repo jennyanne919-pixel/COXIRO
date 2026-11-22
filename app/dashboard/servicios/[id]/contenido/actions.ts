@@ -47,7 +47,7 @@ async function guardarOrden(supabase: Cliente, tabla: string, ids: string[]) {
   );
 }
 
-// ---------------------------------------------------------------- Secciones
+// ---------------------------------------------------------------- Módulos (tabla course_sections)
 
 export async function addSection(formData: FormData) {
   const serviceId = String(formData.get("service_id") ?? "");
@@ -94,7 +94,7 @@ export async function deleteSection(formData: FormData) {
   const id = String(formData.get("section_id") ?? "");
   const ctx = await comoDueno(serviceId);
   if (!ctx) return;
-  // Las lecciones de la sección no se borran: pasan a "Sin sección".
+  // Las lecciones del módulo no se borran: pasan a "Sin módulo".
   await ctx.supabase.from("course_sections").delete().eq("id", id).eq("service_id", serviceId);
   refrescar(serviceId);
 }
@@ -170,6 +170,17 @@ export async function moveLesson(formData: FormData) {
   const nuevo = mover((filas ?? []).map((f) => f.id), id, String(formData.get("dir")));
   if (nuevo) await guardarOrden(ctx.supabase, "content_items", nuevo);
   refrescar(serviceId);
+}
+
+// Cambia una lección entre Borrador y Publicada con un clic desde la lista.
+export async function setLessonStatus(formData: FormData) {
+  const serviceId = String(formData.get("service_id") ?? "");
+  const id = String(formData.get("item_id") ?? "");
+  const status = formData.get("status") === "published" ? "published" : "draft";
+  const ctx = await comoDueno(serviceId);
+  if (!ctx || !id) return;
+  await ctx.supabase.from("content_items").update({ status }).eq("id", id).eq("service_id", serviceId);
+  refrescar(serviceId, id);
 }
 
 export async function updateLesson(formData: FormData) {

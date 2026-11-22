@@ -9,6 +9,7 @@ const ADMIN_NAV: NavItem[] = [
   { label: "Ventas y reembolsos", href: "/admin/ventas", icon: "inbox" },
   { label: "Gastos", href: "/admin/gastos", icon: "bag" },
   { label: "Impuestos y simulador", href: "/admin/impuestos", icon: "doc" },
+  { label: "Fichas y categorías", href: "/admin/fichas", icon: "check" },
   { label: "Lista de espera", href: "/admin/waitlist", icon: "users" },
 ];
 

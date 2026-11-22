@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import PasswordField from "@/components/PasswordField";
 import { updateBio, updateContacto, cambiarPassword } from "./actions";
 import { CONDICIONES_DOCUMENTO, CONDICIONES_RUTA } from "@/lib/condiciones";
+import { CATEGORIAS, rutaCondicionesCategoria } from "@/lib/categorias";
 
 const ERRORES: Record<string, string> = {
   email:
@@ -56,14 +57,14 @@ export default async function PerfilPage({
   // profesional: RLS solo le devuelve sus filas, nadie más las ve.
   const { data: registro } = await supabase
     .from("providers")
-    .select("legal_type, legal_name, tax_id, representative_name")
+    .select("legal_type, legal_name, tax_id, representative_name, fiscal_category")
     .eq("user_id", user?.id ?? "")
     .maybeSingle();
   const { data: aceptaciones } = await supabase
     .from("provider_acceptances")
-    .select("version, accepted_at")
+    .select("version, accepted_at, document, fiscal_category")
     .eq("user_id", user?.id ?? "")
-    .eq("document", CONDICIONES_DOCUMENTO)
+    .in("document", [CONDICIONES_DOCUMENTO, CATEGORIAS.formacion.documento, CATEGORIAS.mentoria.documento])
     .order("accepted_at", { ascending: false })
     .limit(1);
   const aceptacion = aceptaciones?.[0] ?? null;
@@ -343,9 +344,20 @@ export default async function PerfilPage({
                 {aceptacion
                   ? `Versión ${aceptacion.version}, el ${new Date(aceptacion.accepted_at).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}`
                   : "Pendiente de aceptar"}{" "}
-                <a href={CONDICIONES_RUTA} target="_blank" className="text-cx-prof underline">
+                <a
+                  href={aceptacion?.fiscal_category ? rutaCondicionesCategoria(aceptacion.fiscal_category) : CONDICIONES_RUTA}
+                  target="_blank"
+                  className="text-cx-prof underline"
+                >
                   Ver condiciones
                 </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-cx-texto-2">Categoría de tu cuenta</dt>
+              <dd>
+                {CATEGORIAS[registro.fiscal_category === "mentoria" ? "mentoria" : "formacion"].nombre}
+                <span className="block text-xs text-cx-texto-2">Solo Coxiro puede cambiarla; escríbenos si necesitas hacerlo.</span>
               </dd>
             </div>
           </dl>

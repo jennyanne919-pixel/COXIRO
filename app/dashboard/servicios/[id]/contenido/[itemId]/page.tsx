@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import GuardarBtn from "@/components/dashboard/GuardarBtn";
 import { notFound } from "next/navigation";
 import ConfirmForm from "@/components/dashboard/ConfirmForm";
 import AddFileBlockForm from "../AddFileBlockForm";
@@ -85,9 +86,9 @@ export default async function LeccionEditorPage({
             <input name="title" defaultValue={leccion.title} required className={INPUT} />
           </div>
           <div>
-            <label className="text-xs text-cx-texto-2 block mb-1">Sección</label>
+            <label className="text-xs text-cx-texto-2 block mb-1">Módulo</label>
             <select name="section_id" defaultValue={leccion.section_id ?? ""} className={INPUT}>
-              <option value="">Sin sección</option>
+              <option value="">Sin módulo</option>
               {(secciones ?? []).map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.title}
@@ -107,9 +108,7 @@ export default async function LeccionEditorPage({
             Lección gratuita (vista previa para quien aún no ha comprado)
           </label>
           <div className="flex gap-2">
-            <button className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-5 py-2 hover:brightness-105 transition">
-              Guardar cambios
-            </button>
+            <GuardarBtn className="rounded-full bg-cx-celeste text-cx-noche text-sm font-semibold px-5 py-2 hover:brightness-105 transition" />
             <a href={`/curso/${id}?leccion=${itemId}`} target="_blank" className={BTN_SECONDARY}>
               <Icon name="eye" className="w-3.5 h-3.5" />
               Ver como alumno
