@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { useState } from "react";
 import Reveal from "@/components/Reveal";
-import { calcularPrecios } from "@/lib/pricing";
+import { GANCHO_MENTORIA_PCT } from "@/lib/categorias";
 
 // Separador de miles manual (es-ES no agrupa los números de 4 cifras).
 const eur = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
 export default function Calculadora() {
   const [ventas, setVentas] = useState(3000);
-  const p = calcularPrecios(ventas, 10);
-  const mes = (p.netoProveedorCents - p.baseCents) / 100;
+  // El gancho de la categoría Mentoría (6 % sobre el precio sin impuestos).
+  const mes = (ventas * GANCHO_MENTORIA_PCT) / 100;
   const anio = mes * 12;
   const pct = ((ventas - 500) / (30000 - 500)) * 100;
 

@@ -4,7 +4,7 @@ import WaitlistForm from "@/components/WaitlistForm";
 export const metadata = {
   title: "Lista de espera — Coxiro",
   description:
-    "Sé de los primeros en unirte a Coxiro y empieza a ganar hasta un 10% más en tus ventas digitales.",
+    "Sé de los primeros en unirte a Coxiro y empieza a ganar hasta un 6% más en tus ventas digitales.",
 };
 
 export default function ListaDeEsperaPage() {
@@ -20,7 +20,7 @@ export default function ListaDeEsperaPage() {
             Acceso anticipado
           </span>
           <h1 className="font-display font-semibold text-3xl mt-3 leading-tight">
-            Empieza a ganar hasta un 10% más en tus ventas digitales
+            Empieza a ganar hasta un 6% más en tus ventas digitales
           </h1>
           <p className="text-sm text-white/60 mt-4">
             Apúntate y te avisamos por email en cuanto abramos. Sin
