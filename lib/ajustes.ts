@@ -45,27 +45,39 @@ export function comisionEquivalente(a: AjusteCategoria): number {
   return r4((1 + IVA_PORCENTAJE / 100 - proporcionProveedor(a)) * 100 - 1);
 }
 
-// Comisión (en el formato de lib/pricing.ts) que se aplica HOY a un profesional:
-//  - si ya aceptó las condiciones de su categoría, la de su categoría;
-//  - si no (profesionales anteriores a la fase 44), la suya de siempre
+export type Regimen = {
+  usaCategoria: boolean; // false = condiciones anteriores (profesionales previos a la fase 44)
+  categoria: Categoria;
+  ajuste: AjusteCategoria;
+  comisionLegado: number;
+};
+
+// Qué condiciones se aplican HOY a un profesional:
+//  - si ya aceptó las condiciones de su categoría, las de su categoría;
+//  - si no (profesionales anteriores a la fase 44), las suyas de siempre
 //    (providers.commission_rate), hasta que acepte las nuevas.
-export async function comisionEfectiva(admin: SupabaseClient, providerId: string): Promise<number> {
+export async function regimenProveedor(admin: SupabaseClient, providerId: string): Promise<Regimen> {
   const { data: p } = await admin
     .from("providers")
     .select("commission_rate, fiscal_category")
     .eq("user_id", providerId)
     .maybeSingle();
-  const legado = Number(p?.commission_rate ?? 10);
-  const cat: Categoria = esCategoria(p?.fiscal_category) ? p.fiscal_category : "formacion";
+  const comisionLegado = Number(p?.commission_rate ?? 10);
+  const categoria: Categoria = esCategoria(p?.fiscal_category) ? p.fiscal_category : "formacion";
 
   const { data: acept } = await admin
     .from("provider_acceptances")
     .select("id")
     .eq("user_id", providerId)
-    .eq("document", CATEGORIAS[cat].documento)
+    .eq("document", CATEGORIAS[categoria].documento)
     .limit(1);
-  if (!acept?.length) return legado;
 
   const ajustes = await cargarAjustes(admin);
-  return comisionEquivalente(ajustes[cat]);
+  return { usaCategoria: !!acept?.length, categoria, ajuste: ajustes[categoria], comisionLegado };
+}
+
+// Comisión (en el formato de lib/pricing.ts) que se aplica HOY a un profesional.
+export async function comisionEfectiva(admin: SupabaseClient, providerId: string): Promise<number> {
+  const r = await regimenProveedor(admin, providerId);
+  return r.usaCategoria ? comisionEquivalente(r.ajuste) : r.comisionLegado;
 }

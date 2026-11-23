@@ -57,7 +57,8 @@ export default async function ImpuestosPage({
               <th className="p-3 font-medium text-right">Margen</th>
               <th className="p-3 font-medium text-right">Gastos</th>
               <th className="p-3 font-medium text-right">Beneficio</th>
-              <th className="p-3 font-medium text-right">IPSI a pagar</th>
+              <th className="p-3 font-medium text-right">Impuesto de ventas</th>
+              <th className="p-3 font-medium text-right">Impuesto de compras</th>
               <th className="p-3 font-medium text-right">IRPF a cuenta (130)</th>
             </tr>
           </thead>
@@ -71,6 +72,7 @@ export default async function ImpuestosPage({
                 </td>
                 <td className="p-3 text-right whitespace-nowrap">{fmtEur(r.beneficio)}</td>
                 <td className="p-3 text-right whitespace-nowrap">{fmtEur(r.impuestoRepercutido)}</td>
+                <td className="p-3 text-right whitespace-nowrap">{fmtEur(r.impuestoCompra)}</td>
                 <td className="p-3 text-right whitespace-nowrap font-semibold">{fmtEur(pago)}</td>
               </tr>
             ))}
@@ -82,6 +84,7 @@ export default async function ImpuestosPage({
               </td>
               <td className="p-3 text-right whitespace-nowrap">{fmtEur(totalAnual.beneficio)}</td>
               <td className="p-3 text-right whitespace-nowrap">{fmtEur(totalAnual.impuestoRepercutido)}</td>
+              <td className="p-3 text-right whitespace-nowrap">{fmtEur(totalAnual.impuestoCompra)}</td>
               <td className="p-3 text-right whitespace-nowrap">{fmtEur(pagado)}</td>
             </tr>
           </tbody>

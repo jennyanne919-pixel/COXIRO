@@ -8,6 +8,8 @@ import {
   COXIRO_LEGAL_NAME,
 } from "@/lib/invoicing";
 import { generateInvoicePdf } from "@/lib/invoice-pdf";
+import { regimenProveedor } from "@/lib/ajustes";
+import { STRIPE_FIJO, STRIPE_PORCENTAJE } from "@/lib/admin/contabilidad";
 import {
   sendPurchaseConfirmation,
   sendProviderSale,
@@ -96,7 +98,13 @@ export async function processPayment(params: {
   // con el asesor). platformFee ya incluye comisión + IPSI + el punto con
   // el que Coxiro asume el IPSI (ver lib/pricing.ts), así que el neto del
   // proveedor sale como precio base + 10 % cuando la comisión es del 10 %.
-  const TAX_RATE_CLIENTE = 0.5;
+  //
+  // Desde la fase 45b, si el profesional ya aceptó las condiciones de su categoría,
+  // la factura al cliente lleva el impuesto de su categoría (IPSI 4 % o IVA 21 %)
+  // INCLUIDO en el total y desglosado. Los profesionales anteriores siguen igual.
+  const regimen = await regimenProveedor(supabase, providerId);
+  const TAX_RATE_CLIENTE = regimen.usaCategoria ? regimen.ajuste.impuesto_pct : 0.5;
+  const TAX_TYPE_CLIENTE: string | null = regimen.usaCategoria ? regimen.ajuste.impuesto_tipo : null;
   const TAX_RATE_PROVEEDOR = 0;
   const netoProveedor = amountTotal - platformFee;
 
@@ -192,6 +200,7 @@ export async function processPayment(params: {
           issued_at: cliIssuedAt,
           concept: service?.title ?? "Servicio contratado en Coxiro",
           tax_base: Number(cliBase.toFixed(2)),
+          tax_type: TAX_TYPE_CLIENTE,
           tax_rate: TAX_RATE_CLIENTE,
           tax_amount: Number(cliTaxAmount.toFixed(2)),
           total: amountTotal,
@@ -240,6 +249,55 @@ export async function processPayment(params: {
     }
   } catch (invoiceError) {
     console.error("[processPayment] Error generando las facturas:", invoiceError);
+  }
+
+  // Contabilidad de la venta (solo con condiciones de categoría): qué pasó con cada euro.
+  if (regimen.usaCategoria) {
+    try {
+      let stripeFee = amountTotal * STRIPE_PORCENTAJE + STRIPE_FIJO;
+      let stripeReal = false;
+      if (stripePaymentIntentId) {
+        try {
+          const pi: any = await stripe.paymentIntents.retrieve(stripePaymentIntentId, {
+            expand: ["latest_charge.balance_transaction"],
+          });
+          const fee = pi?.latest_charge?.balance_transaction?.fee;
+          if (typeof fee === "number") {
+            stripeFee = fee / 100;
+            stripeReal = true;
+          }
+        } catch (e) {
+          console.error("[processPayment] No se pudo leer la comisión real de Stripe, se estima:", e);
+        }
+      }
+      const a = regimen.ajuste;
+      const r2 = (n: number) => Math.round(n * 100) / 100;
+      const baseCli = r2(amountTotal / (1 + a.impuesto_pct / 100));
+      const impuestoCli = r2(amountTotal - baseCli);
+      const cuotaCompra = r2((netoProveedor * a.impuesto_pct) / 100);
+      const deducible = a.impuesto_tipo === "IVA";
+      const margen = r2(amountTotal - netoProveedor - impuestoCli - (deducible ? 0 : cuotaCompra) - stripeFee);
+      const { error: accError } = await supabase.from("sale_accounting").insert({
+        transaction_id: transaction.id,
+        category: regimen.categoria,
+        modo: a.modo,
+        porcentaje: a.porcentaje,
+        impuesto_tipo: a.impuesto_tipo,
+        impuesto_pct: a.impuesto_pct,
+        total: r2(amountTotal),
+        base_cliente: baseCli,
+        impuesto_cliente: impuestoCli,
+        neto_proveedor: r2(netoProveedor),
+        cuota_compra: cuotaCompra,
+        compra_deducible: deducible,
+        stripe_fee: r2(stripeFee),
+        stripe_real: stripeReal,
+        margen,
+      });
+      if (accError) console.error("[processPayment] Error guardando la contabilidad de la venta:", accError);
+    } catch (accErr) {
+      console.error("[processPayment] Error en la contabilidad de la venta:", accErr);
+    }
   }
 
   await supabase.from("content_access").insert({

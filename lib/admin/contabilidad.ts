@@ -48,11 +48,31 @@ export type Gasto = {
 
 export type Cobro = { id: string; fecha: string; amount_total: number };
 
+// Contabilidad de una venta con condiciones de categoría (tabla sale_accounting).
+export type VentaContable = {
+  transaction_id: string;
+  fecha: string;
+  category: string;
+  impuesto_tipo: string;
+  impuesto_pct: number;
+  total: number;
+  base_cliente: number;
+  impuesto_cliente: number; // impuesto de la venta (2.ª operación)
+  neto_proveedor: number;
+  cuota_compra: number; // impuesto de la compra al profesional (1.ª operación)
+  compra_deducible: boolean;
+  stripe_fee: number;
+  stripe_real: boolean;
+  margen: number;
+  provisional: boolean;
+};
+
 export type DatosAnio = {
   anio: number;
   facturas: Factura[];
   gastos: Gasto[];
   cobros: Cobro[];
+  ventasContables: VentaContable[];
 };
 
 export const fechaMadrid = (iso: string) =>
@@ -90,7 +110,7 @@ export async function cargarAnio(anio: number): Promise<DatosAnio> {
   const desde = `${anio - 1}-12-30`;
   const hasta = `${anio + 1}-01-02`;
 
-  const [{ data: inv }, { data: gas }, { data: tx }] = await Promise.all([
+  const [{ data: inv }, { data: gas }, { data: tx }, { data: acc }] = await Promise.all([
     admin
       .from("invoices")
       .select(
@@ -110,6 +130,13 @@ export async function cargarAnio(anio: number): Promise<DatosAnio> {
       .from("transactions")
       .select("id, amount_total, created_at")
       .eq("status", "paid")
+      .gte("created_at", desde)
+      .lte("created_at", hasta),
+    admin
+      .from("sale_accounting")
+      .select(
+        "transaction_id, created_at, category, impuesto_tipo, impuesto_pct, total, base_cliente, impuesto_cliente, neto_proveedor, cuota_compra, compra_deducible, stripe_fee, stripe_real, margen, provisional"
+      )
       .gte("created_at", desde)
       .lte("created_at", hasta),
   ]);
@@ -145,7 +172,30 @@ export async function cargarAnio(anio: number): Promise<DatosAnio> {
     }))
     .filter((c) => c.fecha.startsWith(String(anio)));
 
-  return { anio, facturas, gastos, cobros };
+  // Solo cuentan las ventas todavía cobradas (las reembolsadas salen de `cobros`).
+  const idsCobrados = new Set(cobros.map((c) => c.id));
+  const ventasContables: VentaContable[] = (acc ?? [])
+    .filter((a: any) => idsCobrados.has(a.transaction_id))
+    .map((a: any) => ({
+      transaction_id: a.transaction_id,
+      fecha: fechaMadrid(a.created_at),
+      category: a.category,
+      impuesto_tipo: a.impuesto_tipo,
+      impuesto_pct: Number(a.impuesto_pct),
+      total: Number(a.total),
+      base_cliente: Number(a.base_cliente),
+      impuesto_cliente: Number(a.impuesto_cliente),
+      neto_proveedor: Number(a.neto_proveedor),
+      cuota_compra: Number(a.cuota_compra),
+      compra_deducible: !!a.compra_deducible,
+      stripe_fee: Number(a.stripe_fee),
+      stripe_real: !!a.stripe_real,
+      margen: Number(a.margen),
+      provisional: !!a.provisional,
+    }))
+    .filter((v) => v.fecha.startsWith(String(anio)));
+
+  return { anio, facturas, gastos, cobros, ventasContables };
 }
 
 const r2 = (n: number) => Math.round(n * 100) / 100;
@@ -158,7 +208,9 @@ export type Resumen = {
   compras: number; // liquidaciones a profesionales
   margen: number; // ventas - compras
   gastos: number; // gastos deducibles registrados
-  stripeEstimado: number; // comisión estimada de Stripe
+  stripeEstimado: number; // coste de Stripe (real donde se conoce, estimado en el resto)
+  impuestoCompra: number; // impuesto de la compra al profesional que NO se recupera (coste)
+  impuestoAPagar: number; // impuesto de las ventas + impuesto de compra no recuperable
   stripeIncluido: boolean; // true si se resta la estimación (no hay gastos Stripe)
   beneficio: number;
 };
@@ -177,12 +229,20 @@ export function resumir(d: DatosAnio, t: number): Resumen {
   const margen = ventasBase - compras;
   const gastos = gs.filter((g) => g.deducible).reduce((s, g) => s + g.total, 0);
   const hayStripe = gs.some((g) => g.categoria === CATEGORIA_STRIPE);
-  const stripeEstimado = cs.reduce(
-    (s, c) => s + c.amount_total * STRIPE_PORCENTAJE + STRIPE_FIJO,
-    0
-  );
+  // Ventas con condiciones de categoría: Stripe real si se conoce, y el impuesto
+  // de la compra al profesional (IPSI de la 1.ª operación) como coste.
+  const vc = d.ventasContables.filter((v) => enTrimestre(v.fecha, d.anio, t));
+  const idsReales = new Set(vc.filter((v) => v.stripe_real).map((v) => v.transaction_id));
+  const stripeReal = vc.filter((v) => v.stripe_real).reduce((s, v) => s + v.stripe_fee, 0);
+  const stripeEstimado =
+    stripeReal +
+    cs
+      .filter((c) => !idsReales.has(c.id))
+      .reduce((s, c) => s + c.amount_total * STRIPE_PORCENTAJE + STRIPE_FIJO, 0);
   const stripeIncluido = !hayStripe && cs.length > 0;
-  const beneficio = margen - gastos - (stripeIncluido ? stripeEstimado : 0);
+  const impuestoCompra = vc.filter((v) => !v.compra_deducible).reduce((s, v) => s + v.cuota_compra, 0);
+  const impuestoAPagar = impuestoRepercutido + impuestoCompra;
+  const beneficio = margen - impuestoCompra - gastos - (stripeIncluido ? stripeEstimado : 0);
 
   return {
     nVentas: cli.length,
@@ -193,6 +253,8 @@ export function resumir(d: DatosAnio, t: number): Resumen {
     margen: r2(margen),
     gastos: r2(gastos),
     stripeEstimado: r2(stripeEstimado),
+    impuestoCompra: r2(impuestoCompra),
+    impuestoAPagar: r2(impuestoAPagar),
     stripeIncluido,
     beneficio: r2(beneficio),
   };

@@ -50,6 +50,7 @@ export async function generateInvoicePdf(
     tax_base: number;
     tax_rate: number;
     tax_amount: number;
+    tax_type?: string | null; // "IPSI" | "IVA" (facturas con condiciones de categoría)
     total: number;
     hash: string | null;
   },
@@ -84,7 +85,9 @@ export async function generateInvoicePdf(
 
   const isClientInvoice = invoice.type === "client_invoice";
   const fecha = new Date(invoice.issued_at).toLocaleDateString("es-ES");
-  const precioUnico = formatEUR(Number(invoice.total));
+  // Con impuesto desglosado (fase 45b) el precio unitario es la base; antes, el total.
+  const desglosa = isClientInvoice && !!invoice.tax_type;
+  const precioUnico = formatEUR(Number(desglosa ? invoice.tax_base : invoice.total));
 
   let y = 800;
 
@@ -210,7 +213,11 @@ export async function generateInvoicePdf(
     y -= 18;
   };
 
-  if (isClientInvoice) {
+  if (desglosa) {
+    totalRow("Base imponible", `${formatEUR(Number(invoice.tax_base))} €`);
+    totalRow(`${invoice.tax_type} (${Number(invoice.tax_rate).toFixed(2).replace(".", ",")} %)`, `${formatEUR(Number(invoice.tax_amount))} €`);
+    totalRow("Total (EUR)", `${formatEUR(Number(invoice.total))} €`, true);
+  } else if (isClientInvoice) {
     // Sin desglose de IPSI a la vista del cliente -- solo subtotal y total.
     totalRow("Subtotal", `${precioUnico} €`);
     totalRow("Total (EUR)", `${precioUnico} €`, true);
@@ -228,7 +235,11 @@ export async function generateInvoicePdf(
   y -= 20;
 
   // ---- Pie legal ----
-  const legalText = isClientInvoice
+  const legalText = desglosa
+    ? invoice.tax_type === "IPSI"
+      ? "Impuesto sobre la Producción, los Servicios y la Importación (IPSI) incluido en el precio."
+      : "IVA incluido en el precio."
+    : isClientInvoice
     ? "Operación exenta de IVA según la Ley 37/1992, de 28 de diciembre, del Impuesto sobre el Valor Añadido."
     : "Operación con inversión del sujeto pasivo conforme al artículo 84.Uno.2º de la Ley 37/1992.";
   page.drawText(legalText, { x: 50, y, size: 8, font, color: stone });

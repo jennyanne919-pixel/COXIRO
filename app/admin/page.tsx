@@ -36,7 +36,7 @@ export default async function AdminResumenPage({
         <StatCard label="Ventas (base)" value={fmtEur(r.ventasBase)} icon="cobros" hint={`${r.nVentas} ventas`} />
         <StatCard label="Margen bruto" value={fmtEur(r.margen)} icon="check" hint="Ventas menos pago a profesionales" />
         <StatCard label="Gastos" value={fmtEur(r.gastos + (r.stripeIncluido ? r.stripeEstimado : 0))} icon="bag" hint={r.stripeIncluido ? "Incluye Stripe estimado" : "Registrados"} />
-        <StatCard label="IPSI a pagar" value={fmtEur(r.impuestoRepercutido)} icon="alert" hint="Aparta este importe" />
+        <StatCard label="Impuestos a pagar" value={fmtEur(r.impuestoAPagar)} icon="alert" hint="Venta + compra a profesionales. Aparta este importe" />
         <StatCard label="Cobrado a clientes" value={fmtEur(r.cobrado)} icon="clock" hint="Con impuestos incluidos" />
       </div>
 
