@@ -4,9 +4,10 @@ import { useState } from "react";
 import {
   CATEGORIAS,
   ORDEN_CATEGORIAS,
-  CRITERIO_CLASIFICACION,
   esCategoria,
   rutaCondicionesCategoria,
+  textoEconomico,
+  type AjustesCategorias,
   type Categoria,
 } from "@/lib/categorias";
 import Logo from "@/components/Logo";
@@ -17,7 +18,9 @@ import { passwordValida, PASSWORD_MIN } from "@/lib/password";
 
 export default function RegistroForm({
   searchParams,
+  ajustes,
 }: {
+  ajustes: AjustesCategorias;
   searchParams: { error?: string; ["check-email"]?: string; ref?: string; role?: string; slug?: string; categoria?: string };
 }) {
   const [role, setRole] = useState<"provider" | "client">(
@@ -97,16 +100,11 @@ export default function RegistroForm({
                     <span className="block text-sm font-semibold text-cx-texto">{c.nombre}</span>
                     <span className="block text-xs text-cx-texto-2 mt-0.5">{c.criterio}</span>
                     <span className="block text-xs text-cx-texto-2 mt-0.5">{c.ejemplos}</span>
-                    <span className="block text-xs font-medium text-cx-prof mt-1.5">{c.condiciones[0]}</span>
+                    <span className="block text-xs font-medium text-cx-prof mt-1.5">{textoEconomico(ajustes[k])}</span>
                   </button>
                 );
               })}
             </div>
-            <ul className="list-disc pl-4 mt-2 space-y-0.5 text-[11px] text-cx-texto-2">
-              {CRITERIO_CLASIFICACION.map((t) => (
-                <li key={t}>{t}</li>
-              ))}
-            </ul>
           </div>
         )}
 
@@ -273,6 +271,7 @@ export default function RegistroForm({
               <div className="rounded-lg border border-cx-borde bg-cx-hielo px-4 py-3 text-xs text-cx-texto-2">
                 <p className="font-semibold text-cx-texto mb-1">Condiciones económicas · {cat.nombre}</p>
                 <ul className="list-disc pl-4 space-y-0.5">
+                  <li>{textoEconomico(ajustes[categoria])}</li>
                   {cat.condiciones.map((c) => (
                     <li key={c}>{c}</li>
                   ))}

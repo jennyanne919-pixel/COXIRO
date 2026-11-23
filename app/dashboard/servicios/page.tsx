@@ -5,6 +5,8 @@ import DeleteServiceButton from "./DeleteServiceButton";
 import CompartirServicio from "./CompartirServicio";
 import { calcularPrecios } from "@/lib/pricing";
 import { CATEGORIAS } from "@/lib/categorias";
+import { comisionEfectiva } from "@/lib/ajustes";
+import { createAdminClient } from "@/lib/supabase/admin";
 import ServiceCard from "@/components/dashboard/ServiceCard";
 import {
   BTN_PRIMARY,
@@ -26,6 +28,8 @@ export default async function ServiciosPage() {
     .select("slug, commission_rate, fiscal_category")
     .eq("user_id", user?.id ?? "")
     .single();
+
+  const comision = user ? await comisionEfectiva(createAdminClient(), user.id) : 10;
 
   const { data: services } = await supabase
     .from("services")
@@ -78,7 +82,7 @@ export default async function ServiciosPage() {
         <Card className="mt-4 p-5">
           <NewServiceForm
             createService={createService}
-            comision={Number(providerProfile?.commission_rate ?? 10)}
+            comision={comision}
           />
         </Card>
       </details>
@@ -90,7 +94,7 @@ export default async function ServiciosPage() {
               key={s.id}
               s={s}
               precios={(() => {
-                const p = calcularPrecios(Number(s.price) || 0, Number(providerProfile?.commission_rate ?? 10));
+                const p = calcularPrecios(Number(s.price) || 0, comision);
                 return {
                   proveedor: p.netoProveedorCents / 100,
                   cliente: p.totalCents / 100,

@@ -4,13 +4,13 @@ import LegalDoc from "@/components/LegalDoc";
 import { CONDICIONES_VERSION } from "@/lib/condiciones";
 import {
   CATEGORIAS,
-  COMISION_FORMACION_PCT,
   CONDICIONES_CATEGORIA_VERSION,
   CRITERIO_CLASIFICACION,
-  GANCHO_MENTORIA_PCT,
   esCategoria,
+  type AjusteCategoria,
   type Categoria,
 } from "@/lib/categorias";
+import { cargarAjustes } from "@/lib/ajustes";
 
 // Página no pública: no indexada, no enlazada desde el menú ni el pie,
 // y excluida en robots.ts. Se muestra dentro del alta del proveedor y
@@ -57,14 +57,17 @@ const HTML_ANTERIOR = `
 
 // Texto por categoría (fase 44). Se mantiene la estructura y la numeración del
 // documento anterior; cambian la cláusula 2 (precio) y se añade la 8 (clasificación).
-function htmlCategoria(c: Categoria) {
+function htmlCategoria(c: Categoria, a: AjusteCategoria) {
   const cat = CATEGORIAS[c];
+  const pct = String(a.porcentaje).replace(".", ",");
+  const recibe500 = a.modo === "gancho" ? 500 * (1 + a.porcentaje / 100) : 500 * (1 - a.porcentaje / 100);
+  const eur500 = recibe500.toLocaleString("es-ES", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   const precio =
     c === "formacion"
-      ? `<p>2.1. El Proveedor fija el precio de su servicio con los impuestos incluidos. El precio sin impuestos es ese precio dividido entre 1,21. COXIRO abona al Proveedor ese precio sin impuestos <strong>menos un ${COMISION_FORMACION_PCT} %</strong>, por los servicios de plataforma (cobro, facturación y acceso).</p>
-<p>2.2. Ejemplo ilustrativo: servicio con precio sin impuestos de 500 €. El Cliente paga 605 €. El Proveedor recibe 475 € (500 € menos el ${COMISION_FORMACION_PCT} %).</p>`
-      : `<p>2.1. El Proveedor fija el precio de su servicio con los impuestos incluidos. El precio sin impuestos es ese precio dividido entre 1,21. COXIRO abona al Proveedor ese precio sin impuestos <strong>más un ${GANCHO_MENTORIA_PCT} %</strong>.</p>
-<p>2.2. Ejemplo ilustrativo: servicio con precio sin impuestos de 500 €. El Cliente paga 605 €. El Proveedor recibe 530 € (500 € más el ${GANCHO_MENTORIA_PCT} %).</p>`;
+      ? `<p>2.1. El Proveedor fija el precio de su servicio con los impuestos incluidos. El precio sin impuestos es ese precio dividido entre 1,21. COXIRO abona al Proveedor ese precio sin impuestos <strong>menos un ${pct} %</strong>, por los servicios de plataforma (cobro, facturación y acceso).</p>
+<p>2.2. Ejemplo ilustrativo: servicio con precio sin impuestos de 500 €. El Cliente paga 605 €. El Proveedor recibe ${eur500} € (500 € menos el ${pct} %).</p>`
+      : `<p>2.1. El Proveedor fija el precio de su servicio con los impuestos incluidos. El precio sin impuestos es ese precio dividido entre 1,21. COXIRO abona al Proveedor ese precio sin impuestos <strong>más un ${pct} %</strong>.</p>
+<p>2.2. Ejemplo ilustrativo: servicio con precio sin impuestos de 500 €. El Cliente paga 605 €. El Proveedor recibe ${eur500} € (500 € más el ${pct} %).</p>`;
   const criterio = CRITERIO_CLASIFICACION.map((t) => `<li>${t}</li>`).join("");
   return `
 <p><strong>COXIRO</strong></p>
@@ -100,7 +103,7 @@ ${precio}
 <p>7.1. Al aceptar, COXIRO guarda la fecha y hora, la versión de este documento, la categoría, tu declaración responsable, la dirección IP y la comisión vigente, como prueba de la aceptación, durante 6 años. Puedes consultar estas condiciones en cualquier momento desde tu panel.</p>
 
 <h2>8. Clasificación de cada servicio</h2>
-<p>8.1. Los servicios se clasifican en dos categorías: <strong>Formación y cursos</strong> (servicios con temario, programa o módulos, o que consisten en impartir clases o lecciones, grabadas o en directo) y <strong>Mentoría, consultoría y desarrollo personal</strong> (acompañamiento personalizado, sin programa ni temario fijo). Esta cuenta está en la categoría <strong>${cat.nombre}</strong>.</p>
+<p>8.1. Los servicios se clasifican en dos categorías: <strong>Formación y cursos</strong> (servicios con temario, programa o módulos, o que consisten en impartir clases o lecciones, grabadas o en directo) y <strong>Mentoría, consultoría y desarrollo personal</strong> (acompañamiento individual o en grupo, sin programa ni temario fijo). Esta cuenta está en la categoría <strong>${cat.nombre}</strong>.</p>
 <p>8.2. Criterio de clasificación:</p>
 <ul>${criterio}</ul>
 <p>8.3. El Proveedor declara la categoría de su servicio conforme a este criterio y es responsable de que sea correcta. COXIRO revisa cada servicio de la categoría Mentoría, consultoría y desarrollo personal antes de publicarlo, y puede aprobarlo o reclasificarlo.</p>
@@ -114,7 +117,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ c
   const sp = await searchParams;
   // Sin ?categoria= se muestra la versión anterior (profesionales ya registrados
   // que la aceptaron). Con ?categoria=formacion|mentoria, el texto de esa categoría.
-  const html = esCategoria(sp.categoria) ? htmlCategoria(sp.categoria) : HTML_ANTERIOR;
+  const html = esCategoria(sp.categoria) ? htmlCategoria(sp.categoria, (await cargarAjustes())[sp.categoria]) : HTML_ANTERIOR;
   return (
     <main className="min-h-screen bg-cx-hielo">
       <header className="border-b border-cx-borde bg-cx-hielo">

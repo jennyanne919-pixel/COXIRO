@@ -36,6 +36,10 @@ export async function registrarAceptacion(
     fiscal_category: categoria ?? null,
     declaration: declaracion,
   });
+  if (!error && categoria) {
+    // Al aceptar las condiciones de su categoría ya no hay nada pendiente.
+    await admin.from("providers").update({ pending_new_conditions: false }).eq("user_id", userId);
+  }
   return !error;
 }
 
@@ -47,17 +51,21 @@ export async function categoriaDe(supabase: SupabaseClient, userId: string): Pro
 
 // ¿Está al día este profesional? Vale haber aceptado la versión de siempre
 // (profesionales anteriores a la fase 44, que siguen igual hasta que se les
-// avise con 15 días) O el documento de su categoría actual.
+// avise con 15 días) O el documento de su categoría actual. Si Coxiro ha pedido
+// aceptar las condiciones nuevas (pending_new_conditions), solo vale la de su categoría.
 export async function tieneAceptacionVigente(supabase: SupabaseClient, userId: string) {
-  const categoria = await categoriaDe(supabase, userId);
-  const { data } = await supabase
-    .from("provider_acceptances")
-    .select("id")
+  const { data: p } = await supabase
+    .from("providers")
+    .select("fiscal_category, pending_new_conditions")
     .eq("user_id", userId)
-    .or(
-      `and(document.eq.${CONDICIONES_DOCUMENTO},version.eq.${CONDICIONES_VERSION}),` +
-        `and(document.eq.${CATEGORIAS[categoria].documento},version.eq.${CONDICIONES_CATEGORIA_VERSION})`
-    )
-    .limit(1);
+    .maybeSingle();
+  const categoria: Categoria = esCategoria(p?.fiscal_category) ? p.fiscal_category : "formacion";
+  const pendiente = p?.pending_new_conditions === true;
+
+  const filtro = pendiente
+    ? `and(document.eq.${CATEGORIAS[categoria].documento},version.eq.${CONDICIONES_CATEGORIA_VERSION})`
+    : `and(document.eq.${CONDICIONES_DOCUMENTO},version.eq.${CONDICIONES_VERSION}),` +
+      `and(document.eq.${CATEGORIAS[categoria].documento},version.eq.${CONDICIONES_CATEGORIA_VERSION})`;
+  const { data } = await supabase.from("provider_acceptances").select("id").eq("user_id", userId).or(filtro).limit(1);
   return (data?.length ?? 0) > 0;
 }

@@ -7,6 +7,7 @@ import { processPayment } from "@/lib/payment-processing";
 import { sendCreatePasswordEmail } from "@/lib/email/send";
 import Stripe from "stripe";
 import { feeDesdeTotal } from "@/lib/pricing";
+import { comisionEfectiva } from "@/lib/ajustes";
 import { aplicarReembolsoEnBD } from "@/lib/refunds";
 
 // Devuelve la fila de `subscriptions` de una suscripción de Stripe y la crea
@@ -206,16 +207,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "subscription_not_found" }, { status: 500 });
       }
 
-      const { data: provider } = await supabase
-        .from("providers")
-        .select("commission_rate")
-        .eq("user_id", subscription.provider_id)
-        .single();
-
       const amountTotal = (invoice.amount_paid ?? 0) / 100;
       const platformFee = feeDesdeTotal(
         amountTotal,
-        Number(provider?.commission_rate ?? 0)
+        await comisionEfectiva(supabase, subscription.provider_id)
       );
 
       await processPayment({

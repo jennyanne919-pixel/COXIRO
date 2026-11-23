@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import Logo from "@/components/Logo";
 import { createClient } from "@/lib/supabase/server";
 import { tieneAceptacionVigente, categoriaDe } from "@/lib/acceptances";
-import { CATEGORIAS, CONDICIONES_CATEGORIA_VERSION, rutaCondicionesCategoria } from "@/lib/categorias";
+import { CATEGORIAS, CONDICIONES_CATEGORIA_VERSION, rutaCondicionesCategoria, textoEconomico } from "@/lib/categorias";
+import { cargarAjustes } from "@/lib/ajustes";
 import { aceptarCondiciones } from "./actions";
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default async function AceptarCondicionesPage({
   if (await tieneAceptacionVigente(supabase, user.id)) redirect("/dashboard");
   const categoria = await categoriaDe(supabase, user.id);
   const cat = CATEGORIAS[categoria];
+  const ajustes = await cargarAjustes();
 
   return (
     <main className="min-h-screen bg-cx-hielo flex items-center justify-center px-6 py-10">
@@ -39,6 +41,7 @@ export default async function AceptarCondicionesPage({
           que aceptes las condiciones de esa categoría (versión {CONDICIONES_CATEGORIA_VERSION}).
         </p>
         <ul className="text-sm text-cx-texto space-y-1.5 mb-4 list-disc pl-5">
+          <li>{textoEconomico(ajustes[categoria])}</li>
           {cat.condiciones.map((c) => (
             <li key={c}>{c}</li>
           ))}

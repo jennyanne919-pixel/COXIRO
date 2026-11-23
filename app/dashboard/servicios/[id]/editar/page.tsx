@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { updateService } from "../../actions";
 import { TOPICS } from "@/lib/topics";
 import PrecioInput from "@/components/PrecioInput";
+import { comisionEfectiva } from "@/lib/ajustes";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export default async function EditarServicioPage({
   params,
@@ -25,12 +27,7 @@ export default async function EditarServicioPage({
     notFound();
   }
 
-  const { data: proveedor } = await supabase
-    .from("providers")
-    .select("commission_rate")
-    .eq("user_id", user?.id ?? "")
-    .single();
-  const comision = Number(proveedor?.commission_rate ?? 10);
+  const comision = user ? await comisionEfectiva(createAdminClient(), user.id) : 10;
 
   return (
     <div className="max-w-lg">

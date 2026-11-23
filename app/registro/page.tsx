@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import RegistroForm from "./RegistroForm";
+import { cargarAjustes } from "@/lib/ajustes";
 
 export default async function RegistroPage({
   searchParams,
@@ -18,5 +19,5 @@ export default async function RegistroPage({
   } = await supabase.auth.getUser();
   if (user) redirect("/dashboard");
 
-  return <RegistroForm searchParams={sp} />;
+  return <RegistroForm searchParams={sp} ajustes={await cargarAjustes()} />;
 }

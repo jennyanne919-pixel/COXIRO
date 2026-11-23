@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
 import { calcularPrecios } from "@/lib/pricing";
+import { comisionEfectiva } from "@/lib/ajustes";
 
 // GET /api/checkout?service=<id>
 // Ya NO exige sesión iniciada: el cliente paga directamente, Stripe le
@@ -79,7 +80,10 @@ export async function GET(request: Request) {
   // base sin IVA; el cliente paga base + 21 % de IVA; Coxiro retiene
   // comisión + IPSI + ajuste del IPSI (11 % de la base con comisión 10 %)
   // y el resto va al profesional.
-  const precios = calcularPrecios(Number(service.price), Number(provider.commission_rate));
+  // La comisión sale de la categoría del profesional (si ya aceptó sus condiciones)
+  // o de la que tenía antes (lib/ajustes.ts).
+  const comision = await comisionEfectiva(admin, service.provider_id);
+  const precios = calcularPrecios(Number(service.price), comision);
   const amountCents = precios.totalCents;
   const feeCents = precios.feeCents;
   console.log(

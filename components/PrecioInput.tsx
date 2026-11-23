@@ -92,15 +92,20 @@ export default function PrecioInput({
             <span>Sin Coxiro recibirías</span>
             <span className="font-medium text-cx-texto">{eur(p.baseCents / 100)}</span>
           </div>
-          {p.netoProveedorCents > p.baseCents && (
+          {p.netoProveedorCents > p.baseCents ? (
             <p className="text-cx-prof font-medium pt-1">
               Con Coxiro te quedas {eur((p.netoProveedorCents - p.baseCents) / 100)} más en cada venta.
             </p>
-          )}
+          ) : p.netoProveedorCents < p.baseCents ? (
+            <p className="text-cx-texto font-medium pt-1">
+              Coxiro retiene {eur((p.baseCents - p.netoProveedorCents) / 100)} por venta a cambio del
+              cobro, la facturación, el acceso al contenido y la tecnología.
+            </p>
+          ) : null}
           <p className="text-[11px] pt-1">
             «Sin Coxiro» es lo que te quedaría vendiendo por tu cuenta, con los impuestos
-            habituales y antes de comisiones de cobro. Con Coxiro, el importe ya lleva
-            descontada nuestra comisión y además tienes la infraestructura tecnológica cubierta.
+            habituales y antes de comisiones de cobro. Con Coxiro no pagas cuotas ni comisiones de
+            cobro: el cobro, la facturación y el acceso a tu contenido van incluidos.
           </p>
         </div>
       )}
