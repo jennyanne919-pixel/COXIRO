@@ -1,3 +1,4 @@
+import { TERMINOS_VERSION } from "@/lib/legal/terminos";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -23,6 +24,11 @@ export async function GET(request: Request) {
 
   if (!serviceId) {
     return NextResponse.json({ error: "Falta el servicio" }, { status: 400 });
+  }
+
+  // Sin la casilla de aceptación de los Términos no se inicia el pago.
+  if (searchParams.get("acepto") !== "1") {
+    return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=acepta`);
   }
 
   const supabase = await createClient();
@@ -127,7 +133,18 @@ export async function GET(request: Request) {
   }
   // Stripe pide el % que retiene Coxiro sobre el TOTAL cobrado (2 decimales).
   const commissionPercent = Number(((feeCents / amountCents) * 100).toFixed(2));
+  // Registro de lo que el cliente aceptó y eligió (queda en la venta y en Stripe).
+  const { count: itemsDePago } = await admin
+    .from("content_items")
+    .select("id", { count: "exact", head: true })
+    .eq("service_id", service.id)
+    .eq("status", "published")
+    .eq("is_free", false);
   const metadataComun = {
+    terms_v: TERMINOS_VERSION,
+    terms_at: new Date().toISOString(),
+    inicio: searchParams.get("inicio") === "1" ? "1" : "0",
+    inicio_tipo: (itemsDePago ?? 0) > 0 ? "contenido" : "servicio",
     service_id: service.id,
     client_id: user?.id ?? "",
     provider_id: service.provider_id,

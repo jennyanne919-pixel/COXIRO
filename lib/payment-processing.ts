@@ -1,3 +1,4 @@
+import type { ConsentCompra } from "@/lib/consent";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
 import {
@@ -29,6 +30,8 @@ export async function processPayment(params: {
   // false en las renovaciones de una suscripción: no se avisa a Coxiro de
   // cada cuota (quedan en Ventas y en la contabilidad) para no llenar el buzón.
   avisarInterno?: boolean;
+  // Aceptación de términos y elección de inicio anticipado (solo en la primera compra).
+  consent?: ConsentCompra | null;
 }) {
   const supabase = createAdminClient();
   const { serviceId, clientId, providerId, amountTotal, platformFee, stripePaymentIntentId } = params;
@@ -60,6 +63,14 @@ export async function processPayment(params: {
       currency: "EUR",
       stripe_payment_intent_id: stripePaymentIntentId,
       status: "paid",
+      ...(params.consent
+        ? {
+            terms_version: params.consent.termsVersion,
+            terms_accepted_at: params.consent.termsAt,
+            early_start: params.consent.inicio,
+            early_start_type: params.consent.tipo,
+          }
+        : {}),
     })
     .select("id")
     .single();
@@ -300,10 +311,17 @@ export async function processPayment(params: {
     }
   }
 
+  // Contenido grabado sin petición de inicio anticipado: el acceso empieza al
+  // terminar el plazo de desistimiento (14 días naturales).
+  const accessFrom =
+    params.consent && params.consent.tipo === "contenido" && !params.consent.inicio
+      ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+      : null;
   await supabase.from("content_access").insert({
     transaction_id: transaction.id,
     client_id: clientId,
     service_id: serviceId,
+    ...(accessFrom ? { access_from: accessFrom } : {}),
   });
 
   const invoiceUrl = cliInvoiceId

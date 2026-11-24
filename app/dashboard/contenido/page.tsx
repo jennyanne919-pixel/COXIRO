@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { filtroAccesoVigente } from "@/lib/content-access";
+import { filtroAccesoVigente, filtroInicioAcceso } from "@/lib/content-access";
 import ContenidoView, { type ContenidoGrupo } from "@/components/dashboard/ContenidoView";
 
 export default async function MiContenidoPage() {
@@ -25,7 +25,8 @@ export default async function MiContenidoPage() {
     `
     )
     .eq("client_id", user?.id ?? "")
-    .or(filtroAccesoVigente());
+    .or(filtroAccesoVigente())
+    .or(filtroInicioAcceso());
 
   const serviceIds = [...new Set(accessRows?.map((a) => a.service_id) ?? [])];
 

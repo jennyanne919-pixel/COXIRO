@@ -1,3 +1,4 @@
+import { consentDesdeMeta } from "@/lib/consent";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { randomBytes } from "crypto";
@@ -173,6 +174,7 @@ export async function POST(request: Request) {
         amountTotal: (session.amount_total ?? 0) / 100,
         platformFee: Number(platform_fee),
         stripePaymentIntentId: session.payment_intent as string,
+        consent: consentDesdeMeta(session.metadata as Record<string, string>),
       });
 
       break;
@@ -213,6 +215,15 @@ export async function POST(request: Request) {
         await comisionEfectiva(supabase, subscription.provider_id)
       );
 
+      // La elección del cliente solo se guarda en el primer cobro; viaja en los
+      // metadatos de la suscripción.
+      const consent =
+        invoice.billing_reason === "subscription_create"
+          ? consentDesdeMeta(
+              ((await stripe.subscriptions.retrieve(subscriptionId)).metadata ?? {}) as Record<string, string>
+            )
+          : null;
+
       await processPayment({
         serviceId: subscription.service_id,
         clientId: subscription.client_id,
@@ -220,6 +231,7 @@ export async function POST(request: Request) {
         amountTotal,
         platformFee,
         avisarInterno: invoice.billing_reason === "subscription_create",
+        consent,
         stripePaymentIntentId:
           typeof invoice.payment_intent === "string"
             ? invoice.payment_intent

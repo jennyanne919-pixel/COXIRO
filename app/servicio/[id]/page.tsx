@@ -1,4 +1,5 @@
 import { filtroAccesoVigente } from "@/lib/content-access";
+import { TEXTO_INICIO_CONTENIDO, TEXTO_INICIO_SERVICIO } from "@/lib/consent";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
@@ -107,17 +108,24 @@ export default async function ServicioPage({
   } = await sessionClient.auth.getUser();
 
   let yaComprado = false;
+  let accesoDesde: Date | null = null;
   if (user) {
     const { data: access } = await supabase
       .from("content_access")
-      .select("id")
+      .select("id, access_from")
       .eq("client_id", user.id)
       .eq("service_id", service.id)
       .or(filtroAccesoVigente())
       .limit(1)
       .maybeSingle();
-    yaComprado = !!access;
+    if (access?.access_from && new Date(access.access_from) > new Date()) {
+      // Compra hecha sin pedir el inicio anticipado: el acceso llega a los 14 días.
+      accesoDesde = new Date(access.access_from);
+    } else {
+      yaComprado = !!access;
+    }
   }
+  const hayContenidoDePago = (contentItems ?? []).some((c) => !c.is_free);
 
   return (
     <main className="min-h-screen bg-cx-hielo">
@@ -139,6 +147,8 @@ export default async function ServicioPage({
             <div className="rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 mb-6">
               {sp.error === "no-disponible"
                 ? "Este servicio no está disponible para comprar ahora mismo. Inténtalo más tarde o contacta con el profesional."
+                : sp.error === "acepta"
+                ? "Para comprar tienes que aceptar los Términos y Condiciones."
                 : "No hemos podido iniciar el pago. No se ha cobrado nada. Inténtalo de nuevo en unos minutos."}
             </div>
           )}
@@ -326,7 +336,13 @@ export default async function ServicioPage({
               </div>
             )}
 
-            {yaComprado ? (
+            {accesoDesde ? (
+              <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
+                Compra realizada. Tu acceso al contenido empezará el{" "}
+                {accesoDesde.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}, al
+                terminar el plazo de desistimiento de 14 días.
+              </p>
+            ) : yaComprado ? (
               <div className="grid gap-2">
                 <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
                   Ya tienes acceso a este servicio.
@@ -385,12 +401,37 @@ export default async function ServicioPage({
               )
             ) : (
               <>
-                <a
-                  href={`/api/checkout?service=${service.id}`}
-                  className="block text-center rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition"
-                >
-                  Pagar {totalCliente(Number(service.price)).toFixed(2).replace(".", ",")} €
-                </a>
+                <form method="GET" action="/api/checkout" className="grid gap-3">
+                  <input type="hidden" name="service" value={service.id} />
+                  <label className="flex items-start gap-2 text-xs text-cx-texto-2 leading-snug">
+                    <input type="checkbox" name="acepto" value="1" required className="mt-0.5" />
+                    <span>
+                      He leído y acepto los{" "}
+                      <a href="/terminos" target="_blank" className="underline">
+                        Términos y Condiciones
+                      </a>
+                      .
+                    </span>
+                  </label>
+                  <label className="flex items-start gap-2 text-xs text-cx-texto-2 leading-snug">
+                    <input type="checkbox" name="inicio" value="1" className="mt-0.5" />
+                    <span>
+                      {hayContenidoDePago ? TEXTO_INICIO_CONTENIDO : TEXTO_INICIO_SERVICIO}
+                      {hayContenidoDePago && (
+                        <>
+                          {" "}
+                          <em>Si no la marcas, tu acceso empezará a los 14 días de la compra.</em>
+                        </>
+                      )}
+                    </span>
+                  </label>
+                  <button
+                    type="submit"
+                    className="rounded-full bg-cx-noche text-white font-semibold py-3.5 hover:-translate-y-0.5 transition"
+                  >
+                    Comprar y pagar {totalCliente(Number(service.price)).toFixed(2).replace(".", ",")} €
+                  </button>
+                </form>
                 <p className="text-xs text-cx-texto-2 text-center mt-4">
                   Sin crear cuenta · Pago seguro con Stripe · Factura en tu email
                 </p>

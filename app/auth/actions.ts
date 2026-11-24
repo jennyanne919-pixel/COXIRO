@@ -36,7 +36,8 @@ export async function signUp(formData: FormData) {
   const sociedad = role === "provider" && formData.get("legal_type") === "sociedad";
   const legalName = sociedad ? ((formData.get("legal_name") as string) ?? "").trim() : "";
   const category = formData.get("category") as string;
-  const clientType = (formData.get("client_type") as string) || "particular";
+  // De momento solo se vende a particulares (Términos, cláusula de catálogo y capacidad).
+  const clientType = "particular";
   const refCode = formData.get("ref") as string;
   const categoriaRaw = formData.get("fiscal_category");
   const fiscalCategory = esCategoria(categoriaRaw) ? categoriaRaw : null;
