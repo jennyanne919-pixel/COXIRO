@@ -105,7 +105,7 @@ export default function Hero() {
             </span>
           </h1>
           <p className="text-2xl md:text-[30px] leading-snug text-[#C9D6EA] mt-6 max-w-[580px]">
-            y gana hasta un 6% más desde tu primera venta a tus clientes particulares en España.
+            y gana hasta un 6% más desde tu primera venta a tus clientes particulares.
           </p>
           <p className="text-base md:text-xl leading-snug text-[#A9B8D0] mt-4 max-w-[560px]">
             Sin cuota mensual y con toda la infraestructura tecnológica incluida: pasarela de pago y facturación.

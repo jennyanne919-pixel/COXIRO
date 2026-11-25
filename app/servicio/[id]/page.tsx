@@ -65,7 +65,7 @@ export default async function ServicioPage({
       billing_interval,
       total_installments,
       provider_id,
-      providers ( business_name, kyc_status, bio, slug )
+      providers ( business_name, kyc_status, bio, slug, fiscal_category )
     `
     )
     .eq("id", id)
@@ -152,6 +152,10 @@ export default async function ServicioPage({
             <div className="rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 mb-6">
               {sp.error === "no-disponible"
                 ? "Este servicio no está disponible para comprar ahora mismo. Inténtalo más tarde o contacta con el profesional."
+                : sp.error === "empresa"
+                ? "Las compras para una empresa o actividad profesional no se hacen por este enlace. Escríbenos a coxiro.info@gmail.com y lo gestionamos aparte."
+                : sp.error === "comprador"
+                ? "Indica si compras como particular para poder continuar."
                 : sp.error === "zona"
                 ? "Indica dónde resides para poder calcular el cobro."
                 : sp.error === "acepta"
@@ -410,6 +414,19 @@ export default async function ServicioPage({
               <>
                 <form method="GET" action="/api/checkout" className="grid gap-3">
                   <input type="hidden" name="service" value={service.id} />
+                  {provider?.fiscal_category === "mentoria" && (
+                    <fieldset className="grid gap-1.5 text-xs text-cx-texto-2">
+                      <legend className="mb-1">¿Cómo compras?</legend>
+                      <label className="flex items-start gap-2 leading-snug">
+                        <input type="radio" name="comprador" value="particular" required className="mt-0.5" />
+                        <span>Como particular, para uso personal</span>
+                      </label>
+                      <label className="flex items-start gap-2 leading-snug">
+                        <input type="radio" name="comprador" value="empresa" required className="mt-0.5" />
+                        <span>Para mi empresa o actividad profesional (autónomo, sociedad…)</span>
+                      </label>
+                    </fieldset>
+                  )}
                   <label className="grid gap-1 text-xs text-cx-texto-2">
                     <span>¿Dónde resides?</span>
                     <select

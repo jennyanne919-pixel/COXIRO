@@ -73,6 +73,7 @@ export async function processPayment(params: {
             early_start: params.consent.inicio,
             early_start_type: params.consent.tipo,
             zona_cliente: params.consent.zona,
+            comprador_declarado: params.consent.comprador,
           }
         : {}),
     })

@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       provider_id,
       secondary_transfer_account_id,
       secondary_transfer_percent,
-      providers ( stripe_account_id, commission_rate, kyc_status )
+      providers ( stripe_account_id, commission_rate, kyc_status, fiscal_category )
     `
     )
     .eq("id", serviceId)
@@ -80,6 +80,20 @@ export async function GET(request: Request) {
     // Se devuelve al comprador a la página del servicio con un aviso
     // claro, en vez de mostrarle un error técnico.
     return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=no-disponible`);
+  }
+
+  // Mentoría: solo se vende a particulares (el gancho no puede aplicarse a una compra
+  // profesional, que lleva IVA 21 %). El comprador lo declara y queda registrado.
+  let comprador: "particular" | null = null;
+  if (provider?.fiscal_category === "mentoria") {
+    const declarado = searchParams.get("comprador");
+    if (declarado === "empresa") {
+      return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=empresa`);
+    }
+    if (declarado !== "particular") {
+      return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=comprador`);
+    }
+    comprador = "particular";
   }
 
   // Modelo económico (ver lib/pricing.ts): el precio del servicio es la
@@ -151,6 +165,7 @@ export async function GET(request: Request) {
     terms_at: new Date().toISOString(),
     inicio: searchParams.get("inicio") === "1" ? "1" : "0",
     zona,
+    ...(comprador ? { comprador } : {}),
     inicio_tipo: (itemsDePago ?? 0) > 0 ? "contenido" : "servicio",
     service_id: service.id,
     client_id: user?.id ?? "",

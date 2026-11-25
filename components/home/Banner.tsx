@@ -3,7 +3,7 @@
 const MENSAJES = [
   "Plazas de profesional fundador abiertas",
   "Sin cuota mensual",
-  "Gana hasta un 6% más en tus ventas a particulares en España",
+  "Gana hasta un 6% más en tus ventas a particulares",
   "Factura automática con VeriFactu",
   "Cobros con tarjeta y SEPA",
 ];
