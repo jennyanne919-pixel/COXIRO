@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { submitInquiry } from "./inquiry-actions";
 import { totalCliente } from "@/lib/pricing";
 
@@ -39,6 +40,10 @@ export default async function ServicioPage({
 }) {
   const { id } = await params;
   const sp = await searchParams;
+  // País por IP (Vercel) solo para preseleccionar la zona; el comprador puede cambiarla.
+  const paisIp = ((await headers()).get("x-vercel-ip-country") ?? "").toUpperCase();
+  const UE = ["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE"];
+  const zonaIp = !paisIp ? "" : UE.includes(paisIp) ? "ue" : "fuera";
 
   const supabase = createAdminClient();
 
@@ -147,6 +152,8 @@ export default async function ServicioPage({
             <div className="rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 mb-6">
               {sp.error === "no-disponible"
                 ? "Este servicio no está disponible para comprar ahora mismo. Inténtalo más tarde o contacta con el profesional."
+                : sp.error === "zona"
+                ? "Indica dónde resides para poder calcular el cobro."
                 : sp.error === "acepta"
                 ? "Para comprar tienes que aceptar los Términos y Condiciones."
                 : "No hemos podido iniciar el pago. No se ha cobrado nada. Inténtalo de nuevo en unos minutos."}
@@ -403,6 +410,21 @@ export default async function ServicioPage({
               <>
                 <form method="GET" action="/api/checkout" className="grid gap-3">
                   <input type="hidden" name="service" value={service.id} />
+                  <label className="grid gap-1 text-xs text-cx-texto-2">
+                    <span>¿Dónde resides?</span>
+                    <select
+                      name="zona"
+                      required
+                      defaultValue={zonaIp}
+                      className="w-full rounded-lg border border-cx-borde bg-white px-3 py-2 text-sm text-cx-texto"
+                    >
+                      <option value="" disabled>
+                        Elige una opción
+                      </option>
+                      <option value="ue">España o resto de la Unión Europea</option>
+                      <option value="fuera">Fuera de la Unión Europea</option>
+                    </select>
+                  </label>
                   <label className="flex items-start gap-2 text-xs text-cx-texto-2 leading-snug">
                     <input type="checkbox" name="acepto" value="1" required className="mt-0.5" />
                     <span>

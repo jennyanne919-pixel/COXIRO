@@ -30,6 +30,7 @@ export default async function ServiciosPage() {
     .single();
 
   const comision = user ? await comisionEfectiva(createAdminClient(), user.id) : 10;
+  const comisionFuera = user ? await comisionEfectiva(createAdminClient(), user.id, true) : 10;
 
   const { data: services } = await supabase
     .from("services")
@@ -83,6 +84,7 @@ export default async function ServiciosPage() {
           <NewServiceForm
             createService={createService}
             comision={comision}
+            comisionFuera={comisionFuera}
           />
         </Card>
       </details>

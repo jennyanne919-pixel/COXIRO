@@ -9,6 +9,7 @@ export type ConsentCompra = {
   termsAt: string;
   inicio: boolean;
   tipo: "contenido" | "servicio";
+  zona: "ue" | "fuera" | null;
 };
 
 export function consentDesdeMeta(meta: Record<string, string | undefined> | null | undefined): ConsentCompra | null {
@@ -18,5 +19,6 @@ export function consentDesdeMeta(meta: Record<string, string | undefined> | null
     termsAt: meta.terms_at || new Date().toISOString(),
     inicio: meta.inicio === "1",
     tipo: meta.inicio_tipo === "contenido" ? "contenido" : "servicio",
+    zona: meta.zona === "fuera" ? "fuera" : meta.zona === "ue" ? "ue" : null,
   };
 }

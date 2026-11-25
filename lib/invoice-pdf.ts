@@ -51,6 +51,7 @@ export async function generateInvoicePdf(
     tax_rate: number;
     tax_amount: number;
     tax_type?: string | null; // "IPSI" | "IVA" (facturas con condiciones de categoría)
+    legend?: string | null; // leyenda de operación no sujeta (cliente fuera de la UE)
     total: number;
     hash: string | null;
   },
@@ -213,7 +214,11 @@ export async function generateInvoicePdf(
     y -= 18;
   };
 
-  if (desglosa) {
+  if (desglosa && invoice.legend) {
+    totalRow("Base imponible", `${formatEUR(Number(invoice.tax_base))} €`);
+    totalRow("Operación no sujeta", "0,00 €");
+    totalRow("Total (EUR)", `${formatEUR(Number(invoice.total))} €`, true);
+  } else if (desglosa) {
     totalRow("Base imponible", `${formatEUR(Number(invoice.tax_base))} €`);
     totalRow(`${invoice.tax_type} (${Number(invoice.tax_rate).toFixed(2).replace(".", ",")} %)`, `${formatEUR(Number(invoice.tax_amount))} €`);
     totalRow("Total (EUR)", `${formatEUR(Number(invoice.total))} €`, true);
@@ -235,14 +240,19 @@ export async function generateInvoicePdf(
   y -= 20;
 
   // ---- Pie legal ----
-  const legalText = desglosa
+  const legalText = desglosa && invoice.legend
+    ? invoice.legend
+    : desglosa
     ? invoice.tax_type === "IPSI"
       ? "Impuesto sobre la Producción, los Servicios y la Importación (IPSI) incluido en el precio."
       : "IVA incluido en el precio."
     : isClientInvoice
     ? "Operación exenta de IVA según la Ley 37/1992, de 28 de diciembre, del Impuesto sobre el Valor Añadido."
     : "Operación con inversión del sujeto pasivo conforme al artículo 84.Uno.2º de la Ley 37/1992.";
-  page.drawText(legalText, { x: 50, y, size: 8, font, color: stone });
+  for (const linea of wrapText(legalText, font, 8, 495)) {
+    page.drawText(linea, { x: 50, y, size: 8, font, color: stone });
+    y -= 11;
+  }
 
   // ---- Verificación VeriFactu ----
   const yQR = 110;

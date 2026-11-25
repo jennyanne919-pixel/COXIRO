@@ -9,6 +9,7 @@ import {
   COXIRO_LEGAL_NAME,
 } from "@/lib/invoicing";
 import { generateInvoicePdf } from "@/lib/invoice-pdf";
+import { leyendaNoSujeta } from "@/lib/legal/leyendas-factura";
 import { regimenProveedor } from "@/lib/ajustes";
 import { STRIPE_FIJO, STRIPE_PORCENTAJE } from "@/lib/admin/contabilidad";
 import {
@@ -32,6 +33,8 @@ export async function processPayment(params: {
   avisarInterno?: boolean;
   // Aceptación de términos y elección de inicio anticipado (solo en la primera compra).
   consent?: ConsentCompra | null;
+  // Zona de residencia declarada por el cliente (también en las renovaciones).
+  zona?: "ue" | "fuera" | null;
 }) {
   const supabase = createAdminClient();
   const { serviceId, clientId, providerId, amountTotal, platformFee, stripePaymentIntentId } = params;
@@ -69,6 +72,7 @@ export async function processPayment(params: {
             terms_accepted_at: params.consent.termsAt,
             early_start: params.consent.inicio,
             early_start_type: params.consent.tipo,
+            zona_cliente: params.consent.zona,
           }
         : {}),
     })
@@ -114,8 +118,12 @@ export async function processPayment(params: {
   // la factura al cliente lleva el impuesto de su categoría (IPSI 4 % o IVA 21 %)
   // INCLUIDO en el total y desglosado. Los profesionales anteriores siguen igual.
   const regimen = await regimenProveedor(supabase, providerId);
-  const TAX_RATE_CLIENTE = regimen.usaCategoria ? regimen.ajuste.impuesto_pct : 0.5;
+  const TAX_RATE_CLIENTE = regimen.usaCategoria ? (params.zona === "fuera" ? 0 : regimen.ajuste.impuesto_pct) : 0.5;
   const TAX_TYPE_CLIENTE: string | null = regimen.usaCategoria ? regimen.ajuste.impuesto_tipo : null;
+  // Cliente fuera de la UE (profesionales con condiciones de categoría): la factura
+  // al cliente sale "no sujeta" con la leyenda aprobada por el asesor, sin impuesto.
+  const fueraUE = regimen.usaCategoria && params.zona === "fuera";
+  const LEYENDA_FUERA_UE = fueraUE ? leyendaNoSujeta(regimen.categoria) : null;
   const TAX_RATE_PROVEEDOR = 0;
   const netoProveedor = amountTotal - platformFee;
 
@@ -214,6 +222,7 @@ export async function processPayment(params: {
           tax_type: TAX_TYPE_CLIENTE,
           tax_rate: TAX_RATE_CLIENTE,
           tax_amount: Number(cliTaxAmount.toFixed(2)),
+          ...(LEYENDA_FUERA_UE ? { legend: LEYENDA_FUERA_UE } : {}),
           total: amountTotal,
           issuer_name: COXIRO_LEGAL_NAME,
           issuer_tax_id: COXIRO_TAX_ID,
@@ -283,7 +292,7 @@ export async function processPayment(params: {
       }
       const a = regimen.ajuste;
       const r2 = (n: number) => Math.round(n * 100) / 100;
-      const baseCli = r2(amountTotal / (1 + a.impuesto_pct / 100));
+      const baseCli = fueraUE ? r2(amountTotal) : r2(amountTotal / (1 + a.impuesto_pct / 100));
       const impuestoCli = r2(amountTotal - baseCli);
       const cuotaCompra = r2((netoProveedor * a.impuesto_pct) / 100);
       const deducible = a.impuesto_tipo === "IVA";

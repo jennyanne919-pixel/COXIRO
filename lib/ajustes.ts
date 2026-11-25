@@ -4,6 +4,7 @@ import {
   AJUSTES_POR_DEFECTO,
   CATEGORIAS,
   esCategoria,
+  RECARGO_INTERNACIONAL_PCT,
   type AjusteCategoria,
   type AjustesCategorias,
   type Categoria,
@@ -41,8 +42,11 @@ export function proporcionProveedor(a: AjusteCategoria): number {
 // del precio sin impuestos): el cliente paga siempre precio sin impuestos × 1,21 y
 // el proveedor recibe proporcionProveedor × precio sin impuestos.
 //   gancho 6 %  => 14        comisión 5 %  => 25
-export function comisionEquivalente(a: AjusteCategoria): number {
-  return r4((1 + IVA_PORCENTAJE / 100 - proporcionProveedor(a)) * 100 - 1);
+export function comisionEquivalente(a: AjusteCategoria, internacional = false): number {
+  // El recargo solo afecta a la categoría de comisión (Formación); el gancho de
+  // Mentoría no cambia nunca.
+  const prop = proporcionProveedor(a) + (internacional && a.modo === "comision" ? -RECARGO_INTERNACIONAL_PCT / 100 : 0);
+  return r4((1 + IVA_PORCENTAJE / 100 - prop) * 100 - 1);
 }
 
 export type Regimen = {
@@ -77,7 +81,13 @@ export async function regimenProveedor(admin: SupabaseClient, providerId: string
 }
 
 // Comisión (en el formato de lib/pricing.ts) que se aplica HOY a un profesional.
-export async function comisionEfectiva(admin: SupabaseClient, providerId: string): Promise<number> {
+// «internacional»: venta a un cliente que declara residir fuera de la UE; el recargo
+// solo se aplica a profesionales que ya están bajo las condiciones de su categoría.
+export async function comisionEfectiva(
+  admin: SupabaseClient,
+  providerId: string,
+  internacional = false
+): Promise<number> {
   const r = await regimenProveedor(admin, providerId);
-  return r.usaCategoria ? comisionEquivalente(r.ajuste) : r.comisionLegado;
+  return r.usaCategoria ? comisionEquivalente(r.ajuste, internacional) : r.comisionLegado;
 }

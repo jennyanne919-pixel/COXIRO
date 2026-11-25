@@ -88,7 +88,13 @@ export async function GET(request: Request) {
   // y el resto va al profesional.
   // La comisión sale de la categoría del profesional (si ya aceptó sus condiciones)
   // o de la que tenía antes (lib/ajustes.ts).
-  const comision = await comisionEfectiva(admin, service.provider_id);
+  // Zona de residencia que declara el comprador: fuera de la UE el cobro cuesta más
+  // y el profesional asume 1,5 puntos (condiciones de su categoría).
+  const zona = searchParams.get("zona");
+  if (zona !== "ue" && zona !== "fuera") {
+    return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=zona`);
+  }
+  const comision = await comisionEfectiva(admin, service.provider_id, zona === "fuera");
   const precios = calcularPrecios(Number(service.price), comision);
   const amountCents = precios.totalCents;
   const feeCents = precios.feeCents;
@@ -144,6 +150,7 @@ export async function GET(request: Request) {
     terms_v: TERMINOS_VERSION,
     terms_at: new Date().toISOString(),
     inicio: searchParams.get("inicio") === "1" ? "1" : "0",
+    zona,
     inicio_tipo: (itemsDePago ?? 0) > 0 ? "contenido" : "servicio",
     service_id: service.id,
     client_id: user?.id ?? "",

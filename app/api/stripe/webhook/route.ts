@@ -175,6 +175,7 @@ export async function POST(request: Request) {
         platformFee: Number(platform_fee),
         stripePaymentIntentId: session.payment_intent as string,
         consent: consentDesdeMeta(session.metadata as Record<string, string>),
+        zona: (session.metadata as Record<string, string>).zona === "fuera" ? "fuera" : (session.metadata as Record<string, string>).zona === "ue" ? "ue" : null,
       });
 
       break;
@@ -210,19 +211,17 @@ export async function POST(request: Request) {
       }
 
       const amountTotal = (invoice.amount_paid ?? 0) / 100;
+      // La zona de residencia que declaró el cliente al contratar (metadatos de la
+      // suscripción) fija el recargo internacional en todos los cobros.
+      const metaSub = ((await stripe.subscriptions.retrieve(subscriptionId)).metadata ?? {}) as Record<string, string>;
       const platformFee = feeDesdeTotal(
         amountTotal,
-        await comisionEfectiva(supabase, subscription.provider_id)
+        await comisionEfectiva(supabase, subscription.provider_id, metaSub.zona === "fuera")
       );
 
-      // La elección del cliente solo se guarda en el primer cobro; viaja en los
-      // metadatos de la suscripción.
+      // La elección del cliente solo se guarda en el primer cobro.
       const consent =
-        invoice.billing_reason === "subscription_create"
-          ? consentDesdeMeta(
-              ((await stripe.subscriptions.retrieve(subscriptionId)).metadata ?? {}) as Record<string, string>
-            )
-          : null;
+        invoice.billing_reason === "subscription_create" ? consentDesdeMeta(metaSub) : null;
 
       await processPayment({
         serviceId: subscription.service_id,
@@ -232,6 +231,7 @@ export async function POST(request: Request) {
         platformFee,
         avisarInterno: invoice.billing_reason === "subscription_create",
         consent,
+        zona: metaSub.zona === "fuera" ? "fuera" : metaSub.zona === "ue" ? "ue" : null,
         stripePaymentIntentId:
           typeof invoice.payment_intent === "string"
             ? invoice.payment_intent

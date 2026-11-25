@@ -2,7 +2,7 @@
 // (Documento 5). La duración es indefinida (decisión de Coxiro). Cambia por categoría la
 // cláusula de precio y el anexo económico; el resto es común. Si cambia, subir
 // CONDICIONES_CATEGORIA_VERSION en lib/categorias.ts.
-import type { AjusteCategoria, Categoria } from "@/lib/categorias";
+import { RECARGO_INTERNACIONAL_PCT, type AjusteCategoria, type Categoria } from "@/lib/categorias";
 
 const S1 = "<h2>1. Partes y objeto</h2>\n<p>1.1. De una parte, Jenny Anne Abriam, NIE Y8056216C, empresaria individual titular de Coxiro, domicilio en Grupo Gómez Jordana 5, Melilla, España, contacto coxiro.info@gmail.com.</p>\n<p>1.2. De otra, el profesional que se registra en la plataforma como Proveedor, identificado con los datos de su alta (nombre o razón social, identificación fiscal, residencia fiscal, domicilio, representante en su caso con facultades suficientes, y correo de contacto).</p>\n<p>1.3. Coxiro comercializa en nombre propio al cliente final los servicios incluidos en las fichas aceptadas. El Proveedor presta a Coxiro los servicios que ejecuta materialmente para esos clientes. No adquiere representación general, titularidad sobre el negocio ni participación social por utilizar la plataforma.</p>";
 const S2 = "<h2>2. Alta y obligaciones profesionales</h2>\n<p>2.1. El Proveedor facilita identidad, representación, identificación y residencia fiscal, establecimiento interviniente, cuenta de cobro verificada y habilitaciones necesarias. Comunica cualquier cambio relevante antes de nuevas operaciones. Las sociedades identifican a su representante y este acredita su capacidad cuando se solicite.</p>\n<p>2.2. La verificación financiera de Stripe no sustituye las comprobaciones propias de Coxiro. La admisión no certifica la calidad del servicio ni elimina las obligaciones de ninguna parte. Las peticiones de información serán proporcionadas y tendrán un fundamento contractual o legal.</p>\n<p>2.3. El Proveedor mantiene las altas, titulaciones, licencias y seguros exigibles para su actividad. No se admiten servicios reservados o ilícitos sin habilitación, promesas engañosas ni contenidos que vulneren derechos de terceros. Coxiro podrá impedir su publicación o restringirlos con motivación y proporcionalidad.</p>";
@@ -37,19 +37,22 @@ export function contratoProveedorHtml(opts: {
     ? `El precio de adquisición del Proveedor, antes de los tributos y retenciones legalmente aplicables, es P <strong>menos un ${pct} %</strong> de P, por los servicios de plataforma (cobro, facturación y acceso).`
     : `El precio de adquisición del Proveedor, antes de los tributos y retenciones legalmente aplicables, es P <strong>más un ${pct} %</strong> de P.`;
   const signo = formacion ? "menos" : "más";
+  const pctFuera = num(formacion ? a.porcentaje + RECARGO_INTERNACIONAL_PCT : a.porcentaje - RECARGO_INTERNACIONAL_PCT);
+  const ajusteFuera = `el precio de adquisición del Proveedor es P menos un ${pctFuera} % de P (la comisión sube ${num(RECARGO_INTERNACIONAL_PCT)} puntos)`;
 
   const S4 = `<h2>4. Precio y pago</h2>
 <p>4.1. El anexo económico forma parte del contrato y se facilita íntegramente antes de aceptar, aunque se muestre en una página privada no indexada. Coxiro conserva el texto y la versión aceptados, no solo un enlace. Los pactos individuales prevalecen dentro de la legalidad y se documentan por escrito.</p>
 <p>4.2. El Proveedor fija el precio final de su servicio, con los impuestos incluidos. La referencia comercial del servicio se denomina P y es ese precio dividido entre 1,21 (precio sin impuestos). ${formula} El precio final al cliente se muestra en su ficha con los impuestos y gastos obligatorios que procedan. Este contrato no califica como impuesto un recargo comercial ni establece una exención tributaria general.</p>
 <p>4.3. Ejemplo ilustrativo: servicio con P de 500 €. El cliente paga 605 €. El Proveedor recibe ${eur500} € (500 € ${signo} el ${pct} %), antes de los tributos y retenciones que procedan.</p>
 <p>4.4. Este esquema se aplica a las ventas a clientes particulares. Si Coxiro habilita otros tipos de venta, comunicará al Proveedor las condiciones que correspondan antes de aplicarlas. El Proveedor no paga cuotas de alta ni mensualidades por usar Coxiro.</p>
-${PAGO}`;
+${PAGO}
+${formacion ? `\n<p>4.8. Ventas a clientes residentes fuera de la Unión Europea. El cobro internacional de la entidad de pagos cuesta más que el europeo. Cuando el cliente declare al comprar que reside fuera de la Unión Europea, ${ajusteFuera}. La venta no se bloquea. El importe resultante se muestra al Proveedor al crear o editar el servicio.</p>` : ""}`;
 
   const S6 = `<h2>6. Clasificación de cada prestación</h2>
 <p>6.1. ${CL1}</p>
 <p>6.2. ${CL2}</p>
 <p>6.3. La fórmula del precio de adquisición determina únicamente el precio comercial pactado. No garantiza un margen positivo de Coxiro ni equivale al precio final de venta. La ficha económica debe conciliar adquisición, impuestos, retenciones, costes y precio de venta antes de aceptar nuevos pedidos. Un cambio de precio del Proveedor exige acuerdo; un error fiscal no permite reducir unilateralmente una remuneración ya devengada.</p>
-<p>6.4. Los servicios se clasifican en dos categorías: <strong>Formación y cursos</strong> (servicios con temario, programa o módulos, o que consisten en impartir clases o lecciones, grabadas o en directo) y <strong>Mentoría, consultoría y desarrollo personal</strong> (acompañamiento individual o en grupo, sin programa ni temario fijo). Esta cuenta está en la categoría <strong>${nombreCategoria}</strong>. Criterio de clasificación:</p>
+<p>6.4. Los servicios se clasifican en dos categorías: <strong>Formación y cursos</strong> (servicios con temario, programa o módulos, o que consisten en impartir clases o lecciones, grabadas o en directo) y <strong>Mentoría, consultoría y desarrollo personal</strong> (acompañamiento individual o en grupo). Esta cuenta está en la categoría <strong>${nombreCategoria}</strong>. Criterio de clasificación:</p>
 <ul>${criterio.map((t) => `<li>${t}</li>`).join("")}</ul>
 <p>6.5. El Proveedor declara la categoría de su servicio conforme a este criterio y es responsable de que sea correcta. Coxiro revisa cada servicio de la categoría Mentoría, consultoría y desarrollo personal antes de publicarlo, y puede aprobarlo o reclasificarlo.</p>
 <p>6.6. Si Coxiro comprueba que un servicio no corresponde a la categoría declarada, podrá reclasificarlo con aviso motivado y un plazo de 15 días para que el Proveedor alegue. La reclasificación aplica las condiciones de la categoría resultante desde la fecha de la comunicación.</p>

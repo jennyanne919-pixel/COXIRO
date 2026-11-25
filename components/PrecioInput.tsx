@@ -18,12 +18,14 @@ export default function PrecioInput({
   required,
   opcional,
   comision = 10,
+  comisionFuera,
   className,
 }: {
   defaultValue?: number | string | null;
   required?: boolean;
   opcional?: boolean;
   comision?: number;
+  comisionFuera?: number;
   className?: string;
 }) {
   const inicial = Number(defaultValue ?? 0);
@@ -32,6 +34,10 @@ export default function PrecioInput({
 
   const baseNum = Number(base) > 0 ? Number(base) : 0;
   const p = baseNum > 0 ? calcularPrecios(baseNum, comision) : null;
+  const pFuera =
+    baseNum > 0 && comisionFuera !== undefined && comisionFuera !== comision
+      ? calcularPrecios(baseNum, comisionFuera)
+      : null;
   const clase = className ?? "w-full rounded-lg border border-cx-borde bg-white px-3.5 py-2 text-sm";
 
   return (
@@ -102,6 +108,17 @@ export default function PrecioInput({
               cobro, la facturación, el acceso al contenido y la tecnología.
             </p>
           ) : null}
+          {pFuera && (
+            <div className="mt-1 rounded-md bg-cx-hielo px-3 py-2 text-[11px] leading-snug">
+              <p className="font-medium text-cx-texto">
+                Si tu cliente reside fuera de la Unión Europea, recibirás {eur(pFuera.netoProveedorCents / 100)}.
+              </p>
+              <p>
+                El cobro internacional cuesta más, así que en esas ventas la comisión sube 1,5
+                puntos. La venta no se bloquea.
+              </p>
+            </div>
+          )}
           <p className="text-[11px] pt-1">
             «Sin Coxiro» es lo que te quedaría vendiendo por tu cuenta, con los impuestos
             habituales y antes de comisiones de cobro. Con Coxiro no pagas cuotas ni comisiones de

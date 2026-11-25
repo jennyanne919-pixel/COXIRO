@@ -28,6 +28,7 @@ export default async function EditarServicioPage({
   }
 
   const comision = user ? await comisionEfectiva(createAdminClient(), user.id) : 10;
+  const comisionFuera = user ? await comisionEfectiva(createAdminClient(), user.id, true) : 10;
 
   return (
     <div className="max-w-lg">
@@ -87,7 +88,7 @@ export default async function EditarServicioPage({
         </div>
 
         <div>
-          <PrecioInput defaultValue={service.price} required comision={comision} />
+          <PrecioInput defaultValue={service.price} required comision={comision} comisionFuera={comisionFuera} />
         </div>
 
         <div>

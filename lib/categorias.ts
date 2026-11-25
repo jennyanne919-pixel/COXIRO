@@ -18,11 +18,15 @@ export function esCategoria(v: unknown): v is Categoria {
 
 // Versión de los documentos de condiciones POR CATEGORÍA. Si el texto de una
 // categoría cambia, subir esta versión: se pedirá aceptar de nuevo.
-export const CONDICIONES_CATEGORIA_VERSION = "2026-11-23";
+export const CONDICIONES_CATEGORIA_VERSION = "2026-11-26";
 
 // Valores por defecto (los vigentes se editan en Admin → Ajustes y viven en la
 // tabla category_settings; estos solo se usan si la tabla no se puede leer).
 export const COMISION_FORMACION_PCT = 5; // Coxiro retiene el 5 % del precio sin impuestos
+// Ventas a clientes fuera de la Unión Europea: el cobro internacional cuesta más
+// (≈3 % frente a ≈1,5 %), y en Formación se traslada con 1,5 puntos más de comisión.
+// Mentoría no cambia.
+export const RECARGO_INTERNACIONAL_PCT = 1.5;
 export const GANCHO_MENTORIA_PCT = 6; // el profesional recibe el precio sin impuestos + 6 %
 
 export type AjusteCategoria = {
@@ -79,7 +83,7 @@ export const CATEGORIAS: Record<
     nombre: "Mentoría, consultoría y desarrollo personal",
     corto: "Mentoría",
     criterio:
-      "Tu servicio es mentoría, consultoría o desarrollo personal, individual o en grupo, sin programa ni temario fijo.",
+      "Tu servicio es mentoría, consultoría o desarrollo personal, individual o en grupo.",
     ejemplos: "Mentorías, asesoramiento, coaching, sesiones de desarrollo personal, grupos de trabajo.",
     condiciones: [
       "Cobras a los 7 días de cada venta.",
@@ -87,7 +91,7 @@ export const CATEGORIAS: Record<
       "Cada servicio se revisa antes de publicarse.",
     ],
     declaracion:
-      "Declaro que mi servicio es mentoría, consultoría o desarrollo personal (individual o en grupo), sin temario, programa ni módulos fijos, y que no consiste en impartir clases o formación estructurada. Entiendo que si Coxiro comprueba lo contrario, lo pasará a Formación y cursos.",
+      "Declaro que mi servicio es mentoría, consultoría o desarrollo personal (individual o en grupo) y que no consiste en impartir clases o formación estructurada. Entiendo que si Coxiro comprueba lo contrario, lo pasará a Formación y cursos.",
     documento: "condiciones_proveedor_mentoria",
   },
 };
