@@ -65,6 +65,7 @@ export type VentaContable = {
   stripe_real: boolean;
   margen: number;
   provisional: boolean;
+  zona: "ue" | "fuera" | null; // zona de residencia declarada por el cliente
 };
 
 export type DatosAnio = {
@@ -128,7 +129,7 @@ export async function cargarAnio(anio: number): Promise<DatosAnio> {
       .order("fecha", { ascending: true }),
     admin
       .from("transactions")
-      .select("id, amount_total, created_at")
+      .select("id, amount_total, created_at, zona_cliente")
       .eq("status", "paid")
       .gte("created_at", desde)
       .lte("created_at", hasta),
@@ -174,6 +175,7 @@ export async function cargarAnio(anio: number): Promise<DatosAnio> {
 
   // Solo cuentan las ventas todavía cobradas (las reembolsadas salen de `cobros`).
   const idsCobrados = new Set(cobros.map((c) => c.id));
+  const zonaPorVenta = new Map<string, string | null>((tx ?? []).map((t: any) => [t.id, t.zona_cliente ?? null]));
   const ventasContables: VentaContable[] = (acc ?? [])
     .filter((a: any) => idsCobrados.has(a.transaction_id))
     .map((a: any) => ({
@@ -192,6 +194,7 @@ export async function cargarAnio(anio: number): Promise<DatosAnio> {
       stripe_real: !!a.stripe_real,
       margen: Number(a.margen),
       provisional: !!a.provisional,
+      zona: (zonaPorVenta.get(a.transaction_id) === "fuera" ? "fuera" : zonaPorVenta.get(a.transaction_id) === "ue" ? "ue" : null) as "ue" | "fuera" | null,
     }))
     .filter((v) => v.fecha.startsWith(String(anio)));
 

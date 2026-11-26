@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { updateService } from "../../actions";
-import { TOPICS } from "@/lib/topics";
+import { topicsPara } from "@/lib/topics";
 import PrecioInput from "@/components/PrecioInput";
 import { comisionEfectiva } from "@/lib/ajustes";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -27,6 +27,8 @@ export default async function EditarServicioPage({
     notFound();
   }
 
+  const { data: provCat } = await supabase.from("providers").select("fiscal_category").eq("user_id", user?.id ?? "").single();
+  const TOPICS = topicsPara(provCat?.fiscal_category);
   const comision = user ? await comisionEfectiva(createAdminClient(), user.id) : 10;
   const comisionFuera = user ? await comisionEfectiva(createAdminClient(), user.id, true) : 10;
 

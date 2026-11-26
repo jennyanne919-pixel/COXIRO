@@ -242,7 +242,7 @@ export async function processPayment(params: {
           // (art. 5 RD 1619/2012) -- esa ya aparece en el pie de página de
           // la autofactura. El wrapText de invoice-pdf.ts se encarga de
           // partir esto en varias líneas si el título del servicio es largo.
-          concept: `Servicios de Coxiro — ${service?.title ?? "Servicio"}`,
+          concept: `Servicio prestado a Coxiro — ${service?.title ?? "Servicio"}`,
           tax_base: Number(provBase.toFixed(2)),
           tax_rate: TAX_RATE_PROVEEDOR,
           tax_amount: Number(provTaxAmount.toFixed(2)),

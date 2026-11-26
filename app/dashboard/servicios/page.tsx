@@ -85,6 +85,7 @@ export default async function ServiciosPage() {
             createService={createService}
             comision={comision}
             comisionFuera={comisionFuera}
+            categoria={providerProfile?.fiscal_category}
           />
         </Card>
       </details>

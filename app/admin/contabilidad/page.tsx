@@ -29,7 +29,9 @@ export default async function ContabilidadPage({
     impCompra: sum(ventas.filter((v) => !v.compra_deducible).map((v) => v.cuota_compra)),
     stripe: sum(ventas.map((v) => v.stripe_fee)),
     margen: sum(ventas.map((v) => v.margen)),
+    fueraUE: sum(ventas.filter((v) => v.zona === "fuera").map((v) => v.total)),
   };
+  const nFueraUE = ventas.filter((v) => v.zona === "fuera").length;
   const hayEstimado = ventas.some((v) => !v.stripe_real);
   const hayProvisional = ventas.some((v) => v.provisional);
 
@@ -63,6 +65,7 @@ export default async function ContabilidadPage({
         <Resumen label="Impuesto de las compras (1.ª operación)" value={t.impCompra} hint="Sobre lo pagado al profesional; coste no recuperable" />
         <Resumen label="Stripe" value={t.stripe} hint={hayEstimado ? "Incluye partidas estimadas" : "Coste real"} />
         <Resumen label="Margen de Coxiro" value={t.margen} hint="Antes de gastos fijos e IRPF" />
+        <Resumen label="Ventas a clientes fuera de la UE" value={t.fueraUE} hint={`${nFueraUE} ventas no sujetas: sin impuesto de venta`} />
       </div>
 
       <Card>
@@ -75,6 +78,7 @@ export default async function ContabilidadPage({
                 <tr className="text-left text-xs text-cx-texto-2 border-b border-cx-borde">
                   <th className="p-3 font-medium">Fecha</th>
                   <th className="p-3 font-medium">Categoría</th>
+                  <th className="p-3 font-medium">Zona</th>
                   <th className="p-3 font-medium text-right">Cobrado</th>
                   <th className="p-3 font-medium text-right">Profesional</th>
                   <th className="p-3 font-medium text-right">Imp. venta</th>
@@ -92,6 +96,10 @@ export default async function ContabilidadPage({
                       <span className="block text-[11px] text-cx-texto-2">
                         {v.impuesto_tipo} {v.impuesto_pct} %
                       </span>
+                    </td>
+                    <td className="p-3 whitespace-nowrap">
+                      {v.zona === "fuera" ? "Fuera de la UE" : v.zona === "ue" ? "UE" : "—"}
+                      {v.zona === "fuera" && <span className="block text-[11px] text-cx-texto-2">no sujeta</span>}
                     </td>
                     <td className="p-3 text-right whitespace-nowrap">{fmtEur(v.total)}</td>
                     <td className="p-3 text-right whitespace-nowrap">{fmtEur(v.neto_proveedor)}</td>

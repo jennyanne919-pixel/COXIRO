@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { TOPICS, SERVICE_TYPES } from "@/lib/topics";
+import { tiposPara, topicsPara } from "@/lib/topics";
 import PrecioInput from "@/components/PrecioInput";
 
 export default function NewServiceForm({
   createService,
   comision = 10,
   comisionFuera = 10,
+  categoria,
 }: {
   createService: (formData: FormData) => void;
   comision?: number;
   comisionFuera?: number;
+  categoria?: string | null;
 }) {
+  const SERVICE_TYPES = tiposPara(categoria);
+  const TOPICS = topicsPara(categoria);
   const [type, setType] = useState("consult");
   const esAMedida = type === "custom";
   const esMembresia = type === "membership";

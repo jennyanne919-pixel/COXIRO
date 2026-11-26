@@ -38,7 +38,8 @@ export async function reclasificarProfesional(formData: FormData) {
   const { data: p } = await admin.from("providers").select("fiscal_category").eq("user_id", providerId).maybeSingle();
   if (!p || p.fiscal_category === nueva) return redirect("/admin/fichas?error=datos");
 
-  await admin.from("providers").update({ fiscal_category: nueva }).eq("user_id", providerId);
+  // Al cambiar de categoría, tiene que aceptar las condiciones de la nueva.
+  await admin.from("providers").update({ fiscal_category: nueva, pending_new_conditions: true }).eq("user_id", providerId);
   // Sus servicios pasan a la misma categoría. La decisión del administrador
   // cuenta como revisión: no quedan en «pending».
   await admin

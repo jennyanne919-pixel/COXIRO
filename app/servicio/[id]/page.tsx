@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import { esAdminEmail } from "@/lib/admin/auth";
 import { submitInquiry } from "./inquiry-actions";
 import { totalCliente } from "@/lib/pricing";
 
@@ -79,10 +80,10 @@ export default async function ServicioPage({
     notFound();
   }
 
-  // Ficha en revisión (categoría Mentoría): solo la ve su dueño, que la prepara.
+  // Ficha en revisión (categoría Mentoría): solo la ven su dueño y el administrador.
   if (service.review_status !== "approved") {
     const { data: { user: viewer } } = await (await createClient()).auth.getUser();
-    if (viewer?.id !== service.provider_id) notFound();
+    if (viewer?.id !== service.provider_id && !esAdminEmail(viewer?.email)) notFound();
   }
 
   const provider = service.providers as any;

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { tieneAceptacionVigente } from "@/lib/acceptances";
-import { SERVICE_TYPES } from "@/lib/topics";
+import { SERVICE_TYPES, TIPOS_MENTORIA, TOPICS_NO_MENTORIA } from "@/lib/topics";
 
 export async function createService(formData: FormData) {
   const supabase = await createClient();
@@ -32,6 +32,11 @@ export async function createService(formData: FormData) {
     precioNum > 50000 ||
     (!esAMedidaPeticion && precioNum < 1)
   ) {
+    redirect("/dashboard/servicios?error=datos");
+  }
+  // Mentoría: solo formatos y materias que encajan en la categoría (validado en servidor).
+  const { data: provCat } = await supabase.from("providers").select("fiscal_category").eq("user_id", user.id).maybeSingle();
+  if (provCat?.fiscal_category === "mentoria" && (!TIPOS_MENTORIA.includes(type) || TOPICS_NO_MENTORIA.includes(topic))) {
     redirect("/dashboard/servicios?error=datos");
   }
   const isPublic = formData.get("is_public") === "on";
@@ -222,6 +227,11 @@ export async function updateService(formData: FormData) {
   const description = formData.get("description") as string;
   const price = formData.get("price") as string;
   const topic = formData.get("topic") as string;
+
+  const { data: provCat } = await supabase.from("providers").select("fiscal_category").eq("user_id", user.id).maybeSingle();
+  if (provCat?.fiscal_category === "mentoria" && TOPICS_NO_MENTORIA.includes(topic)) {
+    redirect("/dashboard/servicios?error=datos");
+  }
 
   // Subida de imagen nueva (opcional) -- misma logica que en createService.
   // Si no se adjunta nada, se mantiene la imagen que ya tenia el servicio.
