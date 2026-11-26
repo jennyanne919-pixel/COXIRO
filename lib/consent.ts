@@ -10,7 +10,7 @@ export type ConsentCompra = {
   inicio: boolean;
   tipo: "contenido" | "servicio";
   zona: "ue" | "fuera" | null;
-  comprador: "particular" | null;
+  comprador: "particular" | "empresa" | null;
 };
 
 export function consentDesdeMeta(meta: Record<string, string | undefined> | null | undefined): ConsentCompra | null {
@@ -20,7 +20,7 @@ export function consentDesdeMeta(meta: Record<string, string | undefined> | null
     termsAt: meta.terms_at || new Date().toISOString(),
     inicio: meta.inicio === "1",
     tipo: meta.inicio_tipo === "contenido" ? "contenido" : "servicio",
-    comprador: meta.comprador === "particular" ? "particular" : null,
+    comprador: meta.comprador === "particular" ? "particular" : meta.comprador === "empresa" ? "empresa" : null,
     zona: meta.zona === "fuera" ? "fuera" : meta.zona === "ue" ? "ue" : null,
   };
 }

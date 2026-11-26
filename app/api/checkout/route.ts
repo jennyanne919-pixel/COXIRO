@@ -82,18 +82,25 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=no-disponible`);
   }
 
-  // Mentoría: solo se vende a particulares (el gancho no puede aplicarse a una compra
-  // profesional, que lleva IVA 21 %). El comprador lo declara y queda registrado.
-  let comprador: "particular" | null = null;
+  // Zona de residencia que declara el comprador.
+  const zona = searchParams.get("zona");
+  if (zona !== "ue" && zona !== "fuera") {
+    return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=zona`);
+  }
+
+  // Mentoría: dentro de la UE solo se vende a particulares (el gancho no puede aplicarse
+  // a una compra profesional, que lleva IVA 21 %). Fuera de la UE puede comprar también
+  // una empresa. El comprador lo declara y queda registrado.
+  let comprador: "particular" | "empresa" | null = null;
   if (provider?.fiscal_category === "mentoria") {
     const declarado = searchParams.get("comprador");
-    if (declarado === "empresa") {
-      return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=empresa`);
-    }
-    if (declarado !== "particular") {
+    if (declarado !== "particular" && declarado !== "empresa") {
       return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=comprador`);
     }
-    comprador = "particular";
+    if (declarado === "empresa" && zona === "ue") {
+      return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=empresa`);
+    }
+    comprador = declarado;
   }
 
   // Modelo económico (ver lib/pricing.ts): el precio del servicio es la
@@ -102,12 +109,7 @@ export async function GET(request: Request) {
   // y el resto va al profesional.
   // La comisión sale de la categoría del profesional (si ya aceptó sus condiciones)
   // o de la que tenía antes (lib/ajustes.ts).
-  // Zona de residencia que declara el comprador: fuera de la UE el cobro cuesta más
-  // y el profesional asume 1,5 puntos (condiciones de su categoría).
-  const zona = searchParams.get("zona");
-  if (zona !== "ue" && zona !== "fuera") {
-    return NextResponse.redirect(`${origin}/servicio/${serviceId}?error=zona`);
-  }
+  // Fuera de la UE el cobro cuesta más y en Formación se traslada con 1,5 puntos más.
   const comision = await comisionEfectiva(admin, service.provider_id, zona === "fuera");
   const precios = calcularPrecios(Number(service.price), comision);
   const amountCents = precios.totalCents;

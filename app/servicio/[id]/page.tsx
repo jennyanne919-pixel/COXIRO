@@ -153,7 +153,7 @@ export default async function ServicioPage({
               {sp.error === "no-disponible"
                 ? "Este servicio no está disponible para comprar ahora mismo. Inténtalo más tarde o contacta con el profesional."
                 : sp.error === "empresa"
-                ? "Las compras para una empresa o actividad profesional no se hacen por este enlace. Escríbenos a coxiro.info@gmail.com y lo gestionamos aparte."
+                ? "Las compras para una empresa o actividad profesional solo están disponibles si resides fuera de la Unión Europea. Si resides en la UE, compra como particular o escríbenos a coxiro.info@gmail.com."
                 : sp.error === "comprador"
                 ? "Indica si compras como particular para poder continuar."
                 : sp.error === "zona"
@@ -423,7 +423,7 @@ export default async function ServicioPage({
                       </label>
                       <label className="flex items-start gap-2 leading-snug">
                         <input type="radio" name="comprador" value="empresa" required className="mt-0.5" />
-                        <span>Para mi empresa o actividad profesional (autónomo, sociedad…)</span>
+                        <span>Para mi empresa o actividad profesional (solo si resides fuera de la UE)</span>
                       </label>
                     </fieldset>
                   )}

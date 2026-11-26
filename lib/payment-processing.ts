@@ -35,6 +35,7 @@ export async function processPayment(params: {
   consent?: ConsentCompra | null;
   // Zona de residencia declarada por el cliente (también en las renovaciones).
   zona?: "ue" | "fuera" | null;
+  comprador?: "particular" | "empresa" | null;
 }) {
   const supabase = createAdminClient();
   const { serviceId, clientId, providerId, amountTotal, platformFee, stripePaymentIntentId } = params;
@@ -124,7 +125,7 @@ export async function processPayment(params: {
   // Cliente fuera de la UE (profesionales con condiciones de categoría): la factura
   // al cliente sale "no sujeta" con la leyenda aprobada por el asesor, sin impuesto.
   const fueraUE = regimen.usaCategoria && params.zona === "fuera";
-  const LEYENDA_FUERA_UE = fueraUE ? leyendaNoSujeta(regimen.categoria) : null;
+  const LEYENDA_FUERA_UE = fueraUE ? leyendaNoSujeta(regimen.categoria, params.comprador ?? params.consent?.comprador ?? null) : null;
   const TAX_RATE_PROVEEDOR = 0;
   const netoProveedor = amountTotal - platformFee;
 

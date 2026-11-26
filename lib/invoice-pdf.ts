@@ -257,7 +257,7 @@ export async function generateInvoicePdf(
   // ---- Verificación VeriFactu ----
   const yQR = 110;
   page.drawImage(qrImage, { x: 50, y: yQR - 70, width: 70, height: 70 });
-  page.drawText("Verificación (VeriFactu)", { x: 132, y: yQR, size: 9, font: fontBold, color: stone });
+  page.drawText("Verificación de factura", { x: 132, y: yQR, size: 9, font: fontBold, color: stone });
   page.drawText(`Huella: ${invoice.hash?.slice(0, 32) ?? "-"}...`, {
     x: 132,
     y: yQR - 16,

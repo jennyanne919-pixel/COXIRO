@@ -176,6 +176,7 @@ export async function POST(request: Request) {
         stripePaymentIntentId: session.payment_intent as string,
         consent: consentDesdeMeta(session.metadata as Record<string, string>),
         zona: (session.metadata as Record<string, string>).zona === "fuera" ? "fuera" : (session.metadata as Record<string, string>).zona === "ue" ? "ue" : null,
+        comprador: (session.metadata as Record<string, string>).comprador === "empresa" ? "empresa" : (session.metadata as Record<string, string>).comprador === "particular" ? "particular" : null,
       });
 
       break;
@@ -232,6 +233,7 @@ export async function POST(request: Request) {
         avisarInterno: invoice.billing_reason === "subscription_create",
         consent,
         zona: metaSub.zona === "fuera" ? "fuera" : metaSub.zona === "ue" ? "ue" : null,
+        comprador: metaSub.comprador === "empresa" ? "empresa" : metaSub.comprador === "particular" ? "particular" : null,
         stripePaymentIntentId:
           typeof invoice.payment_intent === "string"
             ? invoice.payment_intent
