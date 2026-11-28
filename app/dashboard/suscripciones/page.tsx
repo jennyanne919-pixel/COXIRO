@@ -4,12 +4,20 @@ import { stripe } from "@/lib/stripe";
 import { Avatar, Badge, Card, EmptyState, PageHeader } from "@/components/dashboard/ui";
 import CancelarButton from "./CancelarButton";
 import { cancelarSuscripcion } from "./actions";
+import ClienteSuscripciones from "./ClienteSuscripciones";
+import { rolEfectivo } from "@/lib/admin/vista";
 
 export default async function SuscripcionesPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // El cliente ve SUS suscripciones (y puede cancelarlas); el profesional, las de sus clientes.
+  const { data: perfil } = await supabase.from("users").select("role").eq("id", user?.id ?? "").single();
+  if (user && (await rolEfectivo(user.email, perfil?.role)) !== "provider") {
+    return <ClienteSuscripciones userId={user.id} />;
+  }
 
   const admin = createAdminClient();
   const { data: subs } = await admin

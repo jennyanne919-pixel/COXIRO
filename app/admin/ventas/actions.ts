@@ -19,7 +19,8 @@ import { aplicarReembolsoEnBD } from "@/lib/refunds";
 //  - Reparto a tres partes: el cobro está entero en Coxiro y las
 //    transferencias al profesional y al tercero se hicieron aparte; se
 //    reembolsa y se revierte cada transferencia.
-// Stripe no devuelve su comisión de procesamiento: la asume Coxiro.
+// Stripe no devuelve su comisión de procesamiento: se registra como coste a cobrar
+// al profesional (ver supabase/add-cargo-reembolso-proveedor.sql).
 export async function reembolsarVenta(formData: FormData) {
   const admin = await requireAdmin();
   const transactionId = String(formData.get("transaction_id") ?? "");
@@ -84,6 +85,14 @@ export async function reembolsarVenta(formData: FormData) {
     return volver(`error=stripe&detalle=${encodeURIComponent(String(err?.message ?? "").slice(0, 160))}`);
   }
 
+  // Comisión que Stripe se queda de esta venta (la real si la tenemos, si no la estimada).
+  const { data: cont } = await supabase
+    .from("sale_accounting")
+    .select("stripe_fee, stripe_real")
+    .eq("transaction_id", tx.id)
+    .maybeSingle();
+  const costeStripe = Math.round(Number(cont?.stripe_real ?? cont?.stripe_fee ?? 0) * 100) / 100;
+
   await supabase.from("admin_refunds").insert({
     transaction_id: tx.id,
     stripe_refund_id: stripeRefundId,
@@ -91,10 +100,27 @@ export async function reembolsarVenta(formData: FormData) {
     reason: motivo,
     tres_partes: tresPartes,
     created_by: admin.email ?? "admin",
+    coste_stripe: costeStripe,
+    cargo_estado: costeStripe > 0 ? "pendiente" : "sin_cargo",
   });
 
   await aplicarReembolsoEnBD(tx.id);
 
   revalidatePath("/admin", "layout");
   return volver("ok=1");
+}
+
+// Marca como cobrado el coste de Stripe de un reembolso (cuando ya se ha recuperado
+// del profesional: compensándolo en un pago posterior o por transferencia).
+export async function marcarCargoCobrado(formData: FormData) {
+  await requireAdmin();
+  const transactionId = String(formData.get("transaction_id") ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(transactionId)) return;
+  const supabase = createAdminClient();
+  await supabase
+    .from("admin_refunds")
+    .update({ cargo_estado: "cobrado", cargo_cobrado_at: new Date().toISOString() })
+    .eq("transaction_id", transactionId)
+    .eq("cargo_estado", "pendiente");
+  revalidatePath("/admin/ventas");
 }

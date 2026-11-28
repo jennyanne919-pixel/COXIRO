@@ -5,11 +5,13 @@ export default function SubscriptionCancelledEmail({
   servicio,
   proveedor,
   fechaFin,
+  porCliente,
 }: {
   nombreCliente: string;
   servicio: string;
   proveedor: string;
   fechaFin: string;
+  porCliente?: boolean;
 }) {
   return (
     <Html>
@@ -24,8 +26,9 @@ export default function SubscriptionCancelledEmail({
             Tu suscripción se ha dado de baja
           </Heading>
           <Text style={{ fontSize: "15px", color: "#07142B", lineHeight: "1.6" }}>
-            Hola {nombreCliente}, {proveedor} ha dado de baja tu suscripción a «{servicio}».
-            No se te cobrarán más cuotas.
+            {porCliente
+              ? `Hola ${nombreCliente}, hemos recibido tu cancelación de la suscripción a «${servicio}» de ${proveedor}. No se te cobrarán más cuotas.`
+              : `Hola ${nombreCliente}, ${proveedor} ha dado de baja tu suscripción a «${servicio}». No se te cobrarán más cuotas.`}
           </Text>
           <Text style={{ fontSize: "15px", color: "#07142B", lineHeight: "1.6" }}>
             Conservas el acceso hasta el {fechaFin}, el final del periodo que ya tienes

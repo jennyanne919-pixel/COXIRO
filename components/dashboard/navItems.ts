@@ -18,6 +18,7 @@ export const PROVIDER_NAV: NavItem[] = [
 export const CLIENT_NAV: NavItem[] = [
   { label: "Mis compras", href: "/dashboard", icon: "bag" },
   { label: "Mi contenido", href: "/dashboard/contenido", icon: "play" },
+  { label: "Mis suscripciones", href: "/dashboard/suscripciones", icon: "users" },
   { label: "Productos digitales", href: "/catalogo", icon: "globe" },
   { label: "Mi perfil", href: "/dashboard/mi-cuenta", icon: "user" },
 ];

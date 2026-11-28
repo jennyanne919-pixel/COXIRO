@@ -7,6 +7,7 @@ import SubscriptionCancelledEmail from "@/components/emails/SubscriptionCancelle
 import LiveSessionEmail from "@/components/emails/LiveSessionEmail";
 import LessonCommentEmail from "@/components/emails/LessonCommentEmail";
 import PurchaseConfirmationEmail from "@/components/emails/PurchaseConfirmationEmail";
+import ClaimEmail from "@/components/emails/ClaimEmail";
 import ProviderSaleEmail from "@/components/emails/ProviderSaleEmail";
 import InternalSaleEmail from "@/components/emails/InternalSaleEmail";
 import InternalRegistrationEmail from "@/components/emails/InternalRegistrationEmail";
@@ -90,6 +91,7 @@ export async function sendSubscriptionCancelled(params: {
   servicio: string;
   proveedor: string;
   fechaFin: string;
+  porCliente?: boolean;
 }) {
   return sendEmail({
     to: params.to,
@@ -146,6 +148,10 @@ export async function sendPurchaseConfirmation(params: {
   invoiceUrl: string;
   invoicePdf?: Buffer;
   invoiceNumber?: string;
+  acceso?: string;
+  eleccion?: string;
+  fichaUrl?: string;
+  terminosVersion?: string;
 }) {
   return sendEmail({
     to: params.to,
@@ -239,5 +245,58 @@ export async function sendWaitlistWarmup(params: {
       numeroEnSecuencia: params.numeroEnSecuencia,
     }),
     emailType: "waitlist_warmup",
+  });
+}
+// Reclamaciones (formulario de /reclamaciones, Términos cláusula 18): justificante
+// duradero para el cliente y aviso interno para Coxiro.
+type DatosReclamacion = {
+  referencia: string;
+  fecha: string;
+  nombre: string;
+  email: string;
+  pedido: string;
+  asunto: string;
+  mensaje: string;
+  peticion: string;
+};
+
+export async function sendClaimReceived(d: DatosReclamacion) {
+  return sendEmail({
+    to: d.email,
+    subject: `Hemos recibido tu reclamación ${d.referencia} — Coxiro`,
+    react: ClaimEmail({
+      titulo: "Hemos recibido tu reclamación",
+      intro: `Hola ${d.nombre}, este correo es el justificante de tu reclamación, recibida el ${d.fecha}. Guárdalo: la referencia te servirá para cualquier comunicación posterior.`,
+      referencia: d.referencia,
+      filas: [
+        { label: "Pedido", value: d.pedido },
+        { label: "Asunto", value: d.asunto },
+        { label: "Qué ha ocurrido", value: d.mensaje },
+        { label: "Qué solicitas", value: d.peticion },
+      ],
+      pie: "Te responderemos de forma motivada en un plazo objetivo de 14 días naturales desde hoy. Si no quedas conforme, te indicaremos por escrito las vías de resolución disponibles. Contacto: coxiro.info@gmail.com.",
+    }),
+    emailType: "claim_received",
+  });
+}
+
+export async function sendInternalClaim(d: DatosReclamacion) {
+  return sendEmail({
+    to: EMAIL_INTERNO_COXIRO,
+    subject: `Nueva reclamación ${d.referencia}`,
+    react: ClaimEmail({
+      titulo: "Nueva reclamación recibida",
+      intro: `Reclamación recibida el ${d.fecha}. Plazo de acuse: 48 horas. Objetivo de respuesta: 14 días naturales.`,
+      referencia: d.referencia,
+      filas: [
+        { label: "Nombre", value: d.nombre },
+        { label: "Correo", value: d.email },
+        { label: "Pedido", value: d.pedido },
+        { label: "Asunto", value: d.asunto },
+        { label: "Qué ha ocurrido", value: d.mensaje },
+        { label: "Qué solicita", value: d.peticion },
+      ],
+    }),
+    emailType: "claim_internal",
   });
 }

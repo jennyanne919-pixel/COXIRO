@@ -36,6 +36,9 @@ export default function AyudaPage() {
           <a href="/cookies" className="text-sm text-cx-texto underline">
             Política de Cookies
           </a>
+          <a href="/reclamaciones" className="text-sm text-cx-texto underline">
+            Reclamaciones
+          </a>
         </div>
       </div>
     </main>

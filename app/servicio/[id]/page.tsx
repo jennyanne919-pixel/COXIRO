@@ -450,12 +450,15 @@ export default async function ServicioPage({
                       <a href="/terminos" target="_blank" className="underline">
                         Términos y Condiciones
                       </a>
-                      .
+                      {" "}y confirmo que soy mayor de edad.
                     </span>
                   </label>
                   <label className="flex items-start gap-2 text-xs text-cx-texto-2 leading-snug">
                     <input type="checkbox" name="inicio" value="1" className="mt-0.5" />
                     <span>
+                      <strong className="block text-cx-noche mb-0.5">
+                        {hayContenidoDePago ? "Acceso inmediato" : "Empezar ya"}
+                      </strong>
                       {hayContenidoDePago ? TEXTO_INICIO_CONTENIDO : TEXTO_INICIO_SERVICIO}
                       {hayContenidoDePago && (
                         <>

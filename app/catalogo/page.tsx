@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import Logo from "@/components/Logo";
-import { TOPICS } from "@/lib/topics";
+import { topicsPara } from "@/lib/topics";
 import { totalCliente } from "@/lib/pricing";
 import { CATEGORIAS, ORDEN_CATEGORIAS, esCategoria, type Categoria } from "@/lib/categorias";
 
@@ -10,9 +10,6 @@ export default async function CatalogoPage({
   searchParams: Promise<{ categoria?: string; q?: string; tema?: string; area?: string }>;
 }) {
   const sp = await searchParams;
-  const categoriaActiva = ["curso", "mentoria", "membresia", "medida", "otros"].includes(sp.categoria ?? "")
-    ? sp.categoria!
-    : "curso";
   const supabase = createAdminClient();
 
   // Dos áreas separadas: Formación y cursos | Mentoría, consultoría y desarrollo personal.
@@ -30,8 +27,14 @@ export default async function CatalogoPage({
       .eq("fiscal_category", "mentoria");
     area = (nMentoria ?? 0) > 0 ? "mentoria" : "formacion";
   }
+  // Cada área muestra solo sus propias pestañas de formato y sus propias temáticas:
+  // Mentoría no enseña Cursos, Servicios IA, Otros servicios ni temáticas como Cocina o Idiomas.
+  const esMentoria = area === "mentoria";
+  const pestanasArea = esMentoria ? ["mentoria", "membresia"] : ["curso", "mentoria", "membresia", "medida", "otros"];
+  const categoriaActiva = pestanasArea.includes(sp.categoria ?? "") ? sp.categoria! : pestanasArea[0];
+  const temasArea = topicsPara(area);
   const busqueda = sp.q?.trim() ?? "";
-  const temaActivo = sp.tema ?? "";
+  const temaActivo = (temasArea as readonly string[]).includes(sp.tema ?? "") ? sp.tema! : "";
 
   let query = supabase
     .from("services")
@@ -147,7 +150,7 @@ export default async function CatalogoPage({
             type="text"
             name="q"
             defaultValue={busqueda}
-            placeholder="Buscar por tema (ej. inglés, trading, cocina...)"
+            placeholder={esMentoria ? "Buscar por tema (ej. inversión, ventas, marketing...)" : "Buscar por tema (ej. inglés, trading, cocina...)"}
             className="flex-1 rounded-lg border border-cx-borde bg-white px-4 py-2.5 text-sm"
           />
           <button className="rounded-full bg-cx-noche text-white px-5 py-2.5 text-sm font-semibold hover:bg-cx-noche/90 transition">
@@ -156,16 +159,18 @@ export default async function CatalogoPage({
         </form>
 
         <div className="flex gap-2 mb-4 border-b border-cx-borde flex-wrap">
-          <a
-            href={`/catalogo${qs({ categoria: "curso" })}`}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
-              categoriaActiva === "curso"
-                ? "border-cx-celeste text-cx-texto"
-                : "border-transparent text-cx-texto-2 hover:text-cx-texto"
-            }`}
-          >
-            Cursos / Formación ({cursos.length})
-          </a>
+          {!esMentoria && (
+            <a
+              href={`/catalogo${qs({ categoria: "curso" })}`}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
+                categoriaActiva === "curso"
+                  ? "border-cx-celeste text-cx-texto"
+                  : "border-transparent text-cx-texto-2 hover:text-cx-texto"
+              }`}
+            >
+              Cursos / Formación ({cursos.length})
+            </a>
+          )}
           <a
             href={`/catalogo${qs({ categoria: "mentoria" })}`}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
@@ -186,26 +191,30 @@ export default async function CatalogoPage({
           >
             Membresías y suscripciones ({membresias.length})
           </a>
-          <a
-            href={`/catalogo${qs({ categoria: "medida" })}`}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
-              categoriaActiva === "medida"
-                ? "border-cx-celeste text-cx-texto"
-                : "border-transparent text-cx-texto-2 hover:text-cx-texto"
-            }`}
-          >
-            Servicios IA ({aMedida.length})
-          </a>
-          <a
-            href={`/catalogo${qs({ categoria: "otros" })}`}
-            className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
-              categoriaActiva === "otros"
-                ? "border-cx-celeste text-cx-texto"
-                : "border-transparent text-cx-texto-2 hover:text-cx-texto"
-            }`}
-          >
-            Otros servicios ({otrosServicios.length})
-          </a>
+          {!esMentoria && (
+            <a
+              href={`/catalogo${qs({ categoria: "medida" })}`}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
+                categoriaActiva === "medida"
+                  ? "border-cx-celeste text-cx-texto"
+                  : "border-transparent text-cx-texto-2 hover:text-cx-texto"
+              }`}
+            >
+              Servicios IA ({aMedida.length})
+            </a>
+          )}
+          {!esMentoria && (
+            <a
+              href={`/catalogo${qs({ categoria: "otros" })}`}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
+                categoriaActiva === "otros"
+                  ? "border-cx-celeste text-cx-texto"
+                  : "border-transparent text-cx-texto-2 hover:text-cx-texto"
+              }`}
+            >
+              Otros servicios ({otrosServicios.length})
+            </a>
+          )}
         </div>
 
         {/* Filtro por temática */}
@@ -220,7 +229,7 @@ export default async function CatalogoPage({
           >
             Todas las temáticas
           </a>
-          {TOPICS.map((t) => (
+          {temasArea.map((t) => (
             <a
               key={t}
               href={`/catalogo${qs({ tema: t })}`}

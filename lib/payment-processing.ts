@@ -1,4 +1,5 @@
 import type { ConsentCompra } from "@/lib/consent";
+import { TEXTO_INICIO_CONTENIDO, TEXTO_INICIO_SERVICIO } from "@/lib/consent";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
 import {
@@ -339,6 +340,22 @@ export async function processPayment(params: {
     ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/invoices/${cliInvoiceId}/pdf`
     : `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`;
 
+  // Datos para la confirmación en soporte duradero (Términos, cláusula 12.4).
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.coxiro.es";
+  const accesoTexto = accessFrom
+    ? `empieza el ${new Date(accessFrom).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Madrid" })}, al terminar el plazo de desistimiento de 14 días. Lo verás en "Ver mis compras".`
+    : `lo tienes disponible según la ficha del servicio; las compras aparecen en "Ver mis compras".`;
+  let eleccionTexto: string | undefined;
+  if (params.consent) {
+    if (params.consent.inicio) {
+      eleccionTexto = `marcaste: «${params.consent.tipo === "contenido" ? TEXTO_INICIO_CONTENIDO : TEXTO_INICIO_SERVICIO}»`;
+    } else if (params.consent.tipo === "contenido") {
+      eleccionTexto = "no marcaste el inicio anticipado; tu acceso empieza al terminar los 14 días y conservas durante ese plazo tu derecho de desistimiento.";
+    } else {
+      eleccionTexto = "no solicitaste que el servicio comenzara antes de terminar los 14 días de desistimiento.";
+    }
+  }
+
   await Promise.allSettled([
     clientUser?.email
       ? sendPurchaseConfirmation({
@@ -349,6 +366,10 @@ export async function processPayment(params: {
           importe: `${amountTotal.toFixed(2)} €`,
           invoiceUrl,
           invoicePdf: cliInvoicePdf,
+          acceso: accesoTexto,
+          eleccion: eleccionTexto,
+          fichaUrl: `${site}/servicio/${serviceId}`,
+          terminosVersion: params.consent?.termsVersion,
         })
       : Promise.resolve(),
     providerUser?.email

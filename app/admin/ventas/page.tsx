@@ -2,7 +2,7 @@ import { requireAdmin } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fechaMadrid } from "@/lib/admin/contabilidad";
 import { PageHeader, Card, Badge, EmptyState, BTN_SECONDARY, fmtEur } from "@/components/dashboard/ui";
-import { reembolsarVenta } from "./actions";
+import { reembolsarVenta, marcarCargoCobrado } from "./actions";
 
 const ERRORES: Record<string, string> = {
   datos: "Datos no válidos.",
@@ -36,13 +36,23 @@ export default async function VentasPage({
     admin.from("services").select("id, title, type").in("id", ids("service_id")),
     admin.from("users").select("id, email, full_name").in("id", ids("client_id")),
     admin.from("providers").select("user_id, business_name").in("user_id", ids("provider_id")),
-    admin.from("admin_refunds").select("transaction_id, reason, created_at"),
+    admin.from("admin_refunds").select("transaction_id, reason, created_at, coste_stripe, cargo_estado"),
   ]);
 
   const serv = new Map((servicios ?? []).map((s: any) => [s.id, s]));
   const cli = new Map((clientes ?? []).map((c: any) => [c.id, c]));
   const prov = new Map((proveedores ?? []).map((p: any) => [p.user_id, p]));
   const reem = new Map((reembolsos ?? []).map((r: any) => [r.transaction_id, r]));
+
+  // Costes de Stripe de reembolsos pendientes de cobrar a cada profesional.
+  const pendientes = new Map<string, number>();
+  for (const t of lista as any[]) {
+    const r = reem.get(t.id) as any;
+    if (r?.cargo_estado === "pendiente") {
+      pendientes.set(t.provider_id, (pendientes.get(t.provider_id) ?? 0) + Number(r.coste_stripe));
+    }
+  }
+  const totalPendiente = [...pendientes.values()].reduce((a, b) => a + b, 0);
 
   const tonoEstado = (s: string) => (s === "paid" ? "verde" : s === "refunded" ? "ambar" : "gris");
   const etiquetaEstado = (s: string) => (s === "paid" ? "Pagada" : s === "refunded" ? "Reembolsada" : s);
@@ -71,13 +81,27 @@ export default async function VentasPage({
           <strong className="text-cx-noche">Qué pasa al reembolsar:</strong> el cliente recibe el importe
           completo, se recupera del profesional su parte (si ya la cobró en su banco puede quedar saldo
           negativo en su cuenta de Stripe) y Coxiro devuelve su comisión. Stripe no devuelve su propia
-          comisión de cobro: la asume Coxiro.
+          comisión de cobro: se registra como coste a cobrar al profesional (cláusula 7.4 de su contrato,
+          aceptada en el alta). No se aplica si el reembolso se debe a un fallo propio de Coxiro.
         </p>
         <p>
           <strong className="text-cx-noche">Pendiente fuera de aquí:</strong> la factura rectificativa
           (consúltalo con el asesor) y, si es una membresía, cancelar la suscripción en Stripe.
         </p>
       </Card>
+
+      {totalPendiente > 0 && (
+        <Card className="mb-4 p-4 text-xs text-cx-texto-2 space-y-1">
+          <p>
+            <strong className="text-cx-noche">Costes de Stripe pendientes de cobrar a profesionales: {fmtEur(totalPendiente)}</strong>
+          </p>
+          {[...pendientes.entries()].map(([pid, total]) => (
+            <p key={pid}>
+              {(prov.get(pid) as any)?.business_name ?? "Profesional"}: {fmtEur(total)}
+            </p>
+          ))}
+        </Card>
+      )}
 
       <Card>
         {lista.length === 0 ? (
@@ -106,6 +130,20 @@ export default async function VentasPage({
 
                   {r && (
                     <p className="mt-1 text-xs text-cx-texto-2">Motivo del reembolso: {r.reason}</p>
+                  )}
+                  {r && r.cargo_estado === "pendiente" && (
+                    <form action={marcarCargoCobrado} className="mt-1 flex items-center gap-2 flex-wrap">
+                      <input type="hidden" name="transaction_id" value={t.id} />
+                      <span className="text-xs text-amber-700">
+                        Coste de Stripe a cargo del profesional: {fmtEur(Number(r.coste_stripe))} · pendiente de cobrar
+                      </span>
+                      <button className={BTN_SECONDARY}>Marcar como cobrado</button>
+                    </form>
+                  )}
+                  {r && r.cargo_estado === "cobrado" && (
+                    <p className="mt-1 text-xs text-emerald-700">
+                      Coste de Stripe a cargo del profesional: {fmtEur(Number(r.coste_stripe))} · cobrado
+                    </p>
                   )}
 
                   {t.status === "paid" && (

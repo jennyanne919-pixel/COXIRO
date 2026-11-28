@@ -69,3 +69,61 @@ export async function cancelarSuscripcion(formData: FormData) {
 
   revalidatePath("/dashboard/suscripciones");
 }
+
+// El CLIENTE cancela SU propia suscripción: se dejan de cobrar las cuotas
+// siguientes y conserva el acceso hasta el final del periodo que ya pagó. No es
+// un desistimiento ni un reembolso (eso se pide por escrito a Coxiro, cláusula 14
+// de los Términos). Le llega un correo con la fecha de efecto y el último periodo
+// de acceso (cláusula 16.1).
+export async function cancelarSuscripcionCliente(formData: FormData) {
+  const subscriptionId = String(formData.get("id") ?? "");
+  if (!subscriptionId) return;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // Solo puede cancelar las suscripciones donde él es el cliente.
+  const admin = createAdminClient();
+  const { data: fila } = await admin
+    .from("subscriptions")
+    .select("stripe_subscription_id, provider_id, service_id")
+    .eq("stripe_subscription_id", subscriptionId)
+    .eq("client_id", user.id)
+    .limit(1)
+    .maybeSingle();
+  if (!fila) return;
+
+  let fechaFin: Date | null = null;
+  try {
+    const st = await stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true });
+    fechaFin = new Date(st.current_period_end * 1000);
+  } catch (err: any) {
+    console.error("[cancelarSuscripcionCliente] Error en Stripe:", err?.message);
+    return;
+  }
+
+  try {
+    const [{ data: cliente }, { data: servicio }, { data: proveedor }] = await Promise.all([
+      admin.from("clients").select("billing_name").eq("user_id", user.id).maybeSingle(),
+      admin.from("services").select("title").eq("id", fila.service_id).maybeSingle(),
+      admin.from("providers").select("business_name").eq("user_id", fila.provider_id).maybeSingle(),
+    ]);
+    if (user.email) {
+      await sendSubscriptionCancelled({
+        to: user.email,
+        nombreCliente: cliente?.billing_name ?? "",
+        servicio: servicio?.title ?? "tu servicio",
+        proveedor: proveedor?.business_name ?? "tu profesional",
+        fechaFin: fechaFin.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" }),
+        porCliente: true,
+      });
+    }
+  } catch (err: any) {
+    console.error("[cancelarSuscripcionCliente] Error enviando el aviso:", err?.message);
+  }
+
+  revalidatePath("/dashboard/suscripciones");
+}

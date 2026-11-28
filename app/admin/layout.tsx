@@ -12,6 +12,9 @@ const ADMIN_NAV: NavItem[] = [
   { label: "Impuestos y simulador", href: "/admin/impuestos", icon: "doc" },
   { label: "Ajustes", href: "/admin/ajustes", icon: "trend" },
   { label: "Fichas y categorías", href: "/admin/fichas", icon: "check" },
+  { label: "Obligaciones", href: "/admin/obligaciones", icon: "check" },
+  { label: "Registro de tratamientos", href: "/admin/rat", icon: "doc" },
+  { label: "Documentos", href: "/admin/documentos", icon: "doc" },
   { label: "Lista de espera", href: "/admin/waitlist", icon: "users" },
 ];
 

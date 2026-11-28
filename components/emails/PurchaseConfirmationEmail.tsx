@@ -17,13 +17,22 @@ export default function PurchaseConfirmationEmail({
   proveedor,
   importe,
   invoiceUrl,
+  acceso,
+  eleccion,
+  fichaUrl,
+  terminosVersion,
 }: {
   nombreCliente: string;
   servicio: string;
   proveedor: string;
   importe: string;
   invoiceUrl: string;
+  acceso?: string;
+  eleccion?: string;
+  fichaUrl?: string;
+  terminosVersion?: string;
 }) {
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.coxiro.es";
   return (
     <Html>
       <Head />
@@ -72,6 +81,49 @@ export default function PurchaseConfirmationEmail({
               Descargar factura
             </a>
           </Text>
+
+          {/* Confirmación del contrato en soporte duradero (Términos, cláusula 12.4) */}
+          <Section style={{ marginTop: "28px" }}>
+            <Text style={{ fontSize: "14px", fontWeight: 700, color: "#07142B", margin: "0 0 6px" }}>
+              Datos de tu contratación
+            </Text>
+            <Text style={{ fontSize: "13px", color: "#07142B", lineHeight: "1.6", margin: "0 0 8px" }}>
+              <strong>Vendedor:</strong> Jenny Anne Abriam (COXIRO), NIE Y8056216C, Grupo Gómez Jordana 5, 52006 Melilla
+              (España), coxiro.info@gmail.com.
+            </Text>
+            {acceso && (
+              <Text style={{ fontSize: "13px", color: "#07142B", lineHeight: "1.6", margin: "0 0 8px" }}>
+                <strong>Acceso:</strong> {acceso}
+              </Text>
+            )}
+            {eleccion && (
+              <Text style={{ fontSize: "13px", color: "#07142B", lineHeight: "1.6", margin: "0 0 8px" }}>
+                <strong>Tu elección sobre el inicio anticipado:</strong> {eleccion}
+              </Text>
+            )}
+            <Text style={{ fontSize: "13px", color: "#07142B", lineHeight: "1.6", margin: "0 0 8px" }}>
+              <strong>Desistimiento:</strong> si eres consumidor, tienes 14 días naturales desde la compra para desistir
+              sin justificar tu decisión, escribiendo a coxiro.info@gmail.com (basta una declaración inequívoca; en las
+              condiciones tienes un modelo opcional). El derecho se pierde cuando, con tu petición expresa, la prestación
+              se haya ejecutado íntegramente o, en contenido digital, cuando haya comenzado el suministro con tu
+              consentimiento expreso.
+            </Text>
+            <Text style={{ fontSize: "13px", color: "#07142B", lineHeight: "1.6", margin: 0 }}>
+              Condiciones aceptadas:{" "}
+              <a href={`${site}/terminos`} style={{ color: "#0874BD" }}>
+                Términos y Condiciones{terminosVersion ? ` (versión ${terminosVersion})` : ""}
+              </a>
+              {fichaUrl && (
+                <>
+                  {" "}· Ficha del servicio:{" "}
+                  <a href={fichaUrl} style={{ color: "#0874BD" }}>
+                    ver ficha
+                  </a>
+                </>
+              )}
+              .
+            </Text>
+          </Section>
 
           <Text style={{ fontSize: "13px", color: "#5A6478", marginTop: "32px" }}>
             ¿Alguna duda? Escríbenos a coxiro.info@gmail.com
